@@ -1,0 +1,1 @@
+"""Configurações tipadas do aplicativo."""
