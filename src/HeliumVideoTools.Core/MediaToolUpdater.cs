@@ -54,6 +54,11 @@ public sealed class MediaToolUpdater(ReleaseClient releases)
         string output = await VideoEngine.ExecuteAsync(binary, ["-version"], null, timeout.Token);
         return output.Split('\n')[0].Trim();
     }
+    public static Version? ParseInstalledVersion(string? details)
+    {
+        var match = Regex.Match(details ?? "", @"\bversion\s+([0-9]+\.[0-9]+(?:\.[0-9]+)?)\b", RegexOptions.CultureInvariant);
+        return match.Success && Version.TryParse(match.Groups[1].Value, out var version) ? version : null;
+    }
     public async Task InstallAsync(ReleaseAsset asset, IProgress<double>? progress, CancellationToken token)
     {
         if (asset.Url.Host != "api.github.com" || !Regex.IsMatch(asset.Url.AbsolutePath, "^/repos/GyanD/codexffmpeg/releases/assets/[0-9]+$") || !Regex.IsMatch(asset.Version, "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$") || asset.Name != $"ffmpeg-{asset.Version}-essentials_build.zip") throw new IOException("Pacote de ferramentas não reconhecido.");

@@ -1,28 +1,30 @@
 <Window x:Class="HeliumVideoTools.Desktop.UpdatesWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:local="clr-namespace:HeliumVideoTools.Desktop"
- Title="Atualizações — Helium Vídeo Tools" Width="720" Height="740" MinWidth="660" MinHeight="620" Background="#202020" FontFamily="Segoe UI" FontSize="14" Icon="Assets/logo.ico">
- <Border Background="#202020"><Grid Margin="24"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-  <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="0,0,6,0">
-   <TextBlock Text="MANTENHA SUAS FERRAMENTAS EM DIA" FontSize="10" Foreground="#ADADAD" FontWeight="SemiBold" Margin="0,0,0,10"/>
-   <TextBlock Text="Atualizações" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,8"/>
-   <TextBlock Text="Consulte e baixe as versões diretamente do GitHub, sem login." Foreground="#BDBDBD" Margin="0,0,0,20"/>
-   <Border Style="{StaticResource Card}" Padding="18"><StackPanel>
-    <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><local:Symbol Kind="video" Foreground="#6CCCF0" Margin="0,0,10,0"/><TextBlock Text="Helium Vídeo Tools" FontSize="17" FontWeight="SemiBold"/></StackPanel>
-    <TextBlock x:Name="AppVersion" Text="Instalado: 3.0.0 • C# / .NET 10" Foreground="#BDBDBD" Margin="0,0,0,10"/>
-    <TextBlock x:Name="AppUpdateStatus" Text="Verifique se existe uma nova versão estável." Margin="0,0,0,14"/>
-    <WrapPanel><Button x:Name="CheckAppButton" Content="Verificar versão" Click="CheckApp" Margin="0,0,10,8"/><Button x:Name="InstallAppButton" Content="Baixar e atualizar" Style="{StaticResource PrimaryButton}" IsEnabled="False" Click="InstallApp" Margin="0,0,0,8"/></WrapPanel>
-    <TextBlock Text="O app continua disponível durante o download. Para instalar, aguarde o fim do processamento; o instalador fecha e reabre o programa." FontSize="11" Foreground="#ADADAD"/>
+ Title="Atualizações — Helium Vídeo Tools" Width="720" Height="624" MinWidth="660" MinHeight="560" Background="#202020" FontFamily="Segoe UI" FontSize="13" Icon="Assets/logo.ico" WindowStartupLocation="CenterOwner">
+ <Window.Resources>
+  <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="MinHeight" Value="36"/><Setter Property="Padding" Value="14,8"/></Style>
+  <Style x:Key="CompactCard" TargetType="Border" BasedOn="{StaticResource Card}"><Setter Property="Padding" Value="16"/><Setter Property="Margin" Value="0,0,0,12"/></Style>
+ </Window.Resources>
+ <Border Background="#202020"><Grid Margin="20"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <ScrollViewer x:Name="UpdatesScroll" VerticalScrollBarVisibility="Auto"><StackPanel>
+   <TextBlock Text="Atualizações" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,4"/>
+   <TextBlock Text="Aplicativo e ferramentas em dia, direto do GitHub e sem login." Foreground="#BDBDBD" Margin="0,0,0,16"/>
+   <Border Style="{StaticResource CompactCard}"><StackPanel>
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><local:Symbol Kind="video" Foreground="#6CCCF0" Margin="0,0,8,0"/><TextBlock Text="Helium Vídeo Tools" FontSize="16" FontWeight="SemiBold"/></StackPanel>
+    <TextBlock x:Name="AppVersion" Foreground="#BDBDBD" Margin="0,0,0,8"/>
+    <TextBlock x:Name="AppUpdateStatus" Text="Verifique se existe uma nova versão estável." Margin="0,0,0,10"/>
+    <WrapPanel><Button x:Name="CheckAppButton" Content="Verificar versão" Click="CheckApp" Margin="0,0,8,0"/><Button x:Name="InstallAppButton" Content="Baixar e atualizar" Style="{StaticResource PrimaryButton}" Padding="16,8" MinHeight="38" MinWidth="156" IsEnabled="False" Click="InstallApp"/></WrapPanel>
+    <TextBlock x:Name="AppHelp" Text="Para instalar, aguarde o fim do processamento. O app fecha e reabre automaticamente." FontSize="11" Foreground="#ADADAD" Margin="0,10,0,0"/>
    </StackPanel></Border>
-   <Border Style="{StaticResource Card}" Padding="18"><StackPanel>
-    <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><local:Symbol Kind="preset" Foreground="#6CCCF0" Margin="0,0,10,0"/><TextBlock Text="FFmpeg e ffprobe" FontSize="17" FontWeight="SemiBold"/></StackPanel>
-    <TextBlock x:Name="FfmpegVersion" Text="FFmpeg instalado: a verificar" Foreground="#BDBDBD" Margin="0,0,0,8"/>
-    <TextBlock x:Name="FfprobeVersion" Text="ffprobe instalado: a verificar" Foreground="#BDBDBD" Margin="0,0,0,12"/>
-    <TextBlock x:Name="ToolsStatus" Text="Os dois programas são atualizados juntos, do mesmo pacote estável." Margin="0,0,0,14"/>
-    <WrapPanel><Button x:Name="CheckToolsButton" Content="Verificar versões" Click="CheckTools" Margin="0,0,10,8"/><Button x:Name="InstallToolsButton" Content="Atualizar conjunto" IsEnabled="False" Click="InstallTools" Margin="0,0,10,8"/><Button Content="Restaurar anterior" Click="RestoreTools" Margin="0,0,0,8"/></WrapPanel>
-    <TextBlock Text="O conjunto anterior é mantido. Atualizações do aplicativo preservam as ferramentas atualizadas neste perfil." FontSize="11" Foreground="#ADADAD"/>
+   <Border Style="{StaticResource CompactCard}"><StackPanel>
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,10"><local:Symbol Kind="preset" Foreground="#6CCCF0" Margin="0,0,8,0"/><TextBlock Text="FFmpeg e ffprobe" FontSize="16" FontWeight="SemiBold"/></StackPanel>
+    <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><TextBlock x:Name="FfmpegVersion" Text="FFmpeg: a verificar" Foreground="#BDBDBD"/><TextBlock x:Name="FfprobeVersion" Grid.Column="1" Text="ffprobe: a verificar" Foreground="#BDBDBD"/></Grid>
+    <TextBlock x:Name="ToolsStatus" Text="Atualizados juntos, do mesmo pacote estável." Margin="0,0,0,10"/>
+    <WrapPanel><Button x:Name="CheckToolsButton" Content="Verificar versões" Click="CheckTools" Margin="0,0,8,0"/><Button x:Name="InstallToolsButton" Content="Atualizar conjunto" IsEnabled="False" Click="InstallTools" Margin="0,0,8,0"/><Button Content="Restaurar anterior" Click="RestoreTools"/></WrapPanel>
+    <TextBlock x:Name="ToolsHelp" Text="O conjunto anterior é mantido. Passe o mouse sobre a versão para ver os detalhes." FontSize="11" Foreground="#ADADAD" Margin="0,10,0,0"/>
    </StackPanel></Border>
   </StackPanel></ScrollViewer>
-  <Border Grid.Row="1" Background="#27353F" CornerRadius="8" Padding="14" Margin="0,12,0,0"><StackPanel><TextBlock x:Name="TransferStatus" Text="Downloads verificados com SHA-256 antes de instalar." FontSize="12" Foreground="#B1DAED"/><ProgressBar x:Name="DownloadProgress" Height="6" Minimum="0" Maximum="100" Foreground="#57CCF2" Margin="0,10,0,0" Visibility="Collapsed"/><Button x:Name="CancelTransfer" Content="Cancelar download" Click="CancelDownload" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0,10,0,0"/></StackPanel></Border>
+  <Border Grid.Row="1" Background="#27353F" CornerRadius="8" Padding="12" Margin="0,8,0,0"><StackPanel><TextBlock x:Name="TransferStatus" Text="Downloads verificados com SHA-256 antes de instalar." FontSize="12" Foreground="#B1DAED"/><ProgressBar x:Name="DownloadProgress" Height="6" Minimum="0" Maximum="100" Foreground="#57CCF2" Margin="0,10,0,0" Visibility="Collapsed" AutomationProperties.Name="Progresso do download ou verificação da atualização"/><Button x:Name="CancelTransfer" Content="Cancelar download" Click="CancelDownload" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0,10,0,0"/></StackPanel></Border>
  </Grid></Border>
 </Window>

@@ -1,6 +1,6 @@
 # Migração .NET — primeira etapa
 
-Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [v3.0.0-preview.2](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.0-preview.2) foi publicada com instalador, runtime e ferramentas incluídos, após testes de distribuição. Integra a janela de atualizações aprovada. Ainda não constitui release estável.
+Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A v3.0.0-preview.2 foi publicada com instalador, runtime e ferramentas incluídos. O usuário aprovou o visual compacto e a barra nativa escura e solicitou publicações oficiais; a 3.0.1 prepara a entrada no canal estável, sem ocultar as pendências de validação abaixo.
 
 Implementado:
 
@@ -21,11 +21,13 @@ Validação: compilação Release sem avisos/erros; testes com mídia artificial
 
 O usuário aprovou o visual V2 das três ferramentas e a identidade A (Vídeo em movimento), já aplicada e registrada em `docs/brand-guidelines.md`. Novas telas devem ser apresentadas por comparação antes/depois antes de ativar na versão final.
 
+Também aprovou a comparação da janela Atualizações compacta (720 × 624 DIPs) e da barra de título escura nativa. Testes locais verificaram ausência de rolagem no estado de download/verificação e aceitação das cores pelo DWM no Windows 11. O título preserva os controles nativos; não foi criada uma moldura personalizada.
+
 ## Distribuição validada
 
 A [execução 41135780937](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41135780937) concluiu com sucesso: processamento, instalação, abertura WPF, reinstalação com app aberto, reabertura automática via `/RESTART`, mesma pasta e preservação dos bytes do atalho. A fixação real no Windows do usuário e o fluxo completo entre duas versões estáveis ainda precisam de validação. A release inclui instalador e `SHA256SUMS.txt`.
 
-## Pendências antes de versão estável
+## Pendências do plano após a publicação oficial
 
 - Completar validação de DPI, tema claro/alto contraste e teclado; visual escuro e ícone já aprovados.
 - Portar preferências com importação do perfil antigo e preservar padrões de abertura.
@@ -35,7 +37,7 @@ A [execução 41135780937](https://github.com/HeliumMarcos/HeliumVideoTools/acti
 - Atualização pública sem credenciais e interação integradas; testes cobrem hash inválido, origem, versão igual e HTTP 403. Falta ciclo ponta a ponta entre duas versões estáveis publicadas.
 - Ferramentas em conjuntos imutáveis, validação, troca atômica de ponteiro e restauração integradas; falta validar transação completa em perfil isolado.
 - Instalador NSIS por usuário validado em runner para reinstalação real, pasta fixa e bytes dos atalhos; fixação real continua dependente de validação no Windows do usuário.
-- Publicar novas prévias somente após testes de distribuição. Os itens acima continuam necessários antes de chamar a versão de estável.
+- Publicar no canal oficial, conforme solicitação do usuário, somente após testes de distribuição; continuar registrando as limitações sem tratá-las como validações concluídas.
 
 ## Compilar/testar
 

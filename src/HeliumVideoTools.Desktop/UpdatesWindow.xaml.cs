@@ -19,14 +19,15 @@ public partial class UpdatesWindow : Window
     private bool toolsUpdateAvailable;
     private CancellationTokenSource? transfer;
     private string? verifiedDownload;
+    private string? ffmpegDetails, ffprobeDetails;
     public bool Installing { get; private set; }
     public UpdatesWindow(Func<bool>? mediaBusy = null, bool preview = false, AppRelease? available = null)
     {
-        InitializeComponent(); this.preview = preview; this.mediaBusy = mediaBusy ?? (() => false); releases = new(http);
+        InitializeComponent(); NativeWindowTheme.Attach(this); this.preview = preview; this.mediaBusy = mediaBusy ?? (() => false); releases = new(http);
         AppVersion.Text = "Instalado: " + typeof(UpdatesWindow).Assembly.GetName().Version!.ToString(3) + " • C# / .NET 10";
         this.available = available;
         if (available is not null) { AppUpdateStatus.Text = "Nova versão disponível: " + available.Version.ToString(3); InstallAppButton.IsEnabled = true; }
-        if (preview) { FfmpegVersion.Text = "FFmpeg instalado: 9.0.2"; FfprobeVersion.Text = "ffprobe instalado: 9.0.2"; }
+        if (preview) { FfmpegVersion.Text = "FFmpeg  9.0.2"; FfprobeVersion.Text = "ffprobe  9.0.2"; }
         else Loaded += async (_, _) => await ReadInstalledAsync();
         Closed += (_, _) => { transfer?.Cancel(); http.Dispose(); };
     }
@@ -35,10 +36,18 @@ public partial class UpdatesWindow : Window
         try
         {
             var ffmpeg = BatchViewModel.FindTool("ffmpeg"); var ffprobe = BatchViewModel.FindTool("ffprobe");
-            FfmpegVersion.Text = ffmpeg is null ? "FFmpeg ausente" : await MediaToolUpdater.InstalledVersionAsync(ffmpeg, default);
-            FfprobeVersion.Text = ffprobe is null ? "ffprobe ausente" : await MediaToolUpdater.InstalledVersionAsync(ffprobe, default);
+            ffmpegDetails = ffprobeDetails = null;
+            ffmpegDetails = ffmpeg is null ? null : await MediaToolUpdater.InstalledVersionAsync(ffmpeg, default);
+            ffprobeDetails = ffprobe is null ? null : await MediaToolUpdater.InstalledVersionAsync(ffprobe, default);
+            ShowVersion(FfmpegVersion, "FFmpeg", ffmpegDetails); ShowVersion(FfprobeVersion, "ffprobe", ffprobeDetails);
         }
         catch (Exception ex) { ToolsStatus.Text = ex.Message; }
+    }
+    private static void ShowVersion(TextBlock label, string name, string? details)
+    {
+        label.Text = details is null ? name + " ausente" : name + "  " + (MediaToolUpdater.ParseInstalledVersion(details)?.ToString() ?? "versão não identificada");
+        label.ToolTip = details;
+        System.Windows.Automation.AutomationProperties.SetHelpText(label, details ?? "Ferramenta não encontrada");
     }
     private async void CheckApp(object sender, RoutedEventArgs e)
     {
@@ -62,9 +71,9 @@ public partial class UpdatesWindow : Window
         try
         {
             await ReadInstalledAsync(); toolAsset = await new MediaToolUpdater(releases).CheckAsync(default);
-            var ffmpeg = System.Text.RegularExpressions.Regex.Match(FfmpegVersion.Text, @"version ([0-9]+(?:\.[0-9]+){1,2})");
-            var ffprobe = System.Text.RegularExpressions.Regex.Match(FfprobeVersion.Text, @"version ([0-9]+(?:\.[0-9]+){1,2})");
-            bool newer = !ffmpeg.Success || !ffprobe.Success || Version.Parse(ffmpeg.Groups[1].Value) < Version.Parse(toolAsset.Version) || Version.Parse(ffprobe.Groups[1].Value) < Version.Parse(toolAsset.Version);
+            var ffmpeg = MediaToolUpdater.ParseInstalledVersion(ffmpegDetails);
+            var ffprobe = MediaToolUpdater.ParseInstalledVersion(ffprobeDetails);
+            bool newer = ffmpeg is null || ffprobe is null || ffmpeg < Version.Parse(toolAsset.Version) || ffprobe < Version.Parse(toolAsset.Version);
             toolsUpdateAvailable = newer;
             ToolsStatus.Text = newer ? $"Conjunto estável disponível: {toolAsset.Version}" : $"Conjunto instalado atualizado; versão estável disponível: {toolAsset.Version}.";
             InstallToolsButton.IsEnabled = newer;
@@ -85,6 +94,8 @@ public partial class UpdatesWindow : Window
             verifiedDownload = file;
             if (mediaBusy()) { AppUpdateStatus.Text = "Download concluído. Aguarde o processamento terminar e tente novamente para instalar."; return; }
             TransferStatus.Text = "Download concluído. Verificando a integridade do instalador…";
+            DownloadProgress.IsIndeterminate = true;
+            CancelTransfer.Content = "Cancelar";
             using var verified = await Task.Run(() => ReleaseClient.VerifyInstaller(file, release.Installer), transfer.Token);
             transfer.Token.ThrowIfCancellationRequested();
             if (mediaBusy()) { AppUpdateStatus.Text = "Instalador verificado. Aguarde o processamento terminar para instalar."; return; }
@@ -109,7 +120,7 @@ public partial class UpdatesWindow : Window
         transfer = new(); SetTransfer(true);
         try
         {
-            await new MediaToolUpdater(releases).InstallAsync(toolAsset, new Progress<double>(p => { DownloadProgress.Value = p; TransferStatus.Text = $"Baixando ferramentas • {p:0}%"; }), transfer.Token);
+            await new MediaToolUpdater(releases).InstallAsync(toolAsset, new Progress<double>(p => { DownloadProgress.Value = p; DownloadProgress.IsIndeterminate = p >= 100; TransferStatus.Text = p >= 100 ? "Verificando e preparando o conjunto de ferramentas…" : $"Baixando ferramentas • {p:0}%"; }), transfer.Token);
             ToolsStatus.Text = "Conjunto atualizado e verificado."; await ReadInstalledAsync();
         }
         catch (OperationCanceledException) { TransferStatus.Text = "Atualização cancelada; conjunto ativo preservado."; }
@@ -126,7 +137,12 @@ public partial class UpdatesWindow : Window
     {
         CheckAppButton.IsEnabled = CheckToolsButton.IsEnabled = !busy && !Installing;
         InstallAppButton.IsEnabled = !busy && !Installing && available is not null; InstallToolsButton.IsEnabled = !busy && !Installing && toolsUpdateAvailable;
-        DownloadProgress.Visibility = CancelTransfer.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
+        if (busy) { DownloadProgress.Value = 0; DownloadProgress.IsIndeterminate = false; CancelTransfer.Content = "Cancelar download"; TransferStatus.Text = "Preparando download…"; }
+        else DownloadProgress.IsIndeterminate = Installing;
+        DownloadProgress.Visibility = busy || Installing ? Visibility.Visible : Visibility.Collapsed;
+        CancelTransfer.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
+        AppHelp.Visibility = ToolsHelp.Visibility = busy || Installing ? Visibility.Collapsed : Visibility.Visible;
+        Dispatcher.InvokeAsync(() => UpdatesScroll.InvalidateMeasure(), System.Windows.Threading.DispatcherPriority.Loaded);
     }
     private void CancelDownload(object sender, RoutedEventArgs e) => transfer?.Cancel();
 }

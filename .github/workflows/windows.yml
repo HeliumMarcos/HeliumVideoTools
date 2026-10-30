@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag da release (ex.: v3.0.0-preview.1)'
-        default: 'v3.0.0-preview.1'
+        description: 'Tag da release (ex.: v3.0.1)'
+        default: 'v3.0.1'
         required: true
       publish:
         description: Publicar instalador em Releases
@@ -16,7 +16,7 @@ on:
       prerelease:
         description: Marcar como prévia
         type: boolean
-        default: true
+        default: false
 permissions:
   contents: read
 concurrency:

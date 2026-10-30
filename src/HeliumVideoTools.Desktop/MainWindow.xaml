@@ -11,7 +11,7 @@
    <DockPanel>
     <StackPanel DockPanel.Dock="Bottom" Margin="8,0">
      <Button x:Name="UpdatesButton" Style="{StaticResource NavigationButton}" Click="ShowUpdates" Margin="-8,0,-8,14" AutomationProperties.Name="Atualizações do aplicativo e ferramentas"><StackPanel Orientation="Horizontal"><local:Symbol Kind="preset" Foreground="#6CCCF0" Margin="0,0,10,0"/><TextBlock x:Name="UpdatesLabel" Text="Atualizações" VerticalAlignment="Center" FontSize="13"/></StackPanel></Button>
-     <Border Background="#28352F" CornerRadius="6" Padding="10,8" Margin="0,0,0,12"><StackPanel Orientation="Horizontal"><local:Symbol Kind="shield" Foreground="#8AD7AE" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock Text="Originais preservados" FontSize="11" Foreground="#A5DDBB"/></StackPanel></Border><TextBlock Text="3.0.0 • Prévia .NET" Foreground="#AAAAAA" FontSize="11"/>
+     <Border Background="#28352F" CornerRadius="6" Padding="10,8" Margin="0,0,0,12"><StackPanel Orientation="Horizontal"><local:Symbol Kind="shield" Foreground="#8AD7AE" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock Text="Originais preservados" FontSize="11" Foreground="#A5DDBB"/></StackPanel></Border><TextBlock x:Name="ProductVersion" Foreground="#AAAAAA" FontSize="11"/>
     </StackPanel>
     <StackPanel>
      <Image Source="Assets/brand-signature.png" Width="200" Height="60" Stretch="Uniform" HorizontalAlignment="Left" Margin="0,0,0,30" AutomationProperties.Name="Helium Vídeo Tools"/>

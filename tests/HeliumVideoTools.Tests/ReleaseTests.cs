@@ -8,6 +8,9 @@ internal static class ReleaseTests
 {
     public static async Task RunAsync(string folder)
     {
+        if (MediaToolUpdater.ParseInstalledVersion("ffmpeg version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2000-2026") != new Version(9,0,2)) throw new Exception("Versão FFmpeg completa não foi resumida corretamente");
+        if (MediaToolUpdater.ParseInstalledVersion("ffprobe version 9.1 Copyright") != new Version(9,1)) throw new Exception("Versão ffprobe sem patch não reconhecida");
+        if (MediaToolUpdater.ParseInstalledVersion(null) is not null || MediaToolUpdater.ParseInstalledVersion("ausente") is not null) throw new Exception("Versão ausente inventada");
         byte[] payload = [77, 90, 1, 2, 3, 4];
         string hash = Convert.ToHexString(SHA256.HashData(payload));
         var asset = new ReleaseAsset("3.1.0", "HeliumVideoTools-3.1.0-win-x64-Setup.exe", new("https://api.github.com/repos/HeliumMarcos/HeliumVideoTools/releases/assets/1"), payload.Length, hash);

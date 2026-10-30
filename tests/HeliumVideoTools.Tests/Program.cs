@@ -15,10 +15,29 @@ internal static class Program
             try { VerifyPublicReleaseAsync(args[1], args[2]).GetAwaiter().GetResult(); return 0; }
             catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
         }
-        if (args.Length == 2 && args[0] == "--render-updates")
+        if (args.Length >= 2 && args[0] == "--render-updates")
         {
             var app = new App(); app.InitializeComponent();
             var window = new UpdatesWindow(preview: true); window.Show(); window.UpdateLayout();
+            if (args.Length > 2)
+            {
+                typeof(UpdatesWindow).GetMethod("SetTransfer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.Invoke(window, [true]);
+                var bar = (System.Windows.Controls.ProgressBar)window.FindName("DownloadProgress");
+                bar.Value = 42; bar.IsIndeterminate = args[2] == "verify";
+                ((System.Windows.Controls.TextBlock)window.FindName("TransferStatus")).Text = bar.IsIndeterminate ? "Verificando a integridade do instalador…" : "Baixando aplicativo • 42%";
+                window.UpdateLayout();
+            }
+            window.Dispatcher.Invoke(() => window.UpdateLayout(), System.Windows.Threading.DispatcherPriority.ContextIdle);
+            var scroll = (System.Windows.Controls.ScrollViewer)window.FindName("UpdatesScroll");
+            scroll.InvalidateMeasure(); window.UpdateLayout();
+            Console.WriteLine($"Layout Atualizações: janela={window.ActualHeight:0}, conteúdo={scroll.ExtentHeight:0}, área={scroll.ViewportHeight:0}, rolagem={scroll.ComputedVerticalScrollBarVisibility}");
+            Check(scroll.ComputedVerticalScrollBarVisibility != Visibility.Visible, "Atualizações exigiu rolagem no tamanho padrão");
+            if (OperatingSystem.IsWindowsVersionAtLeast(10,0,22000) && !SystemParameters.HighContrast)
+            {
+                var theme = typeof(MainWindow).Assembly.GetType("HeliumVideoTools.Desktop.NativeWindowTheme")!;
+                bool accepted = (bool)theme.GetMethod("Apply", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!.Invoke(null, [window])!;
+                Check(accepted, "Windows rejeitou a aplicação das cores da barra nativa");
+            }
             var visual = (FrameworkElement)window.Content; var dpi = VisualTreeHelper.GetDpi(visual);
             var bitmap = new RenderTargetBitmap((int)(visual.ActualWidth * dpi.DpiScaleX), (int)(visual.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
             bitmap.Render(visual); var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
@@ -71,6 +90,13 @@ internal static class Program
         string path = Path.Combine(Path.GetFullPath(destination), name);
         await client.DownloadAsync(asset, path, null, default);
         using var verified = ReleaseClient.VerifyInstaller(path, asset);
+        if (!tag.Contains("preview"))
+        {
+            var update = await client.CheckAppAsync(new Version(3,0,0,0), default);
+            Check(update is not null && update.Version == Version.Parse(tag[1..]) && update.Installer.Sha256 == asset.Sha256, "A versão anterior não detectou a release oficial esperada");
+            Check(await client.CheckAppAsync(Version.Parse(tag[1..]), default) is null, "A versão atual recebeu atualização para si mesma");
+            Console.WriteLine("PASS: canal oficial detecta atualização desde 3.0.0 e não oferece atualização para a versão atual.");
+        }
         Console.WriteLine($"PASS: download público anônimo real, tamanho {asset.Size}, SHA-256 e instalador MZ conferidos: {path}");
     }
     private static async Task RunAsync()
