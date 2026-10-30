@@ -10,12 +10,32 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        if (args.Length == 2 && args[0] == "--render")
+        if (args.Length >= 2 && args[0] == "--render")
         {
             var app = new App(); app.InitializeComponent();
-            var window = new MainWindow { Width = 1280, Height = 900 };
-            window.Show(); window.UpdateLayout();
+            var window = new MainWindow { Width = args.Length > 3 ? int.Parse(args[3]) : 1280, Height = args.Length > 4 ? int.Parse(args[4]) : 900 };
+            if (args.Length > 2 && args[2] != "Compress")
+            {
+                var nav = (System.Windows.Controls.Button)window.FindName(args[2] == "Split" ? "SplitNav" : "WebmNav");
+                nav.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
+            }
+            window.Show();
+            if (args.Length > 5 && args[5] == "progress")
+            {
+                ((FrameworkElement)window.FindName("ProgressPanel")).Visibility = Visibility.Visible;
+                ((System.Windows.Controls.TextBlock)window.FindName("ProgressStatus")).Text = "Exemplo de progresso • 1/3 arquivos • 42%";
+                ((System.Windows.Controls.ProgressBar)window.FindName("OverallBar")).Value = 42;
+            }
+            window.UpdateLayout();
             var visual = (FrameworkElement)window.Content;
+            var run = (FrameworkElement)window.FindName("RunButton");
+            var bounds = run.TransformToAncestor(visual).TransformBounds(new Rect(run.RenderSize));
+            Check(bounds.Top >= 0 && bounds.Bottom <= visual.ActualHeight && bounds.Right <= visual.ActualWidth, "Ação principal fora da área visível");
+            var scroll = (System.Windows.Controls.ScrollViewer)window.FindName("PageScroll");
+            scroll.ScrollToEnd(); window.UpdateLayout();
+            var afterScroll = run.TransformToAncestor(visual).TransformBounds(new Rect(run.RenderSize));
+            Check(bounds == afterScroll, "Ação principal se move ao rolar o formulário");
+            scroll.ScrollToTop(); window.UpdateLayout();
             var dpi = VisualTreeHelper.GetDpi(visual);
             var bitmap = new RenderTargetBitmap((int)(visual.ActualWidth * dpi.DpiScaleX), (int)(visual.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
             bitmap.Render(visual);
