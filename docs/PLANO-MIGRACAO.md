@@ -81,6 +81,10 @@ Entregar SVG mestre, PNG transparente e ICO 16/20/24/32/40/48/64/128/256; verifi
 
 ## Ordem de execução e critérios
 
+Atualização de infraestrutura (30/10/2026): migrar Actions JavaScript para Node.js 24. Aplicado em `.github/workflows/windows.yml`: checkout v7.0.1, setup-dotnet v6.0.0 e upload-artifact v7.0.2, com `runs.using: node24` conferido nas versões oficiais. Não usar a variável de compatibilidade para manter Node 20. Conferir a próxima execução e manter as Actions atualizadas. Isso não adiciona Node.js como dependência do aplicativo instalado.
+
+Referência: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
 1. Preservar código Python e registrar este plano em repositório privado. Não publicar um instalador de migração antes de existir app migrado validado.
 2. Criar solução .NET e migrar processamento, sondagem, cancelamento e preferências; testar mídias controladas com/sem áudio, nomes Unicode, arquivos grandes e alvos impossíveis.
 3. Reproduzir as três telas em WPF e validar visualmente os estados e DPI; aplicar o ícone no padrão da família.

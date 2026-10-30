@@ -7,7 +7,8 @@ Name "Helium Vídeo Tools"
 OutFile "${PROJECT_DIR}\artifacts\release\HeliumVideoTools-${APP_VERSION}-win-x64-Setup.exe"
 InstallDir "$LOCALAPPDATA\Programs\HeliumVideoTools"
 RequestExecutionLevel user
-SetCompressor /SOLID lzma
+; Compressão por arquivo: evita um bloco sólido grande com os dois FFmpeg.
+SetCompressor zlib
 VIProductVersion "${APP_VERSION}.0"
 VIAddVersionKey /LANG=1046 "ProductName" "Helium Vídeo Tools"
 VIAddVersionKey /LANG=1046 "FileVersion" "${APP_VERSION}"

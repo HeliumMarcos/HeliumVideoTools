@@ -1,6 +1,6 @@
 # Migração .NET — primeira etapa
 
-Estado em 30/10/2026: prévia técnica, ainda não substitui o aplicativo Python e não constitui release estável.
+Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. Distribuição em validação no GitHub Actions; ainda não constitui release estável.
 
 Implementado:
 
@@ -17,17 +17,18 @@ Validação: compilação Release sem avisos/erros; testes com mídia artificial
 
 ## Aprovação visual
 
-O usuário pediu comparação antes de alterações visuais. O rascunho WPF já existia quando a orientação foi recebida. As imagens em `docs/previews` servem para revisar essa proposta; a versão Python permanece a referência instalada. Próximas mudanças de layout e ícone aguardam aprovação por comparação antes/depois. O novo ícone ainda não foi produzido.
+O usuário aprovou o visual V2 das três ferramentas e a identidade A (Vídeo em movimento), já aplicada e registrada em `docs/brand-guidelines.md`. Novas telas devem ser apresentadas por comparação antes/depois antes de ativar na versão final.
 
 ## Pendências antes de release
 
-- Aprovar/refinar visual das três telas, DPI, tema claro/alto contraste, teclado e ícones.
+- Completar validação de DPI, tema claro/alto contraste e teclado; visual escuro e ícone já aprovados.
 - Portar preferências com importação do perfil antigo e preservar padrões de abertura.
-- Garantir divisão por tamanho com repetição adaptativa e validar ausência de lacunas. Atualmente, se um trecho copiado exceder o limite, ele é rejeitado com mensagem; não há ajuste automático da duração ainda.
-- Refinar repetição de codificação acima do limite: atualmente a saída excedente é rejeitada, sem publicação. Não anunciar sucesso nesse caso.
+- Divisão por tamanho agora recodifica em H.264/AAC e ajusta a duração até respeitar o limite. Testes conferem cada tamanho e soma de durações, incluindo sobra final curta. Ainda falta validar continuidade perceptual com amostras extensas/quadros variáveis.
+- Codificação acima do limite agora repete com orçamento reduzido, até três tentativas; falha final não publica arquivo excedente.
 - Recuperar resultados parciais de um lote e relatar erros por arquivo; a prévia interrompe o lote no primeiro erro.
-- Adaptar atualização autenticada de releases privadas e ferramentas no próprio app, com rollback transacional e testes de falha.
-- Criar instalador sem elevação e workflow GitHub Actions; validar upgrade real, pasta fixa e atalhos fixados.
+- Serviço de atualização pública sem credenciais implementado e testado para hash inválido, origem, versão igual e HTTP 403; falta ativar interação no app após apresentar a nova tela ao usuário.
+- Serviço de ferramentas em conjuntos imutáveis, validação, troca atômica de ponteiro e restauração implementado; falta validar transação completa e integrar interação.
+- Instalador NSIS por usuário e workflow GitHub Actions criados. Validar upgrade real, pasta fixa e atalhos; fixação real continua dependente de validação no Windows do usuário.
 - Publicar o instalador em Releases somente após esses requisitos.
 
 ## Compilar/testar
@@ -42,4 +43,4 @@ dotnet run --project tests/HeliumVideoTools.Tests -c Release
 
 O SDK local de desenvolvimento foi extraído em `work/tools/dotnet` após conferir SHA-512 contra os metadados oficiais da Microsoft. `work` e binários não são enviados ao Git.
 
-O manifesto fixado em `tools/manifest.json` permite preparar as ferramentas do build. Não se deve incluir automaticamente o FFmpeg antigo num pacote novo. O script atual é preparação de desenvolvimento/CI; a atualização transacional dentro do app permanece pendente.
+O manifesto fixado em `tools/manifest.json` prepara o conjunto do instalador. Ferramentas posteriormente atualizadas ficam no perfil fora da instalação, para não serem rebaixadas pelo instalador. O cliente de Releases usa acesso público anônimo, sem dependência de GitHub CLI ou tokens.
