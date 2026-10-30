@@ -20,12 +20,41 @@ public partial class MainWindow : Window
     private CheckBox? copyAudio, precise;
     private TextBlock? estimate;
     private bool closing;
+    private UpdatesWindow? updates;
+    private AppRelease? availableRelease;
+    private readonly CancellationTokenSource lifetime = new();
+    private bool updateChecked;
     public MainWindow()
     {
         InitializeComponent(); DataContext = model;
         model.Files.CollectionChanged += (_, _) => { DropHint.Visibility = model.Files.Count == 0 ? Visibility.Visible : Visibility.Collapsed; FileCount.Text = model.Files.Count == 0 ? "Nenhum arquivo" : $"{model.Files.Count} arquivo(s)"; UpdateEstimate(); };
         BuildOptions();
-        Status.Text = BatchViewModel.FindTool("ffmpeg") is not null && BatchViewModel.FindTool("ffprobe") is not null ? "Pronto • FFmpeg e ffprobe detectados" : "Ferramentas não encontradas • coloque FFmpeg e ffprobe na pasta tools";
+        try { Status.Text = BatchViewModel.FindTool("ffmpeg") is not null && BatchViewModel.FindTool("ffprobe") is not null ? "Pronto • FFmpeg e ffprobe detectados" : "Ferramentas não encontradas • abra Atualizações para instalar o conjunto"; }
+        catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException or UnauthorizedAccessException) { Status.Text = "Conjunto de ferramentas indisponível. Abra Atualizações para restaurar o anterior."; AppLog.Write("WARNING", "Ferramentas na abertura", ex.Message); }
+        ContentRendered += async (_, _) =>
+        {
+            if (updateChecked) return; updateChecked = true;
+            try
+            {
+                using var http = ReleaseClient.CreateHttpClient();
+                availableRelease = await new ReleaseClient(http).CheckAppAsync(typeof(MainWindow).Assembly.GetName().Version!, lifetime.Token);
+                if (availableRelease is not null)
+                {
+                    UpdatesLabel.Text = "Atualizações • nova";
+                    UpdatesButton.ToolTip = "Versão " + availableRelease.Version.ToString(3) + " disponível para baixar e instalar";
+                    if (!model.Busy) Status.Text = "Nova versão disponível. Abra Atualizações para baixar e instalar.";
+                }
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex) { AppLog.Write("INFO", "Consulta de atualização indisponível", ex.Message); }
+        };
+        Closed += (_, _) => lifetime.Cancel();
+    }
+    private void ShowUpdates(object sender, RoutedEventArgs e)
+    {
+        if (updates is { IsLoaded: true }) { updates.Activate(); return; }
+        updates = new UpdatesWindow(() => model.Busy, available: availableRelease) { Owner = this };
+        updates.Show();
     }
     private void Navigate(object sender, RoutedEventArgs e)
     {
@@ -139,6 +168,7 @@ public partial class MainWindow : Window
     private async void Run(object sender, RoutedEventArgs e)
     {
         if (model.Busy) return;
+        if (updates?.Installing == true) { Status.Text = "Instalação da atualização iniciada. Aguarde a reabertura do aplicativo."; return; }
         try
         {
             var options = new VideoOptions(operation, SizeMb(), operation == Operation.Webm ? codec?.SelectedIndex == 1 ? "vp9" : "vp8" : codec?.SelectedIndex == 1 ? "h265" : "h264", copyAudio?.IsChecked != false, precise?.IsChecked == true,

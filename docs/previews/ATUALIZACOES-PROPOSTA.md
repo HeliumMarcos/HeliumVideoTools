@@ -8,4 +8,4 @@ A versão atual das ferramentas tem três entradas na navegação (Dividir/Compa
 
 O repositório agora é público; não haverá campos de token/login. O instalador e o app continuam sem elevação de administrador. O progresso de download é separado do processamento de vídeos.
 
-Status: aguardando aprovação visual para ativar a entrada na interface e a notificação automática. Os serviços de download/verificação já estão na main; esta janela permanece separada da primeira distribuição enquanto aguarda aprovação.
+Status: aprovada pelo usuário em 30/10/2026 e integrada após a primeira distribuição preview.1. A segunda prévia inclui a entrada Atualizações e consulta assíncrona de versões estáveis após renderizar a janela, sem bloquear a abertura. Pré-releases não são oferecidas como atualizações estáveis.

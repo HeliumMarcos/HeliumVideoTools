@@ -7,7 +7,7 @@ using HeliumVideoTools.Core;
 
 namespace HeliumVideoTools.Desktop;
 
-// Tela preparada para revisão visual; ainda sem entrada no menu do pacote atual.
+// Tela aprovada pelo usuário e integrada à navegação de atualizações.
 public partial class UpdatesWindow : Window
 {
     private readonly HttpClient http = ReleaseClient.CreateHttpClient();
@@ -17,10 +17,14 @@ public partial class UpdatesWindow : Window
     private AppRelease? available;
     private ReleaseAsset? toolAsset;
     private CancellationTokenSource? transfer;
-    public UpdatesWindow(Func<bool>? mediaBusy = null, bool preview = false)
+    private string? verifiedDownload;
+    public bool Installing { get; private set; }
+    public UpdatesWindow(Func<bool>? mediaBusy = null, bool preview = false, AppRelease? available = null)
     {
         InitializeComponent(); this.preview = preview; this.mediaBusy = mediaBusy ?? (() => false); releases = new(http);
         AppVersion.Text = "Instalado: " + typeof(UpdatesWindow).Assembly.GetName().Version!.ToString(3) + " • C# / .NET 10";
+        this.available = available;
+        if (available is not null) { AppUpdateStatus.Text = "Nova versão disponível: " + available.Version.ToString(3); InstallAppButton.IsEnabled = true; }
         if (preview) { FfmpegVersion.Text = "FFmpeg instalado: 9.0.2"; FfprobeVersion.Text = "ffprobe instalado: 9.0.2"; }
         else Loaded += async (_, _) => await ReadInstalledAsync();
         Closed += (_, _) => { transfer?.Cancel(); http.Dispose(); };
@@ -42,6 +46,7 @@ public partial class UpdatesWindow : Window
         try
         {
             AppUpdateStatus.Text = "Consultando Releases…";
+            verifiedDownload = null;
             available = await releases.CheckAppAsync(typeof(UpdatesWindow).Assembly.GetName().Version!, default);
             AppUpdateStatus.Text = available is null ? "Você já usa a versão estável mais recente." : $"Nova versão disponível: {available.Version.ToString(3)}";
             InstallAppButton.IsEnabled = available is not null;
@@ -56,19 +61,14 @@ public partial class UpdatesWindow : Window
         try
         {
             await ReadInstalledAsync(); toolAsset = await new MediaToolUpdater(releases).CheckAsync(default);
-            var current = MediaToolUpdater.Active()?.Version ?? BundledVersion();
-            bool newer = !Version.TryParse(current, out var installed) || Version.Parse(toolAsset.Version) > installed;
-            ToolsStatus.Text = newer ? $"Conjunto estável disponível: {toolAsset.Version}" : $"Conjunto instalado atualizado ({current}).";
+            var ffmpeg = System.Text.RegularExpressions.Regex.Match(FfmpegVersion.Text, @"version ([0-9]+(?:\.[0-9]+){1,2})");
+            var ffprobe = System.Text.RegularExpressions.Regex.Match(FfprobeVersion.Text, @"version ([0-9]+(?:\.[0-9]+){1,2})");
+            bool newer = !ffmpeg.Success || !ffprobe.Success || Version.Parse(ffmpeg.Groups[1].Value) < Version.Parse(toolAsset.Version) || Version.Parse(ffprobe.Groups[1].Value) < Version.Parse(toolAsset.Version);
+            ToolsStatus.Text = newer ? $"Conjunto estável disponível: {toolAsset.Version}" : $"Conjunto instalado atualizado; versão estável disponível: {toolAsset.Version}.";
             InstallToolsButton.IsEnabled = newer;
         }
         catch (Exception ex) { ToolsStatus.Text = ex.Message; }
         finally { CheckToolsButton.IsEnabled = true; }
-    }
-    private static string? BundledVersion()
-    {
-        var path = Path.Combine(AppContext.BaseDirectory, "tools", "manifest.json");
-        if (!File.Exists(path)) return null;
-        using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path)); return doc.RootElement.GetProperty("version").GetString();
     }
     private async void InstallApp(object sender, RoutedEventArgs e)
     {
@@ -78,17 +78,21 @@ public partial class UpdatesWindow : Window
         transfer = new(); SetTransfer(true);
         try
         {
-            string directory = Path.Combine(AppLog.Root, "updates", Guid.NewGuid().ToString("N"));
-            string file = Path.Combine(directory, release.Installer.Name);
-            await releases.DownloadAsync(release.Installer, file, new Progress<double>(p => { DownloadProgress.Value = p; TransferStatus.Text = $"Baixando aplicativo • {p:0}%"; }), transfer.Token);
+            string file = verifiedDownload ?? Path.Combine(AppLog.Root, "updates", Guid.NewGuid().ToString("N"), release.Installer.Name);
+            if (!File.Exists(file)) await releases.DownloadAsync(release.Installer, file, new Progress<double>(p => { DownloadProgress.Value = p; TransferStatus.Text = $"Baixando aplicativo • {p:0}%"; }), transfer.Token);
+            verifiedDownload = file;
             if (mediaBusy()) { AppUpdateStatus.Text = "Download concluído. Aguarde o processamento terminar e tente novamente para instalar."; return; }
-            using var verified = ReleaseClient.VerifyInstaller(file, release.Installer);
+            TransferStatus.Text = "Download concluído. Verificando a integridade do instalador…";
+            using var verified = await Task.Run(() => ReleaseClient.VerifyInstaller(file, release.Installer), transfer.Token);
+            transfer.Token.ThrowIfCancellationRequested();
+            if (mediaBusy()) { AppUpdateStatus.Text = "Instalador verificado. Aguarde o processamento terminar para instalar."; return; }
+            Installing = true;
             var process = Process.Start(new ProcessStartInfo(file) { Arguments = "/S /RESTART", UseShellExecute = true });
             if (process is null) throw new IOException("O instalador não iniciou.");
             process.Dispose(); TransferStatus.Text = "Instalador iniciado. O aplicativo será fechado e reaberto.";
         }
         catch (OperationCanceledException) { TransferStatus.Text = "Download cancelado."; }
-        catch (Exception ex) { TransferStatus.Text = ex.Message; }
+        catch (Exception ex) { Installing = false; verifiedDownload = null; TransferStatus.Text = ex.Message; }
         finally { transfer.Dispose(); transfer = null; SetTransfer(false); }
     }
     private async void InstallTools(object sender, RoutedEventArgs e)

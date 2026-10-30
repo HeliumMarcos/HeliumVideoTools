@@ -1,6 +1,6 @@
 # Migração .NET — primeira etapa
 
-Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. Distribuição em validação no GitHub Actions; ainda não constitui release estável.
+Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A preview.1 foi publicada após testes no GitHub Actions; segunda prévia integra a janela de atualizações aprovada. Ainda não constitui release estável.
 
 Implementado:
 
@@ -10,7 +10,9 @@ Implementado:
 - MB decimais, orçamento com margem e validação do tamanho real antes de publicar a saída.
 - WebM usa o menor orçamento entre o limite e 98% do tamanho original. Um MP4 menor não é expandido para ocupar 299 MB.
 - Arquivos temporários próprios, publicação sem sobrescrever, originais preservados.
-- Interface inicial em rascunho: seleção múltipla, arrastar/soltar, operações diretas sem fila, progresso geral, cancelamento e Abrir pasta.
+- Interface e marca aprovadas: seleção múltipla, arrastar/soltar, operações diretas sem fila, progresso geral, cancelamento e Abrir pasta.
+- Janela Atualizações aprovada e integrada: consulta automática assíncrona de versões estáveis, download anônimo com hash, instalador por usuário e atualização conjunta FFmpeg/ffprobe com restauração.
+- GitHub Actions atualizado: checkout v7.0.1, setup-dotnet v6.0.0 e upload-artifact v7.0.2 usam Node.js 24. A execução 41133957251 passou pelos testes, instalação, abertura, reinstalação com app aberto, mesma pasta e preservação dos bytes do atalho.
 - Conjunto do projeto atualizado de FFmpeg/ffprobe 8.1.2 para 9.0.2, mesma distribuição Gyan Essentials, ZIP conferido por SHA-256 e codecs necessários verificados. Script de preparação guarda backup e tenta restaurar o conjunto se a cópia falhar.
 
 Validação: compilação Release sem avisos/erros; testes com mídia artificial incluindo áudio, compactação em duas etapas, VP8/VP9, limite sem aumento sobre original, divisão por quantidade, progresso, cancelamento e limpeza de temporários. Isso não atesta aceitação no Projudi/SEEU nem valida ainda a continuidade audiovisual de uma audiência dividida.
@@ -26,10 +28,10 @@ O usuário aprovou o visual V2 das três ferramentas e a identidade A (Vídeo em
 - Divisão por tamanho agora recodifica em H.264/AAC e ajusta a duração até respeitar o limite. Testes conferem cada tamanho e soma de durações, incluindo sobra final curta. Ainda falta validar continuidade perceptual com amostras extensas/quadros variáveis.
 - Codificação acima do limite agora repete com orçamento reduzido, até três tentativas; falha final não publica arquivo excedente.
 - Recuperar resultados parciais de um lote e relatar erros por arquivo; a prévia interrompe o lote no primeiro erro.
-- Serviço de atualização pública sem credenciais implementado e testado para hash inválido, origem, versão igual e HTTP 403; falta ativar interação no app após apresentar a nova tela ao usuário.
-- Serviço de ferramentas em conjuntos imutáveis, validação, troca atômica de ponteiro e restauração implementado; falta validar transação completa e integrar interação.
-- Instalador NSIS por usuário e workflow GitHub Actions criados. Validar upgrade real, pasta fixa e atalhos; fixação real continua dependente de validação no Windows do usuário.
-- Publicar o instalador em Releases somente após esses requisitos.
+- Atualização pública sem credenciais e interação integradas; testes cobrem hash inválido, origem, versão igual e HTTP 403. Falta ciclo ponta a ponta entre duas versões estáveis publicadas.
+- Ferramentas em conjuntos imutáveis, validação, troca atômica de ponteiro e restauração integradas; falta validar transação completa em perfil isolado.
+- Instalador NSIS por usuário validado em runner para reinstalação real, pasta fixa e bytes dos atalhos; fixação real continua dependente de validação no Windows do usuário.
+- Publicar novas prévias somente após testes de distribuição. Os itens acima continuam necessários antes de chamar a versão de estável.
 
 ## Compilar/testar
 
