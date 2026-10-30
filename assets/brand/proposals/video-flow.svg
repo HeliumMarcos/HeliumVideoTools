@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 128 128">
+ <title>Helium Vídeo Tools — Vídeo em movimento</title>
+ <defs><linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00A8F5"/><stop offset="1" stop-color="#0063BC"/></linearGradient></defs>
+ <rect x="4" y="4" width="120" height="120" rx="30" fill="#171B1E"/>
+ <rect x="11" y="11" width="106" height="106" rx="22" fill="url(#blue)"/>
+ <path d="M66 94H36a9 9 0 0 1-9-9V42a9 9 0 0 1 9-9h53a9 9 0 0 1 9 9v22" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M51 48Q49 47 49 50v28q0 3 3 1l23-14q3-2 0-4Z" fill="#fff"/>
+ <path d="M78 87h25m-10-11 11 11-11 11" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
