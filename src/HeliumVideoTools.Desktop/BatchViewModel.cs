@@ -23,6 +23,7 @@ public sealed class BatchViewModel : INotifyPropertyChanged
     }
     public static string? FindTool(string name)
     {
+        if (MediaToolUpdater.ResolveActive(name) is { } active) return active;
         foreach (var directory in new[] { AppContext.BaseDirectory, System.IO.Path.Combine(AppContext.BaseDirectory, "tools"), Environment.CurrentDirectory })
         { var path = System.IO.Path.Combine(directory, name + ".exe"); if (File.Exists(path)) return path; }
         return null;
@@ -40,6 +41,7 @@ public sealed class BatchViewModel : INotifyPropertyChanged
         var timer = Stopwatch.StartNew();
         try
         {
+            await MediaToolUpdater.ValidateActiveAsync(cancel.Token);
             for (int i = 0; i < sources.Length; i++)
             {
                 int index = i;

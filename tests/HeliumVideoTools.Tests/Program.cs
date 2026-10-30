@@ -54,6 +54,7 @@ internal static class Program
         var ffmpeg = Path.Combine(root, "ffmpeg.exe"); var ffprobe = Path.Combine(root, "ffprobe.exe");
         if (!File.Exists(ffmpeg)) throw new Exception("FFmpeg ausente em " + root);
         var folder = Path.Combine(root, "work", "smoke-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
+        await ReleaseTests.RunAsync(folder);
         var source = Path.Combine(folder, "audiência teste.mp4");
         await VideoEngine.ExecuteAsync(ffmpeg, ["-y", "-f", "lavfi", "-i", "testsrc2=size=320x180:rate=25:duration=8", "-f", "lavfi", "-i", "sine=frequency=440:duration=8", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "12", "-c:a", "aac", "-shortest", source], null, default);
         var engine = new VideoEngine(ffmpeg, ffprobe); var info = await engine.ProbeAsync(source, default);
@@ -69,6 +70,11 @@ internal static class Program
         }
         var split = await engine.ProcessAsync(source, new(Operation.Split, SplitValue: 2), progress, default);
         Check(split.Count == 2 && split.All(File.Exists), "Divisão inválida");
+        var sized = await engine.ProcessAsync(source, new(Operation.Split, SplitMode: SplitMode.Size, SplitValue: .15), progress, default);
+        Check(sized.Count >= 2 && sized.All(p => new FileInfo(p).Length <= 150000), "Parte acima do limite definido");
+        double sumDuration = 0;
+        foreach (var path in sized) sumDuration += (await engine.ProbeAsync(path, default)).Duration;
+        Check(Math.Abs(sumDuration - info.Duration) < .3, "Duração total dos trechos diverge do original");
         Check(progress.Maximum >= 99, "Progresso não chegou ao fim");
         using var canceled = new CancellationTokenSource(); canceled.Cancel();
         try { await engine.ProcessAsync(source, new(), progress, canceled.Token); throw new Exception("Cancelamento ignorado"); } catch (OperationCanceledException) { }

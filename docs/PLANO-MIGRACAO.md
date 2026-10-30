@@ -53,11 +53,11 @@ O instalador Python atual usa Program Files e não declara identidade explícita
 
 Teste obrigatório: instalar versão A como usuário normal, fixar manualmente no Iniciar/barra de tarefas, atualizar para B com app aberto, conferir mesmos caminhos/identidade, pins preservados e inicialização correta. Testar atualização repetida e reinstalação. Não declarar esse requisito validado apenas por teste automatizado de atalhos.
 
-## Atualização pelo aplicativo e Releases privadas
+## Atualização pelo aplicativo e Releases públicas
 
-Repositório privado `HeliumMarcos/HeliumVideoTools`. Consultar latest estável após a janela abrir e manualmente nas configurações; ignorar drafts/prereleases e versões iguais/anteriores. Mostrar versão instalada, disponível e notas. Aviso discreto com Baixar e atualizar / Depois. Download dentro do app, porcentagem e cancelamento; nenhuma necessidade de navegador para baixar.
+Repositório `HeliumMarcos/HeliumVideoTools`, tornado público a pedido do usuário em 30/10/2026. Consultar latest estável após a janela abrir e manualmente nas configurações; ignorar drafts/prereleases e versões iguais/anteriores. Mostrar versão instalada, disponível e notas. Aviso discreto com Baixar e atualizar / Depois. Download dentro do app, porcentagem e cancelamento; nenhuma necessidade de navegador para baixar.
 
-Como no YTMusicRush: usar sessão GitHub CLI existente ou credencial de leitura fornecida pelo próprio usuário e protegida com DPAPI. Nunca distribuir token do proprietário. Em outra máquina, a conta precisa de acesso ao repositório privado; ausência de acesso deve gerar mensagem acionável e não falso estado atualizado.
+Decisão atual: acesso público anônimo, sem sessão GitHub CLI, login, token ou armazenamento de credenciais. A hipótese anterior de autenticação para repositório privado foi substituída pela autorização explícita do usuário. Falha HTTP ou limite da API não podem ser anunciados como versão já atualizada.
 
 Validar origem, tamanho, SHA-256 da API e SHA256SUMS antes de executar; repetir a verificação imediatamente antes da instalação. HTTPS e hash não equivalem a assinatura de editor: Authenticode permanece uma melhoria dependente de certificado. Redirecionamentos não recebem credencial fora do domínio da API GitHub.
 

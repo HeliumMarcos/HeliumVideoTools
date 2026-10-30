@@ -63,6 +63,8 @@ Section "Helium Vídeo Tools"
   ClearErrors
   File /r "${PROJECT_DIR}\artifacts\publish\*.*"
   IfErrors install_failed
+  ; O diretório corrente do instalador não pode ser a pasta que será renomeada.
+  SetOutPath "$INSTDIR"
   IfFileExists "$INSTDIR\app\HeliumVideoTools.exe" 0 no_previous
   RMDir /r "$INSTDIR\app.previous"
   Rename "$INSTDIR\app" "$INSTDIR\app.previous"

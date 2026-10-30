@@ -3,7 +3,10 @@ $ErrorActionPreference = 'Stop'
 $expected = Join-Path $env:LOCALAPPDATA 'Programs\HeliumVideoTools\app\HeliumVideoTools.exe'
 $link = Join-Path ([Environment]::GetFolderPath('Programs')) 'Helium Vídeo Tools\Helium Vídeo Tools.lnk'
 $first = Start-Process -FilePath $Installer -ArgumentList '/S' -PassThru -Wait -WindowStyle Hidden
-if ($first.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $expected)) { throw 'Primeira instalação falhou' }
+if ($first.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $expected)) {
+    Get-ChildItem -LiteralPath (Split-Path -Parent (Split-Path -Parent $expected)) -Recurse -ErrorAction SilentlyContinue | Select-Object -First 15 FullName
+    throw "Primeira instalação falhou: código=$($first.ExitCode); executável esperado=$expected"
+}
 $before = (Get-FileHash -LiteralPath $link -Algorithm SHA256).Hash
 $app = Start-Process -FilePath $expected -PassThru -WindowStyle Hidden
 $deadline = [DateTime]::UtcNow.AddSeconds(30)
