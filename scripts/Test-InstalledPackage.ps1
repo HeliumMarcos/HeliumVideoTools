@@ -19,7 +19,10 @@ do { Start-Sleep -Milliseconds 100; $app.Refresh() } while ($app.MainWindowHandl
 if ($app.HasExited -or $app.MainWindowHandle -eq 0) { throw 'Aplicação instalada não exibiu janela' }
 $startup.Stop()
 Write-Output ('Janela disponível no runner em {0:0.00}s (não é medição de abertura fria no computador do usuário).' -f $startup.Elapsed.TotalSeconds)
-$upgrade = Start-Process -FilePath $Installer -ArgumentList '/S /RESTART' -PassThru -Wait -WindowStyle Hidden
+$upgrade = Start-Process -FilePath $Installer -ArgumentList '/S /RESTART' -PassThru -WindowStyle Hidden
+# Start-Process -Wait acompanha toda a árvore, incluindo o app reaberto.
+# Aqui só interessa a saída do instalador, não o fechamento do novo aplicativo.
+if (-not $upgrade.WaitForExit(180000)) { throw 'Instalador excedeu o tempo de reinstalação' }
 if ($upgrade.ExitCode -ne 0) { throw 'Reinstalação/upgrade falhou' }
 $app.Refresh()
 if (-not $app.HasExited) { throw 'Instalador não fechou o app alvo' }
