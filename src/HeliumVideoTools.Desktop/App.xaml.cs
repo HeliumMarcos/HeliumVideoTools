@@ -9,6 +9,7 @@ public partial class App : Application
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)] private static extern int SetCurrentProcessExplicitAppUserModelID(string id);
     protected override void OnStartup(StartupEventArgs e)
     {
+        if (Mutex.TryOpenExisting("Local\\Helium.HeliumVideoTools.Installer", out var installing)) { installing.Dispose(); Shutdown(); return; }
         instance = new Mutex(true, "Local\\Helium.HeliumVideoTools.Desktop", out bool created);
         if (!created) { Shutdown(); return; }
         SetCurrentProcessExplicitAppUserModelID("Helium.HeliumVideoTools");

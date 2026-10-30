@@ -1,0 +1,78 @@
+name: Windows .NET installer
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag da release (ex.: v3.0.0-preview.1)'
+        default: 'v3.0.0-preview.1'
+        required: true
+      publish:
+        description: Publicar instalador em Releases
+        type: boolean
+        default: false
+      prerelease:
+        description: Marcar como prévia
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: windows-${{ github.ref }}-${{ inputs.tag }}
+  cancel-in-progress: false
+jobs:
+  package:
+    runs-on: windows-2025
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.403'
+      - name: Preparar ferramentas verificadas
+        shell: pwsh
+        run: ./scripts/Prepare-MediaTools.ps1
+      - name: Compilar e testar processamento
+        shell: pwsh
+        run: |
+          dotnet run --project tests/HeliumVideoTools.Tests -c Release
+          if ($LASTEXITCODE -ne 0) { throw 'Testes falharam' }
+      - name: Preparar NSIS
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\NSIS\makensis.exe")) {
+            choco install nsis -y --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'Instalação NSIS falhou' }
+          }
+      - name: Compilar instalador self-contained
+        shell: pwsh
+        run: ./scripts/Publish-Windows.ps1 -Installer
+      - name: Testar instalação e reinstalação
+        shell: pwsh
+        run: |
+          $setup = (Get-ChildItem artifacts/release/*-Setup.exe | Select-Object -First 1).FullName
+          ./scripts/Test-InstalledPackage.ps1 -Installer $setup
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HeliumVideoTools-Windows-Installer
+          path: artifacts/release/*
+          if-no-files-found: error
+      - name: Publicar em Releases
+        if: startsWith(github.ref, 'refs/tags/') || inputs.publish
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          $version = ([xml](Get-Content -Raw Directory.Build.props)).Project.PropertyGroup.Version
+          if ($env:RELEASE_TAG -notmatch ('^v' + [regex]::Escape($version) + '(-preview\.[0-9]+)?$')) { throw 'Tag não corresponde à versão do produto' }
+          $options = @('--verify-tag')
+          if ($env:GITHUB_REF -notlike 'refs/tags/*') { $options = @('--target', $env:GITHUB_SHA) }
+          if ($env:PRERELEASE -eq 'true' -or $env:RELEASE_TAG -like '*-preview.*') { $options += '--prerelease' }
+          gh release create $env:RELEASE_TAG artifacts/release/* --title "Helium Vídeo Tools $env:RELEASE_TAG" --notes-file docs/RELEASE-NOTES.md @options
+          if ($LASTEXITCODE -ne 0) { throw 'Publicação da release falhou' }
