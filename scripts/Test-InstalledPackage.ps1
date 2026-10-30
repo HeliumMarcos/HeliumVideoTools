@@ -7,6 +7,10 @@ if ($first.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $expected)) {
     Get-ChildItem -LiteralPath (Split-Path -Parent (Split-Path -Parent $expected)) -Recurse -ErrorAction SilentlyContinue | Select-Object -First 15 FullName
     throw "Primeira instalação falhou: código=$($first.ExitCode); executável esperado=$expected"
 }
+if (-not (Test-Path -LiteralPath $link)) {
+    Get-ChildItem -LiteralPath ([Environment]::GetFolderPath('Programs')) -Filter '*Helium*' -Recurse | Select-Object FullName
+    throw "Atalho esperado ausente: $link"
+}
 $before = (Get-FileHash -LiteralPath $link -Algorithm SHA256).Hash
 $app = Start-Process -FilePath $expected -PassThru -WindowStyle Hidden
 $deadline = [DateTime]::UtcNow.AddSeconds(30)

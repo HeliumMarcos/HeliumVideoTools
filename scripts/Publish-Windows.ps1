@@ -14,7 +14,7 @@ Copy-Item 'FFmpeg-LICENSE.txt' 'artifacts\publish\FFmpeg-LICENSE.txt' -Force
 if ($Installer) {
   $nsis = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
   if (-not (Test-Path -LiteralPath $nsis)) { throw 'NSIS ausente. Instale no runner de build.' }
-  & $nsis "/DPROJECT_DIR=$projectRoot" "/DAPP_VERSION=$version" installer/HeliumVideoTools.nsi
+  & $nsis /INPUTCHARSET UTF8 "/DPROJECT_DIR=$projectRoot" "/DAPP_VERSION=$version" installer/HeliumVideoTools.nsi
   if ($LASTEXITCODE -ne 0) { throw 'NSIS falhou' }
   $setup = Get-Item "artifacts\release\HeliumVideoTools-$version-win-x64-Setup.exe"
   $hash = (Get-FileHash -LiteralPath $setup.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
