@@ -1,6 +1,6 @@
 # Propostas de marca — Helium Vídeo Tools
 
-Status: aguardando aprovação. Nenhum arquivo de identidade ativo foi substituído.
+Status: proposta A e assinatura aprovadas pelo usuário em 30/10/2026 e promovidas aos arquivos ativos. Proposta B mantida como alternativa histórica.
 
 ## A — Vídeo em movimento (recomendada)
 

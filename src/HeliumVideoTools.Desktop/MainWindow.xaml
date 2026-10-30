@@ -3,7 +3,7 @@
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:local="clr-namespace:HeliumVideoTools.Desktop"
  Title="Helium Vídeo Tools" Width="1280" Height="900" MinWidth="980" MinHeight="700"
- Background="#202020" FontFamily="Segoe UI" FontSize="14" AllowDrop="True"
+ Background="#202020" FontFamily="Segoe UI" FontSize="14" AllowDrop="True" Icon="Assets/logo.ico"
  Drop="FilesDropped" DragOver="FilesDragOver" Closing="WindowClosing">
  <Grid Background="#202020">
   <Grid.ColumnDefinitions><ColumnDefinition Width="232"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -11,7 +11,7 @@
    <DockPanel>
     <StackPanel DockPanel.Dock="Bottom" Margin="8,0"><Border Background="#28352F" CornerRadius="6" Padding="10,8" Margin="0,0,0,12"><StackPanel Orientation="Horizontal"><local:Symbol Kind="shield" Foreground="#8AD7AE" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock Text="Originais preservados" FontSize="11" Foreground="#A5DDBB"/></StackPanel></Border><TextBlock Text="3.0.0 • Prévia .NET" Foreground="#AAAAAA" FontSize="11"/></StackPanel>
     <StackPanel>
-     <StackPanel Orientation="Horizontal" Margin="8,0,0,30"><Image Source="Assets/logo.png" Width="44" Height="44" Margin="0,0,10,0"/><StackPanel VerticalAlignment="Center"><TextBlock Text="HELIUM" FontWeight="Bold" FontSize="20"/><TextBlock Text="VÍDEO TOOLS" Foreground="#6CCCF0" FontSize="11"/></StackPanel></StackPanel>
+     <Image Source="Assets/brand-signature.png" Width="200" Height="60" Stretch="Uniform" HorizontalAlignment="Left" Margin="0,0,0,30" AutomationProperties.Name="Helium Vídeo Tools"/>
      <TextBlock Text="FERRAMENTAS" Foreground="#AAAAAA" FontSize="10" FontWeight="SemiBold" Margin="14,0,0,12"/>
      <Button x:Name="SplitNav" Style="{StaticResource NavigationButton}" Click="Navigate" Tag="Split" AutomationProperties.Name="Dividir vídeos"><StackPanel Orientation="Horizontal"><local:Symbol Kind="split" Foreground="#6CCCF0" Margin="0,0,12,0"/><TextBlock Text="Dividir" VerticalAlignment="Center"/></StackPanel></Button>
      <Button x:Name="CompressNav" Style="{StaticResource NavigationButton}" Click="Navigate" Tag="Compress" Background="#353D44" BorderBrush="#6CCCF0" AutomationProperties.Name="Compactar vídeos"><StackPanel Orientation="Horizontal"><local:Symbol Kind="compress" Foreground="#6CCCF0" Margin="0,0,12,0"/><TextBlock Text="Compactar" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel></Button>

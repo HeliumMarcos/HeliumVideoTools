@@ -8,5 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="../HeliumVideoTools.Core/HeliumVideoTools.Core.csproj" />
     <Resource Include="../../assets/logo-512.png" Link="Assets/logo.png" />
+    <Resource Include="../../assets/logo.ico" Link="Assets/logo.ico" />
+    <Resource Include="../../assets/brand/logo-signature-dark.png" Link="Assets/brand-signature.png" />
   </ItemGroup>
 </Project>

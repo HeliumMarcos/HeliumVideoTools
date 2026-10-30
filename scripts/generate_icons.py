@@ -3,32 +3,42 @@ from __future__ import annotations
 from pathlib import Path
 
 from PIL import Image
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QGuiApplication, QImage, QPainter
+from PySide6.QtSvg import QSvgRenderer
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "assets" / "brand" / "submark.png"
+SOURCE = ROOT / "assets" / "logo.svg"
 PNG = ROOT / "assets" / "logo-512.png"
 ICO = ROOT / "assets" / "logo.ico"
 
 
+def render_svg(source: Path, output: Path, width: int, height: int) -> None:
+    renderer = QSvgRenderer(str(source))
+    if not renderer.isValid():
+        raise RuntimeError(f"SVG inválido: {source}")
+    image = QImage(width, height, QImage.Format.Format_ARGB32_Premultiplied)
+    image.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(image)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    renderer.render(painter)
+    painter.end()
+    if not image.save(str(output)):
+        raise RuntimeError(f"Falha ao salvar: {output}")
+
+
 def main() -> None:
-    with Image.open(SOURCE) as opened:
-        source = opened.convert("RGBA")
-        bounds = source.getchannel("A").getbbox()
-        if bounds is None:
-            raise RuntimeError(f"Logo sem conteúdo: {SOURCE}")
-        source = source.crop(bounds)
-        side = max(source.size)
-        margin = max(8, round(side * 0.035))
-        canvas = Image.new("RGBA", (side + margin * 2, side + margin * 2), (0, 0, 0, 0))
-        canvas.alpha_composite(source, ((canvas.width - source.width) // 2, (canvas.height - source.height) // 2))
-        resampling = getattr(Image, "Resampling", Image).LANCZOS
-        icon_512 = canvas.resize((512, 512), resampling)
-        icon_512.save(PNG, optimize=True)
-        icon_512.save(
+    app = QGuiApplication.instance() or QGuiApplication([])
+    render_svg(SOURCE, PNG, 512, 512)
+    with Image.open(PNG) as opened:
+        opened.convert("RGBA").save(
             ICO,
             format="ICO",
             sizes=[(16, 16), (20, 20), (24, 24), (32, 32), (40, 40), (48, 48), (64, 64), (128, 128), (256, 256)],
         )
-    print(f"Gerados a partir do submark: {PNG} e {ICO}")
+    for theme in ("dark", "light"):
+        render_svg(ROOT / "assets" / "brand" / f"logo-signature-{theme}.svg",
+                   ROOT / "assets" / "brand" / f"logo-signature-{theme}.png", 860, 256)
+    print(f"Gerados a partir da marca vetorial aprovada: {PNG}, {ICO} e assinaturas")
 
 
 if __name__ == "__main__":

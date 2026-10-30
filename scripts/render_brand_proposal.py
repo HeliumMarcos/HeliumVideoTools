@@ -66,7 +66,7 @@ def export_signature(name, dark):
     suffix = "dark" if dark else "light"
     markup = '<svg xmlns="http://www.w3.org/2000/svg" width="430" height="128" viewBox="0 0 430 128">'
     markup += '<title>Helium Vídeo Tools — assinatura proposta</title>'
-    markup += '<svg width="128" height="128" viewBox="0 0 128 128">' + content + '</svg>'
+    markup += '<g>' + content + '</g>'
     markup += vector_text(148, 61, "Helium", 37, QFont.Weight.Bold, "#F5F7FA" if dark else "#17212B")
     markup += vector_text(149, 89, "VÍDEO", 15, QFont.Weight.DemiBold, "#70D5FF" if dark else "#0067C0")
     markup += f'<rect x="230" y="69" width="73" height="26" rx="6" fill="{"#174D70" if dark else "#DAEEFA"}"/>'
@@ -121,7 +121,7 @@ def main():
     before.fill(QColor("#202020"))
     p = QPainter(before); p.setRenderHint(QPainter.RenderHint.Antialiasing)
     text(p, 44, 48, "ANTES", 13, "#B9C6CE", QFont.Weight.DemiBold)
-    p.drawImage(QRectF(44, 86, 72, 72), QImage(str(ROOT / "assets" / "logo-512.png")))
+    p.drawImage(QRectF(44, 86, 72, 72), QImage(str(ROOT / "assets" / "brand" / "submark.png")))
     text(p, 132, 117, "HELIUM", 24, "#F3F3F3", QFont.Weight.Bold)
     text(p, 132, 147, "VÍDEO TOOLS", 13, "#6CCCF0")
     text(p, 574, 48, "PROPOSTA A", 13, "#8BD5F5", QFont.Weight.DemiBold)
