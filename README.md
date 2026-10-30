@@ -1,6 +1,27 @@
-# Helium Vídeo Tools 2.6
+# Helium Vídeo Tools — C# / .NET 10 / WPF
 
-Aplicativo desktop PySide6 para dividir, compactar e converter vídeos para WebM. Inclui FFmpeg, processamento direto de um ou vários arquivos, progresso geral com ETA, cancelamento e abertura da pasta do resultado, tema Windows 11 claro/escuro e identidade Helium própria.
+Aplicativo Windows para preparar mídias de audiências: compactação e divisão para o Projudi, conversão para WebM para o SEEU. A implementação ativa está em **C#/.NET 10 com interface WPF**, na pasta `src`. O código Python anterior permanece como referência histórica da migração.
+
+![Interface WPF](docs/previews/compactar-marca-aprovada.png)
+
+O tamanho é conferido antes de salvar. Compactação começa em 98 MB decimais; WebM usa o menor orçamento entre o teto informado e um valor abaixo do original. Os limites são configuráveis e não garantem aceitação pelos sistemas de destino, que podem ter outros requisitos.
+
+O visual e a identidade A (Vídeo em movimento) foram aprovados pelo usuário. Consulte [andamento e pendências](docs/MIGRACAO-ANDAMENTO.md) e [plano](docs/PLANO-MIGRACAO.md). O instalador .NET será produzido pelo GitHub Actions e publicado em [Releases](https://github.com/HeliumMarcos/HeliumVideoTools/releases), sem exigir administrador. Uma build não deve ser descrita como estável antes da validação da distribuição.
+
+## Desenvolvimento .NET
+
+```powershell
+dotnet build src/HeliumVideoTools.Desktop -c Release
+.\scripts\Prepare-MediaTools.ps1
+dotnet run --project tests/HeliumVideoTools.Tests -c Release
+dotnet run --project src/HeliumVideoTools.Desktop
+```
+
+Requer SDK .NET 10. FFmpeg e ffprobe são preparados juntos, com versão/hash fixados em `tools/manifest.json`. Os binários não acompanham o Git. A distribuição self-contained inclui runtime e ferramentas.
+
+## Referência histórica Python 2.6
+
+Os comandos abaixo são da distribuição anterior; não geram o aplicativo .NET.
 
 ## Executar em desenvolvimento
 

@@ -1,0 +1,9 @@
+# Implementação Python anterior preservada como referência da migração.
+# A implementação ativa do produto está em src/ (C# e XAML).
+core/** linguist-vendored=true
+ui/** linguist-vendored=true
+utils/** linguist-vendored=true
+config/** linguist-vendored=true
+main.py linguist-vendored=true
+tests/test_*.py linguist-vendored=true
+*.spec linguist-vendored=true
