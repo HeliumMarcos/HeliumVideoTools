@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>HeliumVideoTools</AssemblyName>
+    <ApplicationIcon>../../assets/logo.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../HeliumVideoTools.Core/HeliumVideoTools.Core.csproj" />
+    <Resource Include="../../assets/logo-512.png" Link="Assets/logo.png" />
+  </ItemGroup>
+</Project>
