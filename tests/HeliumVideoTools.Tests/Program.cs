@@ -10,6 +10,16 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--render-updates")
+        {
+            var app = new App(); app.InitializeComponent();
+            var window = new UpdatesWindow(preview: true); window.Show(); window.UpdateLayout();
+            var visual = (FrameworkElement)window.Content; var dpi = VisualTreeHelper.GetDpi(visual);
+            var bitmap = new RenderTargetBitmap((int)(visual.ActualWidth * dpi.DpiScaleX), (int)(visual.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+            bitmap.Render(visual); var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            using (var file = File.Create(args[1])) encoder.Save(file);
+            window.Close(); return 0;
+        }
         if (args.Length >= 2 && args[0] == "--render")
         {
             var app = new App(); app.InitializeComponent();
