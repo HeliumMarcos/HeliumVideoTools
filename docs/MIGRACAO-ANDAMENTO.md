@@ -1,6 +1,6 @@
 # Migração .NET — primeira etapa
 
-Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A preview.1 foi publicada após testes no GitHub Actions; segunda prévia integra a janela de atualizações aprovada. Ainda não constitui release estável.
+Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [v3.0.0-preview.2](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.0-preview.2) foi publicada com instalador, runtime e ferramentas incluídos, após testes de distribuição. Integra a janela de atualizações aprovada. Ainda não constitui release estável.
 
 Implementado:
 
@@ -21,7 +21,11 @@ Validação: compilação Release sem avisos/erros; testes com mídia artificial
 
 O usuário aprovou o visual V2 das três ferramentas e a identidade A (Vídeo em movimento), já aplicada e registrada em `docs/brand-guidelines.md`. Novas telas devem ser apresentadas por comparação antes/depois antes de ativar na versão final.
 
-## Pendências antes de release
+## Distribuição validada
+
+A [execução 41135780937](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41135780937) concluiu com sucesso: processamento, instalação, abertura WPF, reinstalação com app aberto, reabertura automática via `/RESTART`, mesma pasta e preservação dos bytes do atalho. A fixação real no Windows do usuário e o fluxo completo entre duas versões estáveis ainda precisam de validação. A release inclui instalador e `SHA256SUMS.txt`.
+
+## Pendências antes de versão estável
 
 - Completar validação de DPI, tema claro/alto contraste e teclado; visual escuro e ícone já aprovados.
 - Portar preferências com importação do perfil antigo e preservar padrões de abertura.
