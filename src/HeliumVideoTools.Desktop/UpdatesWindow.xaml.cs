@@ -16,6 +16,7 @@ public partial class UpdatesWindow : Window
     private readonly bool preview;
     private AppRelease? available;
     private ReleaseAsset? toolAsset;
+    private bool toolsUpdateAvailable;
     private CancellationTokenSource? transfer;
     private string? verifiedDownload;
     public bool Installing { get; private set; }
@@ -64,6 +65,7 @@ public partial class UpdatesWindow : Window
             var ffmpeg = System.Text.RegularExpressions.Regex.Match(FfmpegVersion.Text, @"version ([0-9]+(?:\.[0-9]+){1,2})");
             var ffprobe = System.Text.RegularExpressions.Regex.Match(FfprobeVersion.Text, @"version ([0-9]+(?:\.[0-9]+){1,2})");
             bool newer = !ffmpeg.Success || !ffprobe.Success || Version.Parse(ffmpeg.Groups[1].Value) < Version.Parse(toolAsset.Version) || Version.Parse(ffprobe.Groups[1].Value) < Version.Parse(toolAsset.Version);
+            toolsUpdateAvailable = newer;
             ToolsStatus.Text = newer ? $"Conjunto estável disponível: {toolAsset.Version}" : $"Conjunto instalado atualizado; versão estável disponível: {toolAsset.Version}.";
             InstallToolsButton.IsEnabled = newer;
         }
@@ -72,7 +74,7 @@ public partial class UpdatesWindow : Window
     }
     private async void InstallApp(object sender, RoutedEventArgs e)
     {
-        if (preview || available is null || transfer is not null) return;
+        if (preview || available is null || transfer is not null || Installing) return;
         if (mediaBusy()) { AppUpdateStatus.Text = "Aguarde o fim do processamento antes de iniciar a atualização."; return; }
         var release = available;
         transfer = new(); SetTransfer(true);
@@ -87,9 +89,14 @@ public partial class UpdatesWindow : Window
             transfer.Token.ThrowIfCancellationRequested();
             if (mediaBusy()) { AppUpdateStatus.Text = "Instalador verificado. Aguarde o processamento terminar para instalar."; return; }
             Installing = true;
-            var process = Process.Start(new ProcessStartInfo(file) { Arguments = "/S /RESTART", UseShellExecute = true });
+            using var process = Process.Start(new ProcessStartInfo(file) { Arguments = "/S /RESTART", UseShellExecute = true });
             if (process is null) throw new IOException("O instalador não iniciou.");
-            process.Dispose(); TransferStatus.Text = "Instalador iniciado. O aplicativo será fechado e reaberto.";
+            SetTransfer(false); TransferStatus.Text = "Instalador iniciado. O aplicativo será fechado e reaberto.";
+            await process.WaitForExitAsync();
+            Installing = false;
+            // Se este processo ainda está vivo, o instalador encerrou sem substituí-lo.
+            // Libera as ações novamente em vez de deixar o app bloqueado indefinidamente.
+            TransferStatus.Text = "O instalador foi encerrado. Se a atualização não foi aplicada, tente novamente.";
         }
         catch (OperationCanceledException) { TransferStatus.Text = "Download cancelado."; }
         catch (Exception ex) { Installing = false; verifiedDownload = null; TransferStatus.Text = ex.Message; }
@@ -117,8 +124,8 @@ public partial class UpdatesWindow : Window
     }
     private void SetTransfer(bool busy)
     {
-        CheckAppButton.IsEnabled = CheckToolsButton.IsEnabled = !busy;
-        InstallAppButton.IsEnabled = !busy && available is not null; InstallToolsButton.IsEnabled = !busy && toolAsset is not null;
+        CheckAppButton.IsEnabled = CheckToolsButton.IsEnabled = !busy && !Installing;
+        InstallAppButton.IsEnabled = !busy && !Installing && available is not null; InstallToolsButton.IsEnabled = !busy && !Installing && toolsUpdateAvailable;
         DownloadProgress.Visibility = CancelTransfer.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
     }
     private void CancelDownload(object sender, RoutedEventArgs e) => transfer?.Cancel();

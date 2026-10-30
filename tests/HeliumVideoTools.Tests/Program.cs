@@ -10,6 +10,11 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if (args.Length == 3 && args[0] == "--verify-public-release")
+        {
+            try { VerifyPublicReleaseAsync(args[1], args[2]).GetAwaiter().GetResult(); return 0; }
+            catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
+        }
         if (args.Length == 2 && args[0] == "--render-updates")
         {
             var app = new App(); app.InitializeComponent();
@@ -56,6 +61,18 @@ internal static class Program
         try { RunAsync().GetAwaiter().GetResult(); return 0; } catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
     }
     private static void Check(bool condition, string message) { if (!condition) throw new Exception(message); }
+    private static async Task VerifyPublicReleaseAsync(string tag, string destination)
+    {
+        Check(System.Text.RegularExpressions.Regex.IsMatch(tag, @"^v[0-9]+\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?$"), "Tag inválida");
+        using var http = ReleaseClient.CreateHttpClient(); var client = new ReleaseClient(http);
+        using var metadata = System.Text.Json.JsonDocument.Parse(await client.ReadAsync(new($"https://api.github.com/repos/HeliumMarcos/HeliumVideoTools/releases/tags/{tag}"), 4_000_000, true, default));
+        var name = $"HeliumVideoTools-{tag[1..].Split('-')[0]}-win-x64-Setup.exe";
+        var asset = ReleaseClient.ParseAsset(metadata.RootElement, "HeliumMarcos/HeliumVideoTools", name);
+        string path = Path.Combine(Path.GetFullPath(destination), name);
+        await client.DownloadAsync(asset, path, null, default);
+        using var verified = ReleaseClient.VerifyInstaller(path, asset);
+        Console.WriteLine($"PASS: download público anônimo real, tamanho {asset.Size}, SHA-256 e instalador MZ conferidos: {path}");
+    }
     private static async Task RunAsync()
     {
         Check(VideoEngine.Bitrate(60, 98, 128) < 13000, "Orçamento deve usar MB decimal com margem.");
