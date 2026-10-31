@@ -140,7 +140,7 @@ public partial class MainWindow : Window
         }
         estimate = new TextBlock { Foreground = new SolidColorBrush(Color.FromRgb(177, 218, 237)), Padding = new Thickness(12, 9, 12, 9), FontSize = 12 };
         Row("Estimativa", new Border { Background = new SolidColorBrush(Color.FromRgb(39, 53, 63)), CornerRadius = new CornerRadius(6), Child = estimate });
-        var note = new TextBlock { Text = operation == Operation.Webm ? "O arquivo final respeita o teto escolhido e um orçamento menor que o original." : operation == Operation.Split ? "Cortes rápidos dependem dos quadros-chave. O tamanho é conferido antes de salvar." : "O tamanho é conferido em MB decimais antes de salvar o resultado.", Foreground = Brushes.Silver, FontSize = 11 }; OptionsPanel.Children.Add(note);
+        var note = new TextBlock { Text = operation == Operation.Webm ? "O arquivo final respeita o teto escolhido e um orçamento menor que o original." : operation == Operation.Split ? "Divisão precisa em MP4 (H.264/AAC), com recodificação. Os originais são preservados." : "O tamanho é conferido em MB decimais antes de salvar o resultado.", Foreground = Brushes.Silver, FontSize = 11 }; OptionsPanel.Children.Add(note);
         UpdateEstimate();
     }
     private double SizeMb()
@@ -175,18 +175,56 @@ public partial class MainWindow : Window
             var options = new VideoOptions(operation, SizeMb(), operation == Operation.Webm ? codec?.SelectedIndex == 1 ? "vp9" : "vp8" : codec?.SelectedIndex == 1 ? "h265" : "h264", copyAudio?.IsChecked != false, precise?.IsChecked == true,
                 mode?.SelectedIndex switch { 1 => SplitMode.Parts, 2 => SplitMode.Duration, _ => SplitMode.Size }, mode?.SelectedIndex == 1 ? parts!.SelectedIndex + 2 : mode?.SelectedIndex == 2 ? double.Parse(target!.Text) : SizeMb(), preset?.SelectedIndex switch { 1 => "low", 2 => "medium", 3 => "high", _ => "custom" });
             ProgressPanel.Visibility = Visibility.Visible; ProgressAction.Content = "Cancelar tudo"; ProgressAction.IsEnabled = true; OverallBar.Value = 0;
+            ReportButton.Visibility = ResultDetails.Visibility = Visibility.Collapsed; ProgressAction.ContextMenu = null;
+            ProgressHeading.Text = "Progresso geral"; SetProgressColor("#57CCF2");
             RunButton.IsEnabled = false; OptionsPanel.IsEnabled = false;
-            var count = await model.RunAsync(options, new Progress<VideoProgress>(p => { OverallBar.Value = p.Percent; ProgressStatus.Text = p.Status; }));
-            OverallBar.Value = 100; ProgressStatus.Text = $"{count} arquivo(s) concluído(s) • tamanhos verificados"; Status.Text = "Processamento concluído";
+            var result = await model.RunAsync(options, new Progress<VideoProgress>(p => { if (model.Busy && model.LastResult is null) { OverallBar.Value = p.Percent; ProgressStatus.Text = p.Status; } }));
+            ShowBatchResult(result);
         }
         catch (OperationCanceledException) { ProgressPanel.Visibility = Visibility.Collapsed; Status.Text = "Processamento cancelado. Os originais foram preservados."; }
         catch (Exception ex) { AppLog.Write("ERROR", "Processamento", ex.ToString()); Status.Text = ex is IOException ? ex.Message : "Não foi possível concluir. Consulte o log para detalhes."; ProgressStatus.Text = Status.Text; }
-        finally { RunButton.IsEnabled = true; OptionsPanel.IsEnabled = true; ProgressAction.Content = "Abrir pasta"; ProgressAction.IsEnabled = model.LastOutputFolder is not null; }
+        finally { RunButton.IsEnabled = true; OptionsPanel.IsEnabled = true; int folders = model.LastResult?.OutputFolders.Count ?? 0; ProgressAction.Content = folders > 1 ? $"Pastas de saída ({folders})" : "Abrir pasta"; ProgressAction.IsEnabled = model.LastOutputFolder is not null; }
+    }
+    private void SetProgressColor(string color)
+    { var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)); OverallBar.Foreground = ProgressIcon.Foreground = ProgressPanel.BorderBrush = ProgressStatus.Foreground = brush; }
+    private void ShowBatchResult(BatchResult result)
+    {
+        static string Count(int n,string one,string many) => n + " " + (n == 1 ? one : many);
+        var counts = new List<string> { Count(result.Succeeded,"concluído","concluídos") };
+        if (result.Failed > 0) counts.Add($"{result.Failed} com erro");
+        int cancelled = result.Items.Count(i => i.State == BatchItemState.Cancelled);
+        if (cancelled > 0) counts.Add(Count(cancelled,"cancelado","cancelados"));
+        if (result.NotStarted > 0) counts.Add(Count(result.NotStarted,"não iniciado","não iniciados"));
+        ProgressHeading.Text = result.Cancelled ? "Processamento cancelado" : "Resultado do lote";
+        ProgressStatus.Text = string.Join(" • ",counts);
+        if (!result.Cancelled) OverallBar.Value = 100;
+        SetProgressColor(result.Cancelled ? "#BDBDBD" : result.Failed > 0 ? result.Succeeded > 0 ? "#F2C66D" : "#F28B82" : "#83D19E");
+        ResultDetails.Text = model.ReportWarning ?? (result.Cancelled ? "As saídas já concluídas continuam disponíveis. Os demais arquivos não foram iniciados." : result.Failed > 0 ? "As saídas concluídas foram preservadas. Veja o relatório para identificar os arquivos com erro." : "Processamento concluído. Os arquivos originais foram preservados.");
+        ResultDetails.Visibility = Visibility.Visible; ReportButton.Visibility = model.LastReportPath is null ? Visibility.Collapsed : Visibility.Visible;
+        Status.Text = model.ReportWarning ?? (result.Cancelled ? "Lote cancelado • resultados concluídos preservados" : result.Failed > 0 ? "Lote encerrado com erros • consulte o relatório" : "Processamento concluído");
+    }
+    private void OpenReport(object sender,RoutedEventArgs e)
+    {
+        if (model.LastReportPath is not { } path) return;
+        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
+        catch (Exception ex) when (ex is IOException or System.ComponentModel.Win32Exception or UnauthorizedAccessException) { AppLog.Write("WARNING","Abrir relatório",ex.Message); Status.Text = "Não foi possível abrir o relatório: " + path; }
+    }
+    private void OpenFolder(string path)
+    {
+        try { if (!Directory.Exists(path)) throw new IOException("Pasta não encontrada."); Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
+        catch (Exception ex) when (ex is IOException or System.ComponentModel.Win32Exception or UnauthorizedAccessException) { AppLog.Write("WARNING","Abrir pasta",ex.Message); Status.Text = "Não foi possível abrir a pasta: " + path; }
     }
     private void ProgressActionClicked(object sender, RoutedEventArgs e)
     {
         if (model.Busy) { model.Cancel(); ProgressAction.IsEnabled = false; Status.Text = "Cancelando…"; }
-        else if (model.LastOutputFolder is { } folder) Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
+        else if (model.LastResult is { } result && result.OutputFolders.Count > 1)
+        {
+            var menu = new ContextMenu { Background = new SolidColorBrush(Color.FromRgb(41,41,41)), Foreground = Brushes.White, MaxHeight = 360, PlacementTarget = ProgressAction };
+            var template = (ControlTemplate)System.Windows.Markup.XamlReader.Parse("<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='MenuItem'><Border Name='Face' Background='{TemplateBinding Background}' Padding='12,10'><ContentPresenter ContentSource='Header'/></Border><ControlTemplate.Triggers><Trigger Property='IsHighlighted' Value='True'><Setter TargetName='Face' Property='Background' Value='#0067C0'/></Trigger></ControlTemplate.Triggers></ControlTemplate>");
+            foreach (var folder in result.OutputFolders) { var item = new MenuItem { Header = new TextBlock { Text = folder, MaxWidth = 600, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap }, ToolTip = folder, Background = menu.Background, Foreground = menu.Foreground, Template = template }; item.Click += (_,_) => OpenFolder(folder); menu.Items.Add(item); }
+            ProgressAction.ContextMenu = menu; menu.IsOpen = true;
+        }
+        else if (model.LastOutputFolder is { } folder) OpenFolder(folder);
     }
     private async void WindowClosing(object? sender, CancelEventArgs e)
     {

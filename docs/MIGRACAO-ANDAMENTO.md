@@ -29,14 +29,25 @@ A [execução 41135780937](https://github.com/HeliumMarcos/HeliumVideoTools/acti
 
 A [execução 41137905761](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41137905761) repetiu esses testes e publicou a 3.0.1 no canal oficial. Após publicar, o mesmo cliente do aplicativo baixou anonimamente o instalador (172743302 bytes), conferiu SHA-256/MZ e consultou o endpoint real de versão estável: detectou atualização de 3.0.0 para 3.0.1 e não ofereceu atualização para a própria 3.0.1. Isso não substitui o teste visual da notificação e da instalação pelo usuário na instalação anterior.
 
+O usuário confirmou que a atualização pelo aplicativo funcionou no seu computador. Isso valida o fluxo relatado, mas não confirma por si só a preservação de atalhos fixados.
+
+## Etapa 3.0.2 — lotes e continuidade
+
+- Resumo final aprovado pelo usuário: sem fila; mostra concluídos/erros/cancelados/não iniciados, relatório e escolha da pasta quando há várias.
+- `BatchRunner` independente da interface continua após falha de arquivo, distingue timeout de cancelamento solicitado, preserva partes já publicadas e não deixa callbacks atrasados regredirem o progresso.
+- ViewModel integrado ao novo motor; relatórios JSON e TXT locais em `%LOCALAPPDATA%\HeliumVideoTools\reports`, gravados por temporários próprios. O relatório contém caminhos locais; não é enviado ao GitHub.
+- Teste de regressão detectou sobreposição no corte por cópia de fluxo: fonte de 200 quadros resultou em 300 ao juntar partes. As três divisões agora usam busca precisa e recodificação H.264/AAC em MP4, preservando a cadência com `fps_mode passthrough`. Isso pode demorar mais que copiar o fluxo, mas não depende de coincidir com um quadro-chave. Original preservado.
+- Testes passam com quadros marcados CFR e VFR: contagem e ordem visual preservadas em quantidade, duração e tamanho; áudio decodificável, soma de duração e diferença de duração A/V dentro das tolerâncias explícitas do teste. Isso ainda não comprova continuidade perceptual/sincronismo em audiências extensas ou todos os formatos.
+- Referência técnica do comportamento de busca/cópia de fluxo: https://www.ffmpeg.org/ffmpeg.html (opção `-ss`).
+
 ## Pendências do plano após a publicação oficial
 
 - Completar validação de DPI, tema claro/alto contraste e teclado; visual escuro e ícone já aprovados.
 - Portar preferências com importação do perfil antigo e preservar padrões de abertura.
-- Divisão por tamanho agora recodifica em H.264/AAC e ajusta a duração até respeitar o limite. Testes conferem cada tamanho e soma de durações, incluindo sobra final curta. Ainda falta validar continuidade perceptual com amostras extensas/quadros variáveis.
+- Divisão precisa e testes sintéticos CFR/VFR implementados. Ainda falta validar continuidade perceptual, sincronismo e qualidade com amostras extensas reais.
 - Codificação acima do limite agora repete com orçamento reduzido, até três tentativas; falha final não publica arquivo excedente.
-- Recuperar resultados parciais de um lote e relatar erros por arquivo; a implementação atual interrompe o lote no primeiro erro.
-- Atualização pública sem credenciais e interação integradas; testes cobrem hash inválido, origem, versão igual e HTTP 403. Falta ciclo ponta a ponta entre duas versões estáveis publicadas.
+- Recuperação de resultados parciais e erros por arquivo implementada na etapa 3.0.2. Continuar ampliando casos de erro e recuperação de encerramento inesperado.
+- Atualização pública sem credenciais e interação integradas, com confirmação de funcionamento pelo usuário. Repetir entre versões oficiais e em falhas/interrupções, sem tratar isso como bloqueio da migração já concluída.
 - Ferramentas em conjuntos imutáveis, validação, troca atômica de ponteiro e restauração integradas; falta validar transação completa em perfil isolado.
 - Instalador NSIS por usuário validado em runner para reinstalação real, pasta fixa e bytes dos atalhos; fixação real continua dependente de validação no Windows do usuário.
 - Publicar no canal oficial, conforme solicitação do usuário, somente após testes de distribuição; continuar registrando as limitações sem tratá-las como validações concluídas.

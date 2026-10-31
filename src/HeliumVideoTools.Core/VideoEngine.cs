@@ -12,7 +12,7 @@ public sealed record VideoOptions(Operation Operation = Operation.Compress, doub
 public sealed record MediaInfo(double Duration, long Bytes, double AudioKbps, double FrameRate = 25);
 public sealed record VideoProgress(double Percent, string Status);
 
-public sealed class VideoEngine(string ffmpeg, string ffprobe)
+public sealed class VideoEngine(string ffmpeg, string ffprobe) : IVideoProcessor
 {
     public static bool Supported(string path) => new[] { ".mp4", ".mkv", ".avi", ".mov", ".m4v", ".webm" }.Contains(Path.GetExtension(path).ToLowerInvariant());
     private static string N(double value) => value.ToString("0.#########", CultureInfo.InvariantCulture);
@@ -64,7 +64,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe)
         }
         return new(duration, new FileInfo(source).Length, audio, fps);
     }
-    public async Task<IReadOnlyList<string>> ProcessAsync(string source, VideoOptions options, IProgress<VideoProgress> progress, CancellationToken token)
+    public async Task<IReadOnlyList<string>> ProcessAsync(string source, VideoOptions options, IProgress<VideoProgress> progress, CancellationToken token, Action<string>? outputPublished = null)
     {
         if (!File.Exists(source) || !Supported(source)) throw new IOException("Selecione um vídeo existente em formato suportado.");
         progress.Report(new(0, "Analisando vídeo…"));
@@ -79,19 +79,21 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe)
         if (options.Operation == Operation.Split)
         {
             if (options.SplitMode == SplitMode.Size)
-                return await SplitBySizeAsync(source, options.SplitValue, info, progress, token);
+                return await SplitBySizeAsync(source, options.SplitValue, info, progress, token, outputPublished);
             double length = options.SplitMode switch { SplitMode.Parts => info.Duration / options.SplitValue, SplitMode.Duration => options.SplitValue * 60, _ => info.Duration * options.SplitValue / originalMb };
-            if (!double.IsFinite(length) || length < 1 || options.SplitValue <= 0 || (options.SplitMode == SplitMode.Parts && (options.SplitValue < 2 || options.SplitValue > 10))) throw new IOException("Divisão inválida: escolha 2 a 10 partes ou intervalos de pelo menos um segundo.");
-            var count = (int)Math.Ceiling(info.Duration / length);
+            if (!double.IsFinite(length) || length < 1 || options.SplitValue <= 0 || (options.SplitMode == SplitMode.Parts && (options.SplitValue < 2 || options.SplitValue > 10 || options.SplitValue % 1 != 0))) throw new IOException("Divisão inválida: escolha 2 a 10 partes ou intervalos de pelo menos um segundo.");
+            var count = options.SplitMode == SplitMode.Parts ? (int)options.SplitValue : (int)Math.Ceiling(info.Duration / length);
             if (count > 10000) throw new IOException("A divisão criaria arquivos demais.");
             for (var i = 0; i < count; i++)
             {
                 token.ThrowIfCancellationRequested();
                 var index = i;
                 var segment = Math.Min(length, info.Duration - i * length);
-                var output = Unique(Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(source)}_parte_{i + 1:000}{Path.GetExtension(source)}"));
-                var args = new List<string> { "-n", "-hide_banner", "-ss", N(i * length), "-i", source, "-t", N(segment), "-map", "0", "-c", "copy", "-avoid_negative_ts", "make_zero" };
-                await RunOutput(args, output, segment, p => progress.Report(new((index + p / 100) / count * 100, $"Parte {index + 1}/{count}")), token, options.SplitMode == SplitMode.Size ? (long)(options.SplitValue * 1000000) : null);
+                var output = Unique(Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(source)}_parte_{i + 1:000}.mp4"));
+                // Busca precisa com recodificação: não transporta o pré-roll do
+                // quadro-chave anterior para a parte seguinte, como stream copy.
+                var args = CutArgs(source, i * length, segment);
+                await RunOutput(args, output, segment, p => progress.Report(new((index + p / 100) / count * 100, $"Parte {index + 1}/{count}")), token, outputPublished: outputPublished);
                 outputs.Add(output);
             }
         }
@@ -134,7 +136,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe)
                         if (audio > 0) args.AddRange(webm ? ["-map", "0:a:0?", "-c:a", "libopus", "-b:a", "128k"] : options.CopyAudio ? ["-map", "0:a:0?", "-c:a", "copy"] : ["-map", "0:a:0?", "-c:a", "aac", "-b:a", "128k"]);
                         else args.Add("-an");
                         if (!webm) args.AddRange(["-movflags", "+faststart"]);
-                        await RunOutput(args, output, info.Duration, report, token, (long)(target * 1000000));
+                        await RunOutput(args, output, info.Duration, report, token, (long)(target * 1000000), outputPublished);
                     }
                 }
                 break;
@@ -153,7 +155,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe)
         }
         return outputs;
     }
-    private async Task RunOutput(List<string> args, string output, double duration, Action<double> report, CancellationToken token, long? maxBytes = null)
+    private async Task RunOutput(List<string> args, string output, double duration, Action<double> report, CancellationToken token, long? maxBytes = null, Action<string>? outputPublished = null)
     {
         var temp = Path.Combine(Path.GetDirectoryName(output)!, $".{Guid.NewGuid():N}.partial{Path.GetExtension(output)}");
         try
@@ -165,10 +167,11 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe)
                 throw new OutputTooLargeException(limit, new FileInfo(temp).Length);
             await ProbeAsync(temp, token); // Não publicar um arquivo vazio ou sem vídeo.
             File.Move(temp, output, false);
+            outputPublished?.Invoke(output);
         }
         finally { if (File.Exists(temp)) File.Delete(temp); }
     }
-    private async Task<IReadOnlyList<string>> SplitBySizeAsync(string source, double targetMb, MediaInfo info, IProgress<VideoProgress> progress, CancellationToken token)
+    private async Task<IReadOnlyList<string>> SplitBySizeAsync(string source, double targetMb, MediaInfo info, IProgress<VideoProgress> progress, CancellationToken token, Action<string>? outputPublished)
     {
         if (targetMb <= 0 || !double.IsFinite(targetMb) || targetMb * 1000000 > long.MaxValue) throw new IOException("Tamanho por parte inválido.");
         long limit = (long)(targetMb * 1000000);
@@ -187,10 +190,10 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe)
             var output = Unique(Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(source)}_parte_{outputs.Count + 1:000}.mp4"));
             for (int attempt = 0; ; attempt++)
             {
-                var args = new List<string> { "-y", "-hide_banner", "-i", source, "-ss", N(start), "-t", N(length), "-map", "0:v:0", "-map", "0:a:0?", "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart" };
+                var args = CutArgs(source, start, length);
                 try
                 {
-                    await RunOutput(args, output, length, p => progress.Report(new((start + length * p / 100) / info.Duration * 100, $"Criando parte {outputs.Count + 1} • conferindo limite de {targetMb:0.###} MB")), token, limit);
+                    await RunOutput(args, output, length, p => progress.Report(new((start + length * p / 100) / info.Duration * 100, $"Criando parte {outputs.Count + 1} • conferindo limite de {targetMb:0.###} MB")), token, limit, outputPublished);
                     break;
                 }
                 catch (OutputTooLargeException ex) when (attempt < 7 && length > .3)
@@ -208,6 +211,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe)
         progress.Report(new(100, $"{outputs.Count} partes criadas, todas dentro do limite"));
         return outputs;
     }
+    private static List<string> CutArgs(string source,double start,double length) => ["-y", "-hide_banner", "-ss", N(start), "-accurate_seek", "-i", source, "-t", N(length), "-map", "0:v:0", "-map", "0:a:0?", "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p", "-fps_mode", "passthrough", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart"];
     private Task Run(List<string> args, double duration, Action<double> report, CancellationToken token) => ExecuteAsync(ffmpeg, args, line =>
     {
         if (line.StartsWith("out_time_us=") && double.TryParse(line[12..], CultureInfo.InvariantCulture, out var micro)) report(Math.Clamp(micro / 1000000 / duration * 100, 0, 99.9));
@@ -233,6 +237,6 @@ public static class AppLog
     public static string Root => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HeliumVideoTools");
     public static void Write(string level, string message, string? detail = null)
     {
-        try { lock (Gate) { Directory.CreateDirectory(Root); var path = Path.Combine(Root, "app.jsonl"); if (File.Exists(path) && new FileInfo(path).Length > 2097152) File.Move(path, path + ".1", true); File.AppendAllText(path, JsonSerializer.Serialize(new { timestamp = DateTimeOffset.Now, level, message, detail }) + Environment.NewLine); } } catch (IOException) { }
+        try { lock (Gate) { Directory.CreateDirectory(Root); var path = Path.Combine(Root, "app.jsonl"); if (File.Exists(path) && new FileInfo(path).Length > 2097152) File.Move(path, path + ".1", true); File.AppendAllText(path, JsonSerializer.Serialize(new { timestamp = DateTimeOffset.Now, level, message, detail }) + Environment.NewLine); } } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException) { }
     }
 }

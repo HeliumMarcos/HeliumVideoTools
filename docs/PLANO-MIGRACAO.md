@@ -1,6 +1,6 @@
 # Helium Vídeo Tools — migração Windows
 
-Data: 30/10/2026. Estado: planejamento; versão Python 2.6 preservada como referência. Não há instalador .NET publicado ainda.
+Atualizado em 30/10/2026. Este documento registra a direção e os critérios originais. A migração C#/.NET 10 WPF, identidade visual, instalador e release oficial 3.0.1 já foram entregues; o usuário confirmou a atualização pelo app. A etapa 3.0.2 integra lotes tolerantes a falhas e cortes precisos. Consulte `MIGRACAO-ANDAMENTO.md` para evidências e pendências reais; não interpretar etapas históricas abaixo como itens ainda não iniciados.
 
 ## Decisão técnica
 
@@ -77,7 +77,7 @@ Ferramentas versionadas no perfil local e seleção ativa persistida; pacote ini
 
 Referência observada: YTMusicRush usa quadrado escuro arredondado externo, placa interna com gradiente azul e pictograma branco simples. Refazer o Helium nesse sistema vetorial, substituindo o símbolo de música por vídeo/play com transformação/corte legível. Evitar excesso de letras, órbitas pequenas e detalhes perdidos em 16 px. Comparar também DownloadRush e UploadRush antes da execução final.
 
-Entregar SVG mestre, PNG transparente e ICO 16/20/24/32/40/48/64/128/256; verificar em 16/32/48/256 px e temas claro/escuro. Manter caminho do ícone estável durante upgrades. Esta etapa registra a direção; o ícone definitivo ainda não foi desenhado/aplicado.
+Identidade A aprovada e aplicada: SVG mestre, PNG transparente e ICO multirresolução. Manter caminho do ícone estável durante upgrades; ampliar validação em temas e escalas de tela.
 
 ## Ordem de execução e critérios
 
@@ -85,13 +85,13 @@ Atualização de infraestrutura (30/10/2026): migrar Actions JavaScript para Nod
 
 Referência: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 
-1. Preservar código Python e registrar este plano em repositório privado. Não publicar um instalador de migração antes de existir app migrado validado.
+1. Código Python preservado. O repositório inicialmente privado passou a público por autorização do usuário; instalador .NET já publicado após testes.
 2. Criar solução .NET e migrar processamento, sondagem, cancelamento e preferências; testar mídias controladas com/sem áudio, nomes Unicode, arquivos grandes e alvos impossíveis.
 3. Reproduzir as três telas em WPF e validar visualmente os estados e DPI; aplicar o ícone no padrão da família.
-4. Adaptar o fluxo comprovado do YTMusicRush: autenticação, consulta/download/cancelamento, hashes, ferramentas em par e rollback. Testar release inexistente, 401/403/404, versão igual/antiga, hash inválido e falha de rede sem executar instalador.
+4. Fluxo público anônimo adotado: consulta/download/cancelamento, hashes, ferramentas em par e rollback. Não há autenticação. Ampliar testes de falhas de rede, transações e recuperação.
 5. Preparar NSIS e GitHub Actions no Windows: restore/build/test/publish self-contained, obter ferramentas fixadas com hashes, compilar Setup, gerar SHA256SUMS e anexar assets à release da tag `vX.Y.Z`. Permissão contents:write apenas no job de publicação; impedir releases simultâneas para a mesma versão. Não compilar o instalador localmente como fluxo oficial.
 6. Publicar versão de teste e validar upgrade real A→B com conta normal, app aberto, ferramenta ativa, falha de download, falha de troca e pins. Publicar release estável após evidências. Gerar artefatos com nome `HeliumVideoTools-X.Y.Z-win-x64-Setup.exe`.
 
 ## Estado desta entrega de planejamento
 
-Decisão de tecnologia, requisitos e estratégia definidos. Código Python permanece executável. Migração .NET, novo ícone, workflow e instalador são as próximas entregas; nenhum desses itens deve ser descrito como implementado apenas pela criação deste plano.
+Migração .NET, novo ícone, workflow e instalador entregues. Atualização real confirmada pelo usuário. Preferências, estimativas, temas/acessibilidade, medições de desempenho, validações extensas de mídia, transações de ferramentas e pins ainda precisam de trabalho, conforme `MIGRACAO-ANDAMENTO.md`.

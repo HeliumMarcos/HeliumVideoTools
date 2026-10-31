@@ -60,11 +60,30 @@ internal static class Program
                 ((System.Windows.Controls.TextBlock)window.FindName("ProgressStatus")).Text = "Exemplo de progresso • 1/3 arquivos • 42%";
                 ((System.Windows.Controls.ProgressBar)window.FindName("OverallBar")).Value = 42;
             }
+            if (args.Length > 5 && args[5] == "result")
+            {
+                var result = new BatchResult([new("audiência-1.mp4",BatchItemState.Succeeded,[Path.Combine(Environment.CurrentDirectory,"work","pasta-a","resultado.mp4")]),new("audiência-2.mp4",BatchItemState.Failed,[],"Não foi possível processar este arquivo."),new("audiência-3.mp4",BatchItemState.Succeeded,[Path.Combine(Environment.CurrentDirectory,"work","pasta-b","resultado.mp4")])],false);
+                var model = (BatchViewModel)window.DataContext;
+                typeof(BatchViewModel).GetProperty("LastResult")!.SetValue(model,result);
+                typeof(BatchViewModel).GetProperty("LastReportPath")!.SetValue(model,"exemplo.txt");
+                typeof(BatchViewModel).GetProperty("LastOutputFolder")!.SetValue(model,result.OutputFolders[0]);
+                ((FrameworkElement)window.FindName("ProgressPanel")).Visibility = Visibility.Visible;
+                typeof(MainWindow).GetMethod("ShowBatchResult",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(window,[result]);
+                ((System.Windows.Controls.Button)window.FindName("ProgressAction")).Content = "Pastas de saída (2)";
+            }
             window.UpdateLayout();
             var visual = (FrameworkElement)window.Content;
             var run = (FrameworkElement)window.FindName("RunButton");
             var bounds = run.TransformToAncestor(visual).TransformBounds(new Rect(run.RenderSize));
             Check(bounds.Top >= 0 && bounds.Bottom <= visual.ActualHeight && bounds.Right <= visual.ActualWidth, "Ação principal fora da área visível");
+            var reportButton = (FrameworkElement)window.FindName("ReportButton");
+            if (reportButton.Visibility == Visibility.Visible)
+            {
+                var reportBounds=reportButton.TransformToAncestor(visual).TransformBounds(new Rect(reportButton.RenderSize));
+                Check(reportBounds.Top>=0 && reportBounds.Bottom<=visual.ActualHeight && reportBounds.Right<=visual.ActualWidth,"Botão de relatório fora da área visível");
+                var action=(System.Windows.Controls.Button)window.FindName("ProgressAction"); action.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
+                Check(action.ContextMenu?.Items.Count==2,"Pastas de saída não foram oferecidas individualmente"); action.ContextMenu!.IsOpen=false;
+            }
             var scroll = (System.Windows.Controls.ScrollViewer)window.FindName("PageScroll");
             scroll.ScrollToEnd(); window.UpdateLayout();
             var afterScroll = run.TransformToAncestor(visual).TransformBounds(new Rect(run.RenderSize));
@@ -92,10 +111,14 @@ internal static class Program
         using var verified = ReleaseClient.VerifyInstaller(path, asset);
         if (!tag.Contains("preview"))
         {
-            var update = await client.CheckAppAsync(new Version(3,0,0,0), default);
-            Check(update is not null && update.Version == Version.Parse(tag[1..]) && update.Installer.Sha256 == asset.Sha256, "A versão anterior não detectou a release oficial esperada");
+            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0)})
+            {
+                if(installed>=Version.Parse(tag[1..])) continue;
+                var update = await client.CheckAppAsync(installed, default);
+                Check(update is not null && update.Version == Version.Parse(tag[1..]) && update.Installer.Sha256 == asset.Sha256, "A versão anterior não detectou a release oficial esperada");
+            }
             Check(await client.CheckAppAsync(Version.Parse(tag[1..]), default) is null, "A versão atual recebeu atualização para si mesma");
-            Console.WriteLine("PASS: canal oficial detecta atualização desde 3.0.0 e não oferece atualização para a versão atual.");
+            Console.WriteLine("PASS: canal oficial detecta atualização para versões anteriores testadas e não oferece atualização para a versão atual.");
         }
         Console.WriteLine($"PASS: download público anônimo real, tamanho {asset.Size}, SHA-256 e instalador MZ conferidos: {path}");
     }
@@ -135,6 +158,8 @@ internal static class Program
         var canceledOutput = Path.Combine(folder, "cancelado.mp4");
         try { await VideoEngine.ExecuteAsync(ffmpeg, ["-y", "-re", "-i", source, "-c", "copy", canceledOutput], null, activeCancel.Token); throw new Exception("Cancelamento de processo ativo ignorado"); } catch (OperationCanceledException) { }
         Check(!Directory.GetFiles(folder, "*.partial.*").Any(), "Temporário permaneceu após operação");
+        await BatchTests.RunAsync(engine, source, folder);
+        await ContinuityTests.RunAsync(ffmpeg, ffprobe, folder);
         Console.WriteLine("PASS: sondagem, áudio, compactação 2-pass, VP8/VP9 sem aumento, divisão, progresso, cancelamento prévio/ativo e temporários.");
         Console.WriteLine("Amostras: " + folder);
     }

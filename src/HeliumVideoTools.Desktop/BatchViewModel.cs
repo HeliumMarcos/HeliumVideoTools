@@ -1,20 +1,35 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using HeliumVideoTools.Core;
 
 namespace HeliumVideoTools.Desktop;
 public sealed record InputVideo(string Path)
 {
-    public string Name => $"{System.IO.Path.GetFileName(Path)}   •   {new FileInfo(Path).Length / 1000000d:0.0} MB";
+    public string Name
+    {
+        get
+        {
+            try { return $"{System.IO.Path.GetFileName(Path)}   •   {new FileInfo(Path).Length / 1000000d:0.0} MB"; }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return System.IO.Path.GetFileName(Path) + " • arquivo indisponível"; }
+        }
+    }
 }
 public sealed class BatchViewModel : INotifyPropertyChanged
 {
+    private readonly Func<IVideoProcessor>? processorFactory;
+    private readonly Func<CancellationToken,Task> validateTools;
+    private readonly string reportDirectory;
+    public BatchViewModel() : this(null,MediaToolUpdater.ValidateActiveAsync,System.IO.Path.Combine(AppLog.Root,"reports")) { }
+    public BatchViewModel(Func<IVideoProcessor>? processorFactory,Func<CancellationToken,Task> validateTools,string reportDirectory)
+    { this.processorFactory=processorFactory; this.validateTools=validateTools; this.reportDirectory=reportDirectory; }
     public ObservableCollection<InputVideo> Files { get; } = [];
     public event PropertyChangedEventHandler? PropertyChanged;
     public bool Busy { get; private set; }
     public string? LastOutputFolder { get; private set; }
+    public BatchResult? LastResult { get; private set; }
+    public string? LastReportPath { get; private set; }
+    public string? ReportWarning { get; private set; }
     private CancellationTokenSource? cancellation;
     public void Add(IEnumerable<string> paths)
     {
@@ -29,33 +44,28 @@ public sealed class BatchViewModel : INotifyPropertyChanged
         return null;
     }
     public void Cancel() => cancellation?.Cancel();
-    public async Task<int> RunAsync(VideoOptions options, IProgress<VideoProgress> progress)
+    public async Task<BatchResult> RunAsync(VideoOptions options, IProgress<VideoProgress> progress)
     {
-        if (Busy) return 0;
+        if (Busy) throw new InvalidOperationException("Já existe um processamento em andamento.");
+        LastResult = null; LastReportPath = null; LastOutputFolder = null; ReportWarning = null;
         var sources = Files.Select(f => f.Path).ToArray();
         if (sources.Length == 0) throw new IOException("Adicione pelo menos um vídeo.");
-        var engine = new VideoEngine(FindTool("ffmpeg") ?? throw new IOException("FFmpeg ausente. Coloque o conjunto de ferramentas na pasta tools."), FindTool("ffprobe") ?? throw new IOException("ffprobe ausente. Coloque o conjunto de ferramentas na pasta tools."));
+        var engine = processorFactory?.Invoke() ?? new VideoEngine(FindTool("ffmpeg") ?? throw new IOException("FFmpeg ausente. Coloque o conjunto de ferramentas na pasta tools."), FindTool("ffprobe") ?? throw new IOException("ffprobe ausente. Coloque o conjunto de ferramentas na pasta tools."));
         Busy = true; LastOutputFolder = null; PropertyChanged?.Invoke(this, new(nameof(Busy)));
         using var cancel = new CancellationTokenSource(); cancellation = cancel;
-        int completed = 0;
-        var timer = Stopwatch.StartNew();
         try
         {
-            await MediaToolUpdater.ValidateActiveAsync(cancel.Token);
-            for (int i = 0; i < sources.Length; i++)
+            await validateTools(cancel.Token);
+            LastResult = await new BatchRunner(engine).RunAsync(sources, options, progress, cancel.Token);
+            LastOutputFolder = LastResult.OutputFolders.LastOrDefault();
+            try
             {
-                int index = i;
-                var fileProgress = new Progress<VideoProgress>(p =>
-                {
-                    double percent = (index + p.Percent / 100) / sources.Length * 100;
-                    double remaining = percent > 1 ? timer.Elapsed.TotalSeconds * (100 - percent) / percent : 0;
-                    progress.Report(new(percent, $"{index + 1}/{sources.Length} • {System.IO.Path.GetFileName(sources[index])} • {p.Status} • {percent:0}%" + (remaining > 0 ? $" • restante ≈ {TimeSpan.FromSeconds(remaining):hh\\:mm\\:ss}" : "")));
-                });
-                var outputs = await engine.ProcessAsync(sources[i], options, fileProgress, cancel.Token);
-                LastOutputFolder = System.IO.Path.GetDirectoryName(outputs.Last()); completed++;
-                AppLog.Write("INFO", "Arquivo concluído", System.IO.Path.GetFileName(sources[i]));
+                string report = await BatchReportStore.SaveAsync(LastResult,reportDirectory);
+                LastReportPath = System.IO.Path.ChangeExtension(report,".txt");
             }
-            return completed;
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            { ReportWarning = "Não foi possível salvar o relatório. As saídas concluídas foram preservadas."; AppLog.Write("WARNING","Relatório do lote",ex.Message); }
+            return LastResult;
         }
         finally { cancellation = null; Busy = false; PropertyChanged?.Invoke(this, new(nameof(Busy))); }
     }
