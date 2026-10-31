@@ -1,6 +1,6 @@
 # Migração .NET — primeira etapa
 
-Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.1 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.1) foi publicada com instalador, runtime e ferramentas incluídos, após aprovação do visual compacto e da barra nativa escura. As pendências de validação continuam registradas abaixo.
+Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.2 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.2) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas e resumo final aprovado. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -32,6 +32,8 @@ A [execução 41137905761](https://github.com/HeliumMarcos/HeliumVideoTools/acti
 O usuário confirmou que a atualização pelo aplicativo funcionou no seu computador. Isso valida o fluxo relatado, mas não confirma por si só a preservação de atalhos fixados.
 
 ## Etapa 3.0.2 — lotes e continuidade
+
+Publicação concluída pela [execução 41153532453](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41153532453), após testes de processamento, instalação, reinstalação e reabertura. O download público real e a consulta de atualização de versões anteriores são conferidos pelo cliente do próprio aplicativo.
 
 - Resumo final aprovado pelo usuário: sem fila; mostra concluídos/erros/cancelados/não iniciados, relatório e escolha da pasta quando há várias.
 - `BatchRunner` independente da interface continua após falha de arquivo, distingue timeout de cancelamento solicitado, preserva partes já publicadas e não deixa callbacks atrasados regredirem o progresso.
