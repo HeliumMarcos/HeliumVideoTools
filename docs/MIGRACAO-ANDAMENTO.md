@@ -1,6 +1,6 @@
 # Migração .NET — primeira etapa
 
-Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.2 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.2) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas e resumo final aprovado. As pendências de validação continuam registradas abaixo.
+Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.3 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.3) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas e preferências úteis. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -44,7 +44,9 @@ Publicação concluída pela [execução 41153532453](https://github.com/HeliumM
 
 ## Pendências do plano após a publicação oficial
 
-Etapa 3.0.3 preparada após aprovação visual: estimativas usam metadados em segundo plano com cache, separam teto/orçamento/referência e sinalizam mídias sem orçamento válido. Preferências úteis são salvas atomicamente em `%LOCALAPPDATA%\HeliumVideoTools\preferences.json`, fora da instalação: última pasta, dimensões/maximização, quantidade/duração de divisão e modo em duas etapas. Migração inicial lê apenas opções compatíveis do QSettings antigo, sem alterar o registro de origem. Geometria binária Qt, tema ainda não implementado e padrões protegidos não são importados.
+Etapa 3.0.3 publicada após aprovação visual: estimativas usam metadados em segundo plano com cache, separam teto/orçamento/referência e sinalizam mídias sem orçamento válido. Preferências úteis são salvas atomicamente em `%LOCALAPPDATA%\HeliumVideoTools\preferences.json`, fora da instalação: última pasta, dimensões/maximização, quantidade/duração de divisão e modo em duas etapas. Migração inicial lê apenas opções compatíveis do QSettings antigo, sem alterar o registro de origem. Geometria binária Qt, tema ainda não implementado e padrões protegidos não são importados.
+
+A [execução 41155944596](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41155944596) passou pelos testes de processamento, instalação, reinstalação/reabertura, atalhos e preservação de preferências. O download público real foi conferido (172810793 bytes, SHA-256 e MZ); o cliente detectou a release desde as versões anteriores testadas, incluindo 3.0.2, e não ofereceu atualização para si mesmo. Testes locais também conferiram cache/invalidação, cancelamento/timeout e estimativa WPF com ffprobe real nos tamanhos padrão e mínimo.
 
 Padrões protegidos: iniciar em Compactar, Personalizada/98 MB, áudio original ligado e WebM VP8/299 MB. Alvo, unidade, codec, preset e página inicial não são gravados nas preferências. JSON inválido não bloqueia a abertura; é preservado como `.invalid-<id>` na próxima gravação, e os padrões são usados. Testes de renderização usam modo isolado, sem ler/gravar preferências reais.
 
