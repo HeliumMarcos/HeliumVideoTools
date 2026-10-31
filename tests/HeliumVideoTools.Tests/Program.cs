@@ -47,13 +47,14 @@ internal static class Program
         if (args.Length >= 2 && args[0] == "--render")
         {
             var app = new App(); app.InitializeComponent();
-            var window = new MainWindow { Width = args.Length > 3 ? int.Parse(args[3]) : 1280, Height = args.Length > 4 ? int.Parse(args[4]) : 900 };
+            var window = new MainWindow(preview:true) { WindowState=WindowState.Normal, Width = args.Length > 3 ? int.Parse(args[3]) : 1280, Height = args.Length > 4 ? int.Parse(args[4]) : 900 };
             if (args.Length > 2 && args[2] != "Compress")
             {
                 var nav = (System.Windows.Controls.Button)window.FindName(args[2] == "Split" ? "SplitNav" : "WebmNav");
                 nav.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
             }
             window.Show();
+            SynchronizationContext.SetSynchronizationContext(new System.Windows.Threading.DispatcherSynchronizationContext(window.Dispatcher));
             if (args.Length > 5 && args[5] == "progress")
             {
                 ((FrameworkElement)window.FindName("ProgressPanel")).Visibility = Visibility.Visible;
@@ -70,6 +71,27 @@ internal static class Program
                 ((FrameworkElement)window.FindName("ProgressPanel")).Visibility = Visibility.Visible;
                 typeof(MainWindow).GetMethod("ShowBatchResult",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(window,[result]);
                 ((System.Windows.Controls.Button)window.FindName("ProgressAction")).Content = "Pastas de saída (2)";
+            }
+            if(args.Length>6 && args[5]=="estimate")
+            {
+                var model=(BatchViewModel)window.DataContext;
+                long bytes=new FileInfo(args[6]).Length;
+                var target=(System.Windows.Controls.TextBox)typeof(MainWindow).GetField("target",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(window)!;
+                var unit=(System.Windows.Controls.ComboBox)typeof(MainWindow).GetField("unit",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(window)!;
+                target.Text=Math.Max(1,(int)(bytes*.7/1000)).ToString(System.Globalization.CultureInfo.InvariantCulture); unit.SelectedIndex=1;
+                model.Add([args[6]]);
+                var frame=new System.Windows.Threading.DispatcherFrame();
+                var deadline=DateTime.UtcNow.AddSeconds(15);
+                var timer=new System.Windows.Threading.DispatcherTimer {Interval=TimeSpan.FromMilliseconds(40)};
+                timer.Tick+=(_,_)=>
+                {
+                    var pending=typeof(MainWindow).GetField("estimateCancellation",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(window);
+                    if(pending is null || DateTime.UtcNow>deadline)frame.Continue=false;
+                };
+                timer.Start(); System.Windows.Threading.Dispatcher.PushFrame(frame); timer.Stop();
+                var summary=(System.Windows.Controls.TextBlock)typeof(MainWindow).GetField("estimate",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(window)!;
+                Check(summary.Text.Contains("Orçamento"),"A interface não recebeu a estimativa assíncrona real: "+summary.Text);
+                Console.WriteLine("PASS: estimativa real exibida sem bloquear a janela WPF.");
             }
             window.UpdateLayout();
             var visual = (FrameworkElement)window.Content;
@@ -111,7 +133,7 @@ internal static class Program
         using var verified = ReleaseClient.VerifyInstaller(path, asset);
         if (!tag.Contains("preview"))
         {
-            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0)})
+            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0)})
             {
                 if(installed>=Version.Parse(tag[1..])) continue;
                 var update = await client.CheckAppAsync(installed, default);
@@ -131,6 +153,7 @@ internal static class Program
         if (!File.Exists(ffmpeg)) throw new Exception("FFmpeg ausente em " + root);
         var folder = Path.Combine(root, "work", "smoke-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
         await ReleaseTests.RunAsync(folder);
+        await EstimatePreferenceTests.RunAsync(folder);
         var source = Path.Combine(folder, "audiência teste.mp4");
         await VideoEngine.ExecuteAsync(ffmpeg, ["-y", "-f", "lavfi", "-i", "testsrc2=size=320x180:rate=25:duration=8", "-f", "lavfi", "-i", "sine=frequency=440:duration=8", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "12", "-c:a", "aac", "-shortest", source], null, default);
         var engine = new VideoEngine(ffmpeg, ffprobe); var info = await engine.ProbeAsync(source, default);

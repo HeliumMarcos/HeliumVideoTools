@@ -18,7 +18,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe) : IVideoProcessor
     private static string N(double value) => value.ToString("0.#########", CultureInfo.InvariantCulture);
     public static int Bitrate(double duration, double targetMb, double audioKbps)
     {
-        if (duration <= 0 || targetMb <= 0 || !double.IsFinite(targetMb)) throw new IOException("Informe um tamanho válido.");
+        if (duration <= 0 || !double.IsFinite(duration) || targetMb <= 0 || !double.IsFinite(targetMb) || audioKbps < 0 || !double.IsFinite(audioKbps)) throw new IOException("Informe um tamanho e metadados válidos.");
         double rate = targetMb * 8000 * .94 / duration - audioKbps;
         if (rate < 80 || rate > int.MaxValue / 4) throw new IOException("O tamanho escolhido é incompatível com a duração e o áudio do vídeo.");
         return (int)rate;
@@ -30,7 +30,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe) : IVideoProcessor
         foreach (var arg in args) start.ArgumentList.Add(arg);
         using var process = new Process { StartInfo = start };
         process.Start();
-        using var registration = token.Register(() => { try { if (!process.HasExited) process.Kill(true); } catch (InvalidOperationException) { } });
+        using var registration = token.Register(() => { try { if (!process.HasExited) process.Kill(true); } catch (Exception ex) when(ex is InvalidOperationException or System.ComponentModel.Win32Exception) { } });
         var error = process.StandardError.ReadToEndAsync();
         var output = new System.Text.StringBuilder();
         while (await process.StandardOutput.ReadLineAsync() is { } text) { output.AppendLine(text); line?.Invoke(text); }
@@ -71,7 +71,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe) : IVideoProcessor
         var info = await ProbeAsync(source, token);
         var folder = Path.GetDirectoryName(Path.GetFullPath(source))!;
         var originalMb = info.Bytes / 1000000d;
-        var target = options.Operation == Operation.Webm ? Math.Min(options.TargetMb, originalMb * .98) : options.Preset switch { "low" => originalMb * .75, "medium" => originalMb * .55, "high" => originalMb * .35, _ => options.TargetMb };
+        var target = VideoSizing.TargetMb(info,options);
         if (options.Operation == Operation.Compress && target >= originalMb) throw new IOException("O tamanho final deve ser menor que o vídeo original.");
         var required = (options.Operation == Operation.Split ? info.Bytes : target * 1000000) * 1.15 + 33554432;
         if (new DriveInfo(Path.GetPathRoot(folder)!).AvailableFreeSpace < required) throw new IOException("Espaço insuficiente na unidade de saída.");

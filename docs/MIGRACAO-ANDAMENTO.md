@@ -44,8 +44,12 @@ Publicação concluída pela [execução 41153532453](https://github.com/HeliumM
 
 ## Pendências do plano após a publicação oficial
 
+Etapa 3.0.3 preparada após aprovação visual: estimativas usam metadados em segundo plano com cache, separam teto/orçamento/referência e sinalizam mídias sem orçamento válido. Preferências úteis são salvas atomicamente em `%LOCALAPPDATA%\HeliumVideoTools\preferences.json`, fora da instalação: última pasta, dimensões/maximização, quantidade/duração de divisão e modo em duas etapas. Migração inicial lê apenas opções compatíveis do QSettings antigo, sem alterar o registro de origem. Geometria binária Qt, tema ainda não implementado e padrões protegidos não são importados.
+
+Padrões protegidos: iniciar em Compactar, Personalizada/98 MB, áudio original ligado e WebM VP8/299 MB. Alvo, unidade, codec, preset e página inicial não são gravados nas preferências. JSON inválido não bloqueia a abertura; é preservado como `.invalid-<id>` na próxima gravação, e os padrões são usados. Testes de renderização usam modo isolado, sem ler/gravar preferências reais.
+
 - Completar validação de DPI, tema claro/alto contraste e teclado; visual escuro e ícone já aprovados.
-- Portar preferências com importação do perfil antigo e preservar padrões de abertura.
+- Preferências úteis e importação compatível implementadas na etapa 3.0.3; padrões de abertura protegidos. Ampliar cobertura de monitores/DPI e opções quando novos temas forem implementados.
 - Divisão precisa e testes sintéticos CFR/VFR implementados. Ainda falta validar continuidade perceptual, sincronismo e qualidade com amostras extensas reais.
 - Codificação acima do limite agora repete com orçamento reduzido, até três tentativas; falha final não publica arquivo excedente.
 - Recuperação de resultados parciais e erros por arquivo implementada na etapa 3.0.2. Continuar ampliando casos de erro e recuperação de encerramento inesperado.

@@ -12,6 +12,13 @@ if (-not (Test-Path -LiteralPath $link)) {
     throw "Atalho esperado ausente: $link"
 }
 $before = (Get-FileHash -LiteralPath $link -Algorithm SHA256).Hash
+# Perfil sintético do runner: o instalador não pode apagar preferências, e
+# valores antigos não suportados não devem substituir os padrões do produto.
+$preferencesDirectory = Join-Path $env:LOCALAPPDATA 'HeliumVideoTools'
+New-Item -ItemType Directory -Force -Path $preferencesDirectory | Out-Null
+$preferencesPath = Join-Path $preferencesDirectory 'preferences.json'
+$fixture = @{ Width=1000; Height=720; Maximized=$false; LastDirectory=[IO.Path]::GetTempPath(); SplitParts=4; SplitMinutes=8; CompressionTwoPass=$false; WebmTwoPass=$true; LegacyImported=$true; TargetMb=12; CopyAudio=$false; WebmCodec='vp9'; StartupPage='Webm' }
+[IO.File]::WriteAllText($preferencesPath,($fixture | ConvertTo-Json),[Text.UTF8Encoding]::new($false))
 $startup = [Diagnostics.Stopwatch]::StartNew()
 $app = Start-Process -FilePath $expected -PassThru -WindowStyle Hidden
 $deadline = [DateTime]::UtcNow.AddSeconds(30)
@@ -33,11 +40,14 @@ do {
     $reopened = Get-Process -Name HeliumVideoTools -ErrorAction SilentlyContinue | Where-Object { $_.Id -ne $app.Id -and $_.Path -eq $expected -and $_.MainWindowHandle -ne 0 } | Select-Object -First 1
 } while (-not $reopened -and [DateTime]::UtcNow -lt $deadline)
 if (-not $reopened) { throw 'Aplicativo não reabriu após atualização /RESTART' }
+$savedPreferences = Get-Content -LiteralPath $preferencesPath -Raw | ConvertFrom-Json
+if ($savedPreferences.SplitParts -ne 4 -or $savedPreferences.SplitMinutes -ne 8 -or $savedPreferences.CompressionTwoPass -ne $false) { throw 'Preferências úteis não foram preservadas na reinstalação' }
+if ($savedPreferences.PSObject.Properties.Name -contains 'TargetMb') { throw 'Preferências legadas não suportadas não foram filtradas ao salvar' }
 if ((Get-FileHash -LiteralPath $link -Algorithm SHA256).Hash -ne $before) { throw 'Atalho existente foi alterado' }
 $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($link)
 if ($shortcut.TargetPath -ne $expected) { throw 'Destino do atalho mudou' }
 $registry = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\HeliumVideoTools'
 if ($registry.InstallLocation -ne (Join-Path $env:LOCALAPPDATA 'Programs\HeliumVideoTools')) { throw 'Pasta registrada divergente' }
-Write-Output 'PASS: instalar, iniciar WPF, reinstalar com app aberto, reabrir automaticamente, manter pasta e bytes do atalho.'
+Write-Output 'PASS: instalar, iniciar WPF, reinstalar com app aberto, reabrir automaticamente, manter pasta, preferências úteis e bytes do atalho.'
 $null = $reopened.CloseMainWindow()

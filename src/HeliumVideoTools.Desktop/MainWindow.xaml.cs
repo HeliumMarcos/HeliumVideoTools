@@ -19,14 +19,33 @@ public partial class MainWindow : Window
     private ComboBox? parts;
     private CheckBox? copyAudio, precise;
     private TextBlock? estimate;
+    private TextBlock? estimateNote;
+    private CancellationTokenSource? estimateCancellation;
+    private VideoEstimateService? estimateService;
+    private string? estimateProbe;
+    private readonly UserPreferenceStore? preferenceStore;
+    private UserPreferences preferences;
+    private bool preferredMaximized;
+    private bool savingClose;
+    private bool buildingOptions;
     private bool closing;
     private UpdatesWindow? updates;
     private AppRelease? availableRelease;
     private readonly CancellationTokenSource lifetime = new();
     private bool updateChecked;
-    public MainWindow()
+    public MainWindow() : this(false) { }
+    public MainWindow(bool preview)
     {
+        preferenceStore=preview?null:new UserPreferenceStore(AppLog.Root,LegacyPreferences.Read);
+        preferences=preferenceStore?.Load()??new(); preferredMaximized=preferences.Maximized;
         InitializeComponent(); NativeWindowTheme.Attach(this); DataContext = model;
+        if(!preview)
+        {
+            var work=SystemParameters.WorkArea;
+            if(work.Width>=MinWidth && work.Height>=MinHeight) { Width=Math.Clamp(preferences.Width,MinWidth,work.Width); Height=Math.Clamp(preferences.Height,MinHeight,work.Height); }
+            if(preferences.Maximized) WindowState=WindowState.Maximized;
+        }
+        StateChanged+=(_,_)=>{if(WindowState!=WindowState.Minimized) preferredMaximized=WindowState==WindowState.Maximized;};
         ProductVersion.Text = typeof(MainWindow).Assembly.GetName().Version!.ToString(3) + " • .NET";
         model.Files.CollectionChanged += (_, _) => { DropHint.Visibility = model.Files.Count == 0 ? Visibility.Visible : Visibility.Collapsed; FileCount.Text = model.Files.Count == 0 ? "Nenhum arquivo" : $"{model.Files.Count} arquivo(s)"; UpdateEstimate(); };
         BuildOptions();
@@ -34,7 +53,7 @@ public partial class MainWindow : Window
         catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException or UnauthorizedAccessException) { Status.Text = "Conjunto de ferramentas indisponível. Abra Atualizações para restaurar o anterior."; AppLog.Write("WARNING", "Ferramentas na abertura", ex.Message); }
         ContentRendered += async (_, _) =>
         {
-            if (updateChecked) return; updateChecked = true;
+            if (preview || updateChecked) return; updateChecked = true;
             try
             {
                 using var http = ReleaseClient.CreateHttpClient();
@@ -54,11 +73,12 @@ public partial class MainWindow : Window
     private void ShowUpdates(object sender, RoutedEventArgs e)
     {
         if (updates is { IsLoaded: true }) { updates.Activate(); return; }
-        updates = new UpdatesWindow(() => model.Busy, available: availableRelease) { Owner = this };
+        updates = new UpdatesWindow(() => model.Busy || savingClose, available: availableRelease) { Owner = this };
         updates.Show();
     }
     private void Navigate(object sender, RoutedEventArgs e)
     {
+        RememberToolPreferences();
         operation = Enum.Parse<Operation>((string)((Button)sender).Tag);
         Heading.Text = operation switch { Operation.Split => "Dividir vídeo", Operation.Webm => "Converter para WebM", _ => "Compactar vídeos" };
         Subtitle.Text = operation switch { Operation.Split => "Crie partes por tamanho, quantidade ou duração, preservando o arquivo original.", Operation.Webm => "Converta para o SEEU. O limite é um teto: arquivos menores não precisam aumentar.", _ => "Reduza o tamanho para envio ao Projudi. O arquivo final é conferido antes de salvar." };
@@ -95,17 +115,20 @@ public partial class MainWindow : Window
     }
     private void BuildOptions()
     {
-        estimate = null; OptionsPanel.Children.Clear(); mode = preset = codec = unit = null; target = null; parts = null; copyAudio = precise = null;
+        buildingOptions=true; estimateCancellation?.Cancel();
+        estimate = estimateNote = null; OptionsPanel.Children.Clear(); mode = preset = codec = unit = null; target = null; parts = null; copyAudio = precise = null;
+        var defaults=StartupDefaults.For(operation,preferences);
         Grid? quantityRow = null;
         if (operation == Operation.Split)
         {
             mode = Choice("Tamanho por parte • Projudi", "Número de partes", "Duração em minutos");
             Row("Dividir por", mode);
             parts = Choice(Enumerable.Range(2, 9).Select(n => $"{n} partes").ToArray());
+            parts.SelectedIndex=preferences.SplitParts-2;
             quantityRow = Row("Quantidade", parts);
         }
         if (operation == Operation.Compress) { preset = Choice("Personalizada • tamanho definido por você", "Baixa compressão • mais qualidade", "Média • equilibrada", "Alta compressão • menor arquivo"); Row("Preset", preset); }
-        target = new TextBox { Text = operation == Operation.Webm ? "299" : "98" };
+        target = new TextBox { Text = defaults.TargetMb.ToString("0",CultureInfo.InvariantCulture) };
         System.Windows.Automation.AutomationProperties.SetName(target, operation == Operation.Split ? "Tamanho por parte ou duração em minutos" : "Tamanho de saída por arquivo");
         target.PreviewTextInput += (_, e) => e.Handled = !e.Text.All(char.IsAsciiDigit);
         DataObject.AddPastingHandler(target, (_, e) => { if (e.DataObject.GetData(DataFormats.UnicodeText) is not string value || !value.All(char.IsAsciiDigit)) e.CancelCommand(); });
@@ -123,7 +146,7 @@ public partial class MainWindow : Window
                 quantityRow!.Visibility = byParts ? Visibility.Visible : Visibility.Collapsed;
                 sizeRow.Visibility = byParts ? Visibility.Collapsed : Visibility.Visible;
                 unit.Visibility = mode.SelectedIndex == 2 ? Visibility.Collapsed : Visibility.Visible;
-                target.Text = mode.SelectedIndex == 2 ? "5" : "98";
+                target.Text = mode.SelectedIndex == 2 ? preferences.SplitMinutes.ToString(CultureInfo.InvariantCulture) : "98";
                 ((StackPanel)sizeRow.Children[0]).Children.OfType<TextBlock>().Single().Text = mode.SelectedIndex == 2 ? "Duração (minutos)" : "Tamanho por parte";
                 System.Windows.Automation.AutomationProperties.SetName(target, mode.SelectedIndex == 2 ? "Duração em minutos de cada parte" : "Tamanho de cada parte");
                 UpdateEstimate();
@@ -135,45 +158,80 @@ public partial class MainWindow : Window
         if (operation != Operation.Split)
         {
             codec = operation == Operation.Webm ? Choice("VP8 • conversão mais rápida", "VP9 • melhor compressão") : Choice("H.264 • maior compatibilidade", "H.265 • arquivo menor"); Row("Codec", codec);
-            if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Manter áudio original", IsChecked = true }; Row("Áudio", copyAudio); }
-            precise = new CheckBox { Content = "Modo preciso em 2 etapas", IsChecked = true }; Row("Precisão", precise);
+            if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Manter áudio original", IsChecked = true }; copyAudio.Checked+=(_,_)=>UpdateEstimate(); copyAudio.Unchecked+=(_,_)=>UpdateEstimate(); Row("Áudio", copyAudio); }
+            precise = new CheckBox { Content = "Modo preciso em 2 etapas", IsChecked = defaults.TwoPass }; precise.Checked+=(_,_)=>UpdateEstimate(); precise.Unchecked+=(_,_)=>UpdateEstimate(); Row("Precisão", precise);
         }
-        estimate = new TextBlock { Foreground = new SolidColorBrush(Color.FromRgb(177, 218, 237)), Padding = new Thickness(12, 9, 12, 9), FontSize = 12 };
-        Row("Estimativa", new Border { Background = new SolidColorBrush(Color.FromRgb(39, 53, 63)), CornerRadius = new CornerRadius(6), Child = estimate });
+        estimate = new TextBlock { Foreground = new SolidColorBrush(Color.FromRgb(177, 218, 237)), FontSize = 12 };
+        estimateNote=new TextBlock { Foreground=Brushes.Silver,FontSize=11,Margin=new Thickness(0,6,0,0),Visibility=Visibility.Collapsed };
+        var estimateContent=new StackPanel { Margin=new Thickness(12,9,12,9),MinHeight=34 }; estimateContent.Children.Add(estimate); estimateContent.Children.Add(estimateNote);
+        Row("Estimativa", new Border { Background = new SolidColorBrush(Color.FromRgb(39, 53, 63)), CornerRadius = new CornerRadius(6), Child = estimateContent });
         var note = new TextBlock { Text = operation == Operation.Webm ? "O arquivo final respeita o teto escolhido e um orçamento menor que o original." : operation == Operation.Split ? "Divisão precisa em MP4 (H.264/AAC), com recodificação. Os originais são preservados." : "O tamanho é conferido em MB decimais antes de salvar o resultado.", Foreground = Brushes.Silver, FontSize = 11 }; OptionsPanel.Children.Add(note);
-        UpdateEstimate();
+        buildingOptions=false; UpdateEstimate();
     }
     private double SizeMb()
     {
         if (!double.TryParse(target?.Text, NumberStyles.None, CultureInfo.InvariantCulture, out double value) || value <= 0 || value > 999999999) throw new IOException("Digite um tamanho inteiro maior que zero.");
         return value * (unit?.SelectedIndex switch { 1 => .001, 2 => 1000, _ => 1 });
     }
-    private void UpdateEstimate()
+    private VideoOptions CurrentOptions()
     {
-        if (estimate is null) return;
-        if (model.Files.Count == 0) { estimate.Text = "Adicione vídeos para estimar o tamanho final"; return; }
+        double size=operation==Operation.Compress && preset?.SelectedIndex>0?98:SizeMb();
+        return new(operation,size,operation==Operation.Webm ? codec?.SelectedIndex==1?"vp9":"vp8" : codec?.SelectedIndex==1?"h265":"h264",copyAudio?.IsChecked!=false,precise?.IsChecked==true,
+            mode?.SelectedIndex switch {1=>SplitMode.Parts,2=>SplitMode.Duration,_=>SplitMode.Size},mode?.SelectedIndex==1?parts!.SelectedIndex+2:mode?.SelectedIndex==2?double.Parse(target!.Text,CultureInfo.InvariantCulture):size,preset?.SelectedIndex switch {1=>"low",2=>"medium",3=>"high",_=>"custom"});
+    }
+    private async void UpdateEstimate()
+    {
+        if (estimate is null || buildingOptions) return;
+        estimateCancellation?.Cancel();
+        estimate.ToolTip=null; System.Windows.Automation.AutomationProperties.SetHelpText(estimate,"");
+        if(model.Files.Count==0) {estimate.Text="Adicione vídeos para estimar o tamanho final";estimate.ToolTip=null;estimateNote!.Visibility=Visibility.Collapsed;return;}
+        var request=CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token); estimateCancellation=request;
         try
         {
-            var sizes = model.Files.Select(f => new FileInfo(f.Path).Length / 1000000d).ToArray();
-            if (operation == Operation.Split && mode?.SelectedIndex == 1) estimate.Text = $"≈ {sizes.Sum() / (parts!.SelectedIndex + 2):0.0} MB por parte no conjunto selecionado";
-            else if (operation == Operation.Split && mode?.SelectedIndex == 2) estimate.Text = "O tamanho depende da duração e da taxa de bits de cada vídeo.";
-            else estimate.Text = $"Limite: {SizeMb():0.###} MB por arquivo • estimativa total ≈ {sizes.Sum(s => Math.Min(s, SizeMb())):0.0} MB";
+            var options=CurrentOptions(); var sources=model.Files.Select(f=>f.Path).ToArray();
+            estimate.Text="Analisando duração, áudio e tamanho…"; estimateNote!.Visibility=Visibility.Collapsed;
+            await Task.Delay(250,request.Token);
+            string probe=BatchViewModel.FindTool("ffprobe")??throw new IOException("ffprobe indisponível; verifique as ferramentas em Atualizações.");
+            if(estimateService is null || estimateProbe!=probe)
+            {
+                var engine=new VideoEngine(BatchViewModel.FindTool("ffmpeg")??"ffmpeg.exe",probe);
+                estimateService=new VideoEstimateService(async (path,token)=>{await MediaToolUpdater.ValidateActiveAsync(token);return await engine.ProbeAsync(path,token);}); estimateProbe=probe;
+            }
+            var result=await estimateService.EstimateAsync(sources,options,request.Token);
+            request.Token.ThrowIfCancellationRequested();
+            if(!ReferenceEquals(estimateCancellation,request)) return;
+            var presentation=EstimatePresentation.From(result,options);
+            estimate.Text=presentation.Summary; estimate.ToolTip=new TextBlock {Text=presentation.Details,MaxWidth=640};
+            System.Windows.Automation.AutomationProperties.SetHelpText(estimate,presentation.Details);
+            estimateNote.Text=presentation.Explanation;estimateNote.Visibility=Visibility.Visible;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { estimate.Text = ex.Message; }
+        catch(OperationCanceledException) { }
+        catch(Exception ex)
+        { if(ReferenceEquals(estimateCancellation,request)) {estimate.Text=ex is IOException?ex.Message:"Não foi possível calcular a estimativa.";estimateNote!.Visibility=Visibility.Collapsed;AppLog.Write("INFO","Estimativa indisponível",ex.Message);} }
+        finally {if(ReferenceEquals(estimateCancellation,request))estimateCancellation=null;request.Dispose();}
     }
-    private void Browse(object sender, RoutedEventArgs e) { var dialog = new Microsoft.Win32.OpenFileDialog { Multiselect = true, Filter = "Vídeos|*.mp4;*.mkv;*.mov;*.avi;*.m4v;*.webm" }; if (dialog.ShowDialog() == true) model.Add(dialog.FileNames); }
+    private void RememberToolPreferences()
+    {
+        if(operation==Operation.Compress && precise is not null)preferences=preferences with {CompressionTwoPass=precise.IsChecked==true};
+        if(operation==Operation.Webm && precise is not null)preferences=preferences with {WebmTwoPass=precise.IsChecked==true};
+        if(operation==Operation.Split)
+        {
+            if(parts is {SelectedIndex:>=0})preferences=preferences with {SplitParts=parts.SelectedIndex+2};
+            if(mode?.SelectedIndex==2 && int.TryParse(target?.Text,out int minutes) && minutes is >=1 and <=1440)preferences=preferences with {SplitMinutes=minutes};
+        }
+    }
+    private void Browse(object sender, RoutedEventArgs e) { var dialog = new Microsoft.Win32.OpenFileDialog { Multiselect = true, Filter = "Vídeos|*.mp4;*.mkv;*.mov;*.avi;*.m4v;*.webm",InitialDirectory=preferences.LastDirectory??"" }; if (dialog.ShowDialog() == true) {preferences=preferences with {LastDirectory=Path.GetDirectoryName(dialog.FileNames[0])};model.Add(dialog.FileNames);} }
     private void Remove(object sender, RoutedEventArgs e) { foreach (var item in FilesList.SelectedItems.Cast<InputVideo>().ToArray()) model.Files.Remove(item); }
     private void Clear(object sender, RoutedEventArgs e) => model.Files.Clear();
     private void FilesDropped(object sender, DragEventArgs e) { if (e.Data.GetData(DataFormats.FileDrop) is string[] paths) model.Add(paths); e.Handled = true; }
     private void FilesDragOver(object sender, DragEventArgs e) { e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None; e.Handled = true; }
     private async void Run(object sender, RoutedEventArgs e)
     {
-        if (model.Busy) return;
+        if (model.Busy || savingClose) return;
         if (updates?.Installing == true) { Status.Text = "Instalação da atualização iniciada. Aguarde a reabertura do aplicativo."; return; }
         try
         {
-            var options = new VideoOptions(operation, SizeMb(), operation == Operation.Webm ? codec?.SelectedIndex == 1 ? "vp9" : "vp8" : codec?.SelectedIndex == 1 ? "h265" : "h264", copyAudio?.IsChecked != false, precise?.IsChecked == true,
-                mode?.SelectedIndex switch { 1 => SplitMode.Parts, 2 => SplitMode.Duration, _ => SplitMode.Size }, mode?.SelectedIndex == 1 ? parts!.SelectedIndex + 2 : mode?.SelectedIndex == 2 ? double.Parse(target!.Text) : SizeMb(), preset?.SelectedIndex switch { 1 => "low", 2 => "medium", 3 => "high", _ => "custom" });
+            var options = CurrentOptions();
             ProgressPanel.Visibility = Visibility.Visible; ProgressAction.Content = "Cancelar tudo"; ProgressAction.IsEnabled = true; OverallBar.Value = 0;
             ReportButton.Visibility = ResultDetails.Visibility = Visibility.Collapsed; ProgressAction.ContextMenu = null;
             ProgressHeading.Text = "Progresso geral"; SetProgressColor("#57CCF2");
@@ -228,9 +286,20 @@ public partial class MainWindow : Window
     }
     private async void WindowClosing(object? sender, CancelEventArgs e)
     {
-        if (!model.Busy || closing) return;
+        if (closing || (preferenceStore is null && !model.Busy)) return;
         e.Cancel = true;
-        if (MessageBox.Show(this, "Cancelar o processamento e fechar?", "Helium Vídeo Tools", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
-        model.Cancel(); while (model.Busy) await Task.Delay(50); closing = true; Close();
+        if(savingClose)return;
+        if (model.Busy && MessageBox.Show(this, "Cancelar o processamento e fechar?", "Helium Vídeo Tools", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+        savingClose=true; RunButton.IsEnabled=false;
+        try
+        {
+            model.Cancel(); while(model.Busy)await Task.Delay(50);
+            RememberToolPreferences();
+            var bounds=RestoreBounds;
+            preferences=preferences with { Width=bounds.IsEmpty?Width:bounds.Width,Height=bounds.IsEmpty?Height:bounds.Height,Maximized=preferredMaximized };
+            if(preferenceStore is not null)await preferenceStore.SaveAsync(preferences);
+        }
+        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) {AppLog.Write("WARNING","Não foi possível salvar preferências",ex.Message);}
+        finally {closing=true;Close();}
     }
 }

@@ -1,12 +1,13 @@
-# Helium Vídeo Tools 3.0.2 — lotes e cortes precisos
+# Helium Vídeo Tools 3.0.3 — estimativas e preferências
 
-- Um vídeo com erro não interrompe os demais arquivos selecionados. O resultado distingue concluídos, falhas, cancelados e não iniciados.
-- Partes já concluídas são preservadas quando o restante falha ou é cancelado. Relatório TXT/JSON local em `%LOCALAPPDATA%\HeliumVideoTools\reports`.
-- Resumo final aprovado, sem fila de tarefas: Ver relatório, Abrir pasta ou escolher entre várias pastas de saída.
-- Progresso geral não regride quando há nova tentativa de codificação e ignora notificações atrasadas de arquivos encerrados.
-- Correção de sobreposição de quadros nos cortes por quantidade/duração. Divisões agora geram MP4 H.264/AAC com busca precisa e recodificação, também preservando a cadência variável. Isso pode ser mais demorado que copiar fluxos sem recodificar.
-- Testes sintéticos CFR/VFR verificam sequência e quantidade de quadros, áudio decodificável e durações A/V; lotes reais incluem arquivo corrompido, cancelamento após a primeira parte e múltiplas pastas. Não substituem validação perceptual de audiências extensas ou aceitação no Projudi/SEEU.
+- Apresentação das estimativas aprovada: separa orçamento dos codecs, teto aplicado e referência de tamanho baseada no original.
+- Compactação e WebM usam as mesmas regras de orçamento do motor. Um original de 40 MB não recebe um orçamento de 299 MB na conversão.
+- Divisão por quantidade/duração mostra referência por parte e duração, sem somar todos os originais como se fossem uma única parte. A referência não promete o tamanho após recodificar. Divisão por tamanho mostra o teto, sem inventar uma quantidade final de partes.
+- Metadados analisados em segundo plano, com cache por tamanho/data, até duas sondagens paralelas e cancelamento das solicitações antigas. Detalhes por arquivo no tooltip.
+- Preferências úteis persistem fora da instalação: última pasta escolhida, dimensões/maximização, partes/minutos da divisão e modo em duas etapas. Importação inicial de opções compatíveis da versão Python, sem modificar o registro legado.
+- Mantidos os padrões exigidos: abrir em Compactar, Personalizada/98 MB, áudio original ligado e conversão VP8. Tamanho-alvo antigo, codec, preset e página inicial não são restaurados.
+- Configuração inválida é preservada em backup e não impede iniciar com os padrões.
 
-Continuam: alvo inicial 98 MB, WebM limitado pelo teto e pelo tamanho original, FFmpeg/ffprobe 9.0.2 incluídos, instalação por usuário sem administrador na mesma pasta, atualização pelo app com SHA-256 e reabertura automática.
+O valor exibido é orçamento ou referência, não promessa de tamanho exato. O motor continua conferindo o tamanho real antes de publicar cada saída. Relatórios, preferências e vídeos ficam locais; não são enviados ao GitHub.
 
-Os originais não são alterados. Relatórios permanecem apenas no computador, sem envio ao GitHub. Não há certificado Authenticode configurado; `SHA256SUMS.txt` acompanha o instalador.
+Instalação por usuário, sem administrador, na mesma pasta; .NET e FFmpeg/ffprobe incluídos. `SHA256SUMS.txt` acompanha o instalador; não há assinatura Authenticode configurada. Validações com audiências extensas, temas/acessibilidade e transação completa de ferramentas permanecem no plano.
