@@ -21,7 +21,17 @@ internal static class Program
                     string? image;
                     try { image = process.MainModule?.FileName; } catch { return 4; }
                     if (!string.Equals(image, expected, StringComparison.OrdinalIgnoreCase)) continue;
-                    process.CloseMainWindow();
+                    bool requested=false;
+                    uint message=RegisterWindowMessage("Helium.HeliumVideoTools.CloseForUpdate");
+                    EnumWindows((window,_)=>
+                    {
+                        GetWindowThreadProcessId(window,out uint owner);
+                        if(owner==(uint)process.Id && message!=0) requested|=PostMessage(window,message,0,0);
+                        return true;
+                    },0);
+                    // Also supports older installed versions without the explicit hook.
+                    bool standard=process.CloseMainWindow();
+                    Console.WriteLine($"Shutdown request: explicit={requested}, standard={standard}");
                     if (!process.WaitForExit(15000))
                     {
                         // Somente a instalação cujo caminho foi conferido pode ser encerrada.
@@ -35,6 +45,12 @@ internal static class Program
         }
         catch (Exception e) { Console.Error.WriteLine(e.Message); return 1; }
     }
+
+    private delegate bool EnumWindowCallback(nint window,nint parameter);
+    [DllImport("user32.dll",CharSet=CharSet.Unicode)] private static extern uint RegisterWindowMessage(string name);
+    [DllImport("user32.dll")] [return:MarshalAs(UnmanagedType.Bool)] private static extern bool EnumWindows(EnumWindowCallback callback,nint parameter);
+    [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(nint window,out uint processId);
+    [DllImport("user32.dll",CharSet=CharSet.Unicode)] [return:MarshalAs(UnmanagedType.Bool)] private static extern bool PostMessage(nint window,uint message,nint wParam,nint lParam);
 
     private static void Stamp(string path)
     {

@@ -42,7 +42,11 @@ do {
 if (-not $reopened) { throw 'Aplicativo não reabriu após atualização /RESTART' }
 $savedPreferences = Get-Content -LiteralPath $preferencesPath -Raw | ConvertFrom-Json
 if ($savedPreferences.SplitParts -ne 4 -or $savedPreferences.SplitMinutes -ne 8 -or $savedPreferences.CompressionTwoPass -ne $false) { throw 'Preferências úteis não foram preservadas na reinstalação' }
-if ($savedPreferences.PSObject.Properties.Name -contains 'TargetMb') { throw 'Preferências legadas não suportadas não foram filtradas ao salvar' }
+if ($savedPreferences.PSObject.Properties.Name -contains 'TargetMb') {
+    $logPath = Join-Path $preferencesDirectory 'app.jsonl'
+    if (Test-Path -LiteralPath $logPath) { Get-Content -LiteralPath $logPath -Tail 15 }
+    throw 'Preferências legadas não suportadas não foram filtradas ao salvar'
+}
 if ((Get-FileHash -LiteralPath $link -Algorithm SHA256).Hash -ne $before) { throw 'Atalho existente foi alterado' }
 $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($link)

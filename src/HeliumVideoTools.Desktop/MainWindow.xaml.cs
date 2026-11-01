@@ -39,6 +39,7 @@ public partial class MainWindow : Window
         preferenceStore=preview?null:new UserPreferenceStore(AppLog.Root,LegacyPreferences.Read);
         preferences=preferenceStore?.Load()??new(); preferredMaximized=preferences.Maximized;
         InitializeComponent(); NativeWindowTheme.Attach(this); DataContext = model;
+        UpdateShutdown.Attach(this);
         if(!preview)
         {
             var work=SystemParameters.WorkArea;
@@ -292,6 +293,7 @@ public partial class MainWindow : Window
         if(savingClose)return;
         if (model.Busy && MessageBox.Show(this, "Cancelar o processamento e fechar?", "Helium Vídeo Tools", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
         savingClose=true; RunButton.IsEnabled=false;
+        AppLog.Write("INFO","Encerramento solicitado; salvando preferências");
         try
         {
             model.Cancel(); while(model.Busy)await Task.Delay(50);
@@ -299,6 +301,7 @@ public partial class MainWindow : Window
             var bounds=RestoreBounds;
             preferences=preferences with { Width=bounds.IsEmpty?Width:bounds.Width,Height=bounds.IsEmpty?Height:bounds.Height,Maximized=preferredMaximized };
             if(preferenceStore is not null)await preferenceStore.SaveAsync(preferences);
+            AppLog.Write("INFO","Preferências salvas no encerramento");
         }
         catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) {AppLog.Write("WARNING","Não foi possível salvar preferências",ex.Message);}
         finally {closing=true;Close();}

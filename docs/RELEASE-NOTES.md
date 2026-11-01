@@ -5,6 +5,7 @@
 - Processamento e estimativas capturam os dois executáveis do mesmo conjunto imutável e validam esse conjunto antes de usá-lo.
 - Cancelamento, pacote incompleto, versão divergente e hash inválido não ativam o conjunto novo; diretórios incompletos dessa tentativa são removidos.
 - Restauração valida os hashes do conjunto anterior antes de ativá-lo. Metadados de controle têm validação de identidade, tamanho e JSON; gravações são atômicas.
+- Instalador envia uma solicitação explícita de encerramento para a janela, inclusive oculta/minimizada, para usar o fluxo normal de gravação das preferências antes de substituir o aplicativo. O encerramento forçado permanece como último recurso após o prazo.
 
 Sem mudanças no layout aprovado. Mantidos os padrões de abertura: Compactar, Personalizada/98 MB, áudio original e WebM VP8. Atualização por usuário, sem administrador, na mesma pasta.
 
