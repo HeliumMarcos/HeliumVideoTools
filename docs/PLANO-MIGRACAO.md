@@ -4,6 +4,8 @@ Atualizado em 30/10/2026. Este documento registra a direção e os critérios or
 
 ## Decisão técnica
 
+Atualização de escopo em 01/11/2026: após a 3.0.5, o usuário escolheu continuar somente com recuperação de interrupções, telas/acessibilidade, desempenho e organização interna. Consulte [ESCOPO-RESTANTE.md](ESCOPO-RESTANTE.md); os critérios históricos deste documento não ampliam a seleção atual.
+
 Migrar para C# / .NET 10 LTS com WPF, Windows x64. C# é a linguagem; .NET é a plataforma, portanto não são duas alternativas concorrentes.
 
 | Opção | Adequação ao projeto | Decisão |

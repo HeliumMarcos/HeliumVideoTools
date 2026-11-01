@@ -1,5 +1,7 @@
 # Migração .NET — primeira etapa
 
+Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
+
 Estado em 01/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.5 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.5) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, recuperação do conjunto FFmpeg/ffprobe e temas aprovados. As pendências de validação continuam registradas abaixo.
 
 Implementado:
