@@ -1,6 +1,6 @@
 # Migração .NET — primeira etapa
 
-Estado em 01/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.4 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.4) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis e recuperação do conjunto FFmpeg/ffprobe. As pendências de validação continuam registradas abaixo.
+Estado em 01/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.5 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.5) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, recuperação do conjunto FFmpeg/ffprobe e temas aprovados. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -70,13 +70,13 @@ A [execução 41327680947](https://github.com/HeliumMarcos/HeliumVideoTools/acti
 
 Download público anônimo real validado: instalador com 172818105 bytes, SHA-256 e assinatura de formato MZ conferidos pelo cliente do próprio aplicativo. O canal estável ofereceu atualização às versões anteriores testadas, incluindo 3.0.3, e não ofereceu à própria 3.0.4. Assinatura de formato MZ não é assinatura digital Authenticode.
 
-## Compilar/testar
-
 ## Etapa 3.0.5 — temas aprovados
 
 Usuário aprovou a comparação antes/depois e autorizou integração. Recursos semânticos dinâmicos substituem cores fixas nas duas janelas, opções criadas em código, resultados e menu de pastas. Seletor Sistema/Claro/Escuro persiste nas preferências; alto contraste do Windows prevalece e usa cores pareadas de SystemColors. Assinatura e barra nativa seguem a aparência, mantendo controles e Snap do Windows.
 
 Validação local: três ferramentas em dois tamanhos (1280×900 e 980×700 DIPs), duas paletas de contraste simuladas sem alterar o sistema, contraste de texto/ações, menus selecionados, nomes acessíveis, ordem de Tab, foco real de campo com borda de 2 DIPs e preservação dos valores na troca de tema. Atualizações permanece sem rolagem no tamanho padrão em consulta, download e verificação. Simulação de cores e renderização não atestam leitor de tela, monitores/DPI reais nem todas as personalizações possíveis do usuário.
+
+A [execução 41329605153](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41329605153) repetiu os testes de processamento, fechamento e temas, instalou/reinstalou com o aplicativo aberto, conferiu tema salvo, preferências e bytes do atalho e publicou a 3.0.5 estável. A janela apareceu no runner em 0,81 s; isso não é medição de abertura fria no computador do usuário. O download público real foi validado pelo cliente do app: 172857972 bytes, SHA-256 e MZ; versões anteriores testadas, incluindo 3.0.4, detectaram a atualização, e a própria 3.0.5 não recebeu atualização para si mesma.
 
 ## Comandos
 

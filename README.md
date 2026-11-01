@@ -2,7 +2,9 @@
 
 Aplicativo Windows para preparar mídias de audiências: compactação e divisão para o Projudi, conversão para WebM para o SEEU. A implementação ativa está em **C#/.NET 10 com interface WPF**, na pasta `src`. O código Python anterior permanece como referência histórica da migração.
 
-[Baixar instalador oficial — v3.0.4](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.4). Windows x64 por usuário, sem exigir administrador, com .NET e FFmpeg/ffprobe incluídos. Versões anteriores podem atualizar pelo aplicativo; o canal automático consulta apenas versões estáveis. Download com porcentagem, cancelamento e verificação SHA-256.
+[Baixar instalador oficial — v3.0.5](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.5). Windows x64 por usuário, sem exigir administrador, com .NET e FFmpeg/ffprobe incluídos. Versões anteriores podem atualizar pelo aplicativo; o canal automático consulta apenas versões estáveis. Download com porcentagem, cancelamento e verificação SHA-256.
+
+Na 3.0.5, a proposta visual aprovada adiciona Sistema/Claro/Escuro e alto contraste seguindo o Windows. A escolha persiste, as janelas mudam sem reiniciar e o foco de teclado fica mais visível. Os padrões de 98 MB e codecs continuam protegidos.
 
 Na 3.0.4, a atualização das ferramentas permite retornar ao conjunto embutido após a primeira instalação e reparar o controle de ferramentas corrompido. Processamento e estimativas usam FFmpeg/ffprobe do mesmo conjunto capturado e validado. Testes de transação usam perfil isolado e executáveis reais, com transporte HTTP simulado.
 
@@ -10,7 +12,7 @@ Na 3.0.3, estimativas analisam metadados em segundo plano e distinguem orçament
 
 Na 3.0.2, erros são tratados por arquivo, as saídas parciais concluídas são preservadas e o resumo final oferece relatório e seleção da pasta de saída. As divisões usam recodificação H.264/AAC em MP4 para cortes precisos; podem ser mais demoradas que copiar fluxos. Os originais permanecem intactos.
 
-![Interface WPF](docs/previews/compactar-marca-aprovada.png)
+![Interface WPF com temas aprovados](docs/previews/compactar-temas-3.0.5.png)
 
 O tamanho é conferido antes de salvar. Compactação começa em 98 MB decimais; WebM usa o menor orçamento entre o teto informado e um valor abaixo do original. Os limites são configuráveis e não garantem aceitação pelos sistemas de destino, que podem ter outros requisitos.
 
