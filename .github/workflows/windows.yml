@@ -41,6 +41,8 @@ jobs:
         run: |
           dotnet run --project tests/HeliumVideoTools.Tests -c Release
           if ($LASTEXITCODE -ne 0) { throw 'Testes falharam' }
+          dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --verify-close work/close-validation
+          if ($LASTEXITCODE -ne 0) { throw 'Teste de fechamento WPF falhou' }
       - name: Preparar NSIS
         if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         shell: pwsh

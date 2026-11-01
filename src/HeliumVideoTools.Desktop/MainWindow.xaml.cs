@@ -306,6 +306,6 @@ public partial class MainWindow : Window
         catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) {AppLog.Write("WARNING","Não foi possível salvar preferências",ex.Message);}
         // SaveAsync may finish before its await yields on a fast disk. Calling
         // Close inside the original Closing event is illegal in WPF; always defer.
-        finally {closing=true;Dispatcher.BeginInvoke(new Action(Close));}
+        finally {closing=true;_ = Dispatcher.BeginInvoke(new Action(Close));}
     }
 }

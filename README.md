@@ -2,7 +2,9 @@
 
 Aplicativo Windows para preparar mídias de audiências: compactação e divisão para o Projudi, conversão para WebM para o SEEU. A implementação ativa está em **C#/.NET 10 com interface WPF**, na pasta `src`. O código Python anterior permanece como referência histórica da migração.
 
-[Baixar instalador oficial — v3.0.3](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.3). Windows x64 por usuário, sem exigir administrador, com .NET e FFmpeg/ffprobe incluídos. Versões anteriores podem atualizar pelo aplicativo; o canal automático consulta apenas versões estáveis. Download com porcentagem, cancelamento e verificação SHA-256.
+[Baixar instalador oficial — v3.0.4](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.4). Windows x64 por usuário, sem exigir administrador, com .NET e FFmpeg/ffprobe incluídos. Versões anteriores podem atualizar pelo aplicativo; o canal automático consulta apenas versões estáveis. Download com porcentagem, cancelamento e verificação SHA-256.
+
+Na 3.0.4, a atualização das ferramentas permite retornar ao conjunto embutido após a primeira instalação e reparar o controle de ferramentas corrompido. Processamento e estimativas usam FFmpeg/ffprobe do mesmo conjunto capturado e validado. Testes de transação usam perfil isolado e executáveis reais, com transporte HTTP simulado.
 
 Na 3.0.3, estimativas analisam metadados em segundo plano e distinguem orçamento, teto e referência por parte. Preferências úteis lembram pasta, janela e opções compatíveis, mas não substituem os padrões de abertura: Compactar, 98 MB, áudio original ligado e VP8.
 

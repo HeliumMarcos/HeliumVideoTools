@@ -10,6 +10,11 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length==2 && args[0]=="--verify-close")
+        {
+            try {WindowCloseTests.Run(args[1]);return 0;}
+            catch(Exception ex){Console.Error.WriteLine(ex);return 1;}
+        }
         if (args.Length == 3 && args[0] == "--verify-public-release")
         {
             try { VerifyPublicReleaseAsync(args[1], args[2]).GetAwaiter().GetResult(); return 0; }

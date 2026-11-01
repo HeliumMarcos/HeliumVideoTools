@@ -1,6 +1,6 @@
 # Migração .NET — primeira etapa
 
-Estado em 30/10/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.3 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.3) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas e preferências úteis. As pendências de validação continuam registradas abaixo.
+Estado em 01/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.4 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.4) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis e recuperação do conjunto FFmpeg/ffprobe. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -65,6 +65,10 @@ Padrões protegidos: iniciar em Compactar, Personalizada/98 MB, áudio original 
 Retorno à distribuição embutida na primeira atualização, reparo de active.json inválido sem bloquear uma instalação nova e preservação do ponto anterior. Operações usam uma captura única de FFmpeg/ffprobe, incluindo a validação dos hashes do conjunto capturado, para evitar misturar ferramentas durante a troca do ponteiro. Diretórios incompletos de tentativas que falham são removidos; conjuntos ativados são imutáveis e retidos para operações já iniciadas.
 
 Testes isolados cobrem instalação real dos executáveis, retorno às ferramentas embutidas, conjunto anterior, pacote incompleto, SHA-256 incorreto, versão divergente, cancelamento no fim do download e antes da ativação/restauração, arquivo temporário interrompido, JSON corrompido, identidade com travessia de diretório e backup adulterado. Nenhum teste altera o perfil real do usuário. O transporte usa um HttpMessageHandler local; isso não atesta disponibilidade da origem pública, nem simula queda de energia. Recuperação de temporários após encerramento forçado do processamento continua pendente.
+
+A [execução 41327680947](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41327680947) passou pelos testes de processamento e reinstalação/reabertura com preservação de preferências e atalhos, e publicou a 3.0.4 estável. Uma tentativa anterior bloqueou a publicação ao detectar que o fechamento não salvou preferências. O instalador agora envia uma mensagem registrada à janela principal, inclusive oculta/minimizada; o WPF agenda o fechamento final após retornar do evento Closing, evitando reentrância se a gravação terminar rapidamente. O prazo de encerramento forçado permanece como último recurso. Teste local adicional repetiu oito fechamentos normais/pela mensagem com preferências isoladas; o comando --verify-close foi incorporado ao workflow para as próximas execuções.
+
+Download público anônimo real validado: instalador com 172818105 bytes, SHA-256 e assinatura de formato MZ conferidos pelo cliente do próprio aplicativo. O canal estável ofereceu atualização às versões anteriores testadas, incluindo 3.0.3, e não ofereceu à própria 3.0.4. Assinatura de formato MZ não é assinatura digital Authenticode.
 
 ## Compilar/testar
 
