@@ -133,7 +133,7 @@ internal static class Program
         using var verified = ReleaseClient.VerifyInstaller(path, asset);
         if (!tag.Contains("preview"))
         {
-            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0)})
+            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0),new Version(3,0,3,0)})
             {
                 if(installed>=Version.Parse(tag[1..])) continue;
                 var update = await client.CheckAppAsync(installed, default);
@@ -153,6 +153,7 @@ internal static class Program
         if (!File.Exists(ffmpeg)) throw new Exception("FFmpeg ausente em " + root);
         var folder = Path.Combine(root, "work", "smoke-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
         await ReleaseTests.RunAsync(folder);
+        await MediaToolTransactionTests.RunAsync(folder,ffmpeg,ffprobe);
         await EstimatePreferenceTests.RunAsync(folder);
         var source = Path.Combine(folder, "audiência teste.mp4");
         await VideoEngine.ExecuteAsync(ffmpeg, ["-y", "-f", "lavfi", "-i", "testsrc2=size=320x180:rate=25:duration=8", "-f", "lavfi", "-i", "sine=frequency=440:duration=8", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "12", "-c:a", "aac", "-shortest", source], null, default);

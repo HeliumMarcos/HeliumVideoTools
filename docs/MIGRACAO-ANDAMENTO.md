@@ -56,9 +56,15 @@ Padrões protegidos: iniciar em Compactar, Personalizada/98 MB, áudio original 
 - Codificação acima do limite agora repete com orçamento reduzido, até três tentativas; falha final não publica arquivo excedente.
 - Recuperação de resultados parciais e erros por arquivo implementada na etapa 3.0.2. Continuar ampliando casos de erro e recuperação de encerramento inesperado.
 - Atualização pública sem credenciais e interação integradas, com confirmação de funcionamento pelo usuário. Repetir entre versões oficiais e em falhas/interrupções, sem tratar isso como bloqueio da migração já concluída.
-- Ferramentas em conjuntos imutáveis, validação, troca atômica de ponteiro e restauração integradas; falta validar transação completa em perfil isolado.
+- Ferramentas em conjuntos imutáveis, validação, troca atômica de ponteiro e restauração integradas. A etapa 3.0.4 valida a transação em perfil isolado com executáveis reais e transporte simulado; resta testar queda de energia/encerramento abrupto e download real pela interface.
 - Instalador NSIS por usuário validado em runner para reinstalação real, pasta fixa e bytes dos atalhos; fixação real continua dependente de validação no Windows do usuário.
 - Publicar no canal oficial, conforme solicitação do usuário, somente após testes de distribuição; continuar registrando as limitações sem tratá-las como validações concluídas.
+
+## Etapa 3.0.4 — recuperação do conjunto FFmpeg/ffprobe
+
+Retorno à distribuição embutida na primeira atualização, reparo de active.json inválido sem bloquear uma instalação nova e preservação do ponto anterior. Operações usam uma captura única de FFmpeg/ffprobe, incluindo a validação dos hashes do conjunto capturado, para evitar misturar ferramentas durante a troca do ponteiro. Diretórios incompletos de tentativas que falham são removidos; conjuntos ativados são imutáveis e retidos para operações já iniciadas.
+
+Testes isolados cobrem instalação real dos executáveis, retorno às ferramentas embutidas, conjunto anterior, pacote incompleto, SHA-256 incorreto, versão divergente, cancelamento no fim do download e antes da ativação/restauração, arquivo temporário interrompido, JSON corrompido, identidade com travessia de diretório e backup adulterado. Nenhum teste altera o perfil real do usuário. O transporte usa um HttpMessageHandler local; isso não atesta disponibilidade da origem pública, nem simula queda de energia. Recuperação de temporários após encerramento forçado do processamento continua pendente.
 
 ## Compilar/testar
 

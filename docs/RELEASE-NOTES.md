@@ -1,4 +1,16 @@
-# Helium Vídeo Tools 3.0.3 — estimativas e preferências
+# Helium Vídeo Tools 3.0.4 — recuperação das ferramentas
+
+- A primeira atualização do FFmpeg/ffprobe agora guarda um ponto de retorno às ferramentas incluídas no instalador.
+- Um controle de ferramentas danificado pode ser reparado instalando novamente o conjunto pela janela Atualizações, preservando o ponto de restauração existente.
+- Processamento e estimativas capturam os dois executáveis do mesmo conjunto imutável e validam esse conjunto antes de usá-lo.
+- Cancelamento, pacote incompleto, versão divergente e hash inválido não ativam o conjunto novo; diretórios incompletos dessa tentativa são removidos.
+- Restauração valida os hashes do conjunto anterior antes de ativá-lo. Metadados de controle têm validação de identidade, tamanho e JSON; gravações são atômicas.
+
+Sem mudanças no layout aprovado. Mantidos os padrões de abertura: Compactar, Personalizada/98 MB, áudio original e WebM VP8. Atualização por usuário, sem administrador, na mesma pasta.
+
+Testes em perfil isolado usam FFmpeg/ffprobe reais com transporte HTTP simulado, sem modificar a instalação do usuário. Incluem instalação, restauração embutida/anterior, cancelamento, corrupção e preservação de um conjunto já capturado. Isso não simula uma queda de energia nem substitui o teste de download das ferramentas pela rede real.
+
+## Melhorias preservadas da 3.0.3
 
 - Apresentação das estimativas aprovada: separa orçamento dos codecs, teto aplicado e referência de tamanho baseada no original.
 - Compactação e WebM usam as mesmas regras de orçamento do motor. Um original de 40 MB não recebe um orçamento de 299 MB na conversão.
@@ -10,4 +22,4 @@
 
 O valor exibido é orçamento ou referência, não promessa de tamanho exato. O motor continua conferindo o tamanho real antes de publicar cada saída. Relatórios, preferências e vídeos ficam locais; não são enviados ao GitHub.
 
-Instalação por usuário, sem administrador, na mesma pasta; .NET e FFmpeg/ffprobe incluídos. `SHA256SUMS.txt` acompanha o instalador; não há assinatura Authenticode configurada. Validações com audiências extensas, temas/acessibilidade e transação completa de ferramentas permanecem no plano.
+Instalação por usuário, sem administrador, na mesma pasta; .NET e FFmpeg/ffprobe incluídos. `SHA256SUMS.txt` acompanha o instalador; não há assinatura Authenticode configurada. Validações com audiências extensas e temas/acessibilidade permanecem no plano.

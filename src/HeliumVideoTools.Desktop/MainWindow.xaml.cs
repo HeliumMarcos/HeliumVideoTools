@@ -191,11 +191,12 @@ public partial class MainWindow : Window
             var options=CurrentOptions(); var sources=model.Files.Select(f=>f.Path).ToArray();
             estimate.Text="Analisando duração, áudio e tamanho…"; estimateNote!.Visibility=Visibility.Collapsed;
             await Task.Delay(250,request.Token);
-            string probe=BatchViewModel.FindTool("ffprobe")??throw new IOException("ffprobe indisponível; verifique as ferramentas em Atualizações.");
+            var tools=BatchViewModel.CaptureTools();
+            string probe=tools.Ffprobe;
             if(estimateService is null || estimateProbe!=probe)
             {
-                var engine=new VideoEngine(BatchViewModel.FindTool("ffmpeg")??"ffmpeg.exe",probe);
-                estimateService=new VideoEstimateService(async (path,token)=>{await MediaToolUpdater.ValidateActiveAsync(token);return await engine.ProbeAsync(path,token);}); estimateProbe=probe;
+                var engine=new VideoEngine(tools.Ffmpeg,probe);
+                estimateService=new VideoEstimateService(async (path,token)=>{if(tools.Set is not null) await MediaToolUpdater.DefaultStore.ValidateAsync(tools.Set,token);return await engine.ProbeAsync(path,token);}); estimateProbe=probe;
             }
             var result=await estimateService.EstimateAsync(sources,options,request.Token);
             request.Token.ThrowIfCancellationRequested();

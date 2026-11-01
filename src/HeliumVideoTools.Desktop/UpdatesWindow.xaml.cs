@@ -35,8 +35,9 @@ public partial class UpdatesWindow : Window
     {
         try
         {
-            var ffmpeg = BatchViewModel.FindTool("ffmpeg"); var ffprobe = BatchViewModel.FindTool("ffprobe");
             ffmpegDetails = ffprobeDetails = null;
+            var tools = BatchViewModel.CaptureTools();
+            var ffmpeg = tools.Ffmpeg; var ffprobe = tools.Ffprobe;
             ffmpegDetails = ffmpeg is null ? null : await MediaToolUpdater.InstalledVersionAsync(ffmpeg, default);
             ffprobeDetails = ffprobe is null ? null : await MediaToolUpdater.InstalledVersionAsync(ffprobe, default);
             ShowVersion(FfmpegVersion, "FFmpeg", ffmpegDetails); ShowVersion(FfprobeVersion, "ffprobe", ffprobeDetails);

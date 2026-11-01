@@ -7,38 +7,22 @@ namespace HeliumVideoTools.Core;
 
 public sealed record ToolSet(string Version, string Id, string FfmpegSha256, string FfprobeSha256);
 
-public sealed class MediaToolUpdater(ReleaseClient releases)
+public sealed class MediaToolUpdater(ReleaseClient releases, MediaToolStore? store = null)
 {
-    private static string Root => Path.Combine(AppLog.Root, "tools");
-    private static string Pointer => Path.Combine(Root, "active.json");
-    public static ToolSet? Active()
-    {
-        if (!File.Exists(Pointer)) return null;
-        var active = JsonSerializer.Deserialize<ToolSet>(File.ReadAllText(Pointer)) ?? throw new IOException("Conjunto de ferramentas inválido.");
-        if (!Regex.IsMatch(active.Id, "^[a-f0-9]{32}$") || !Version.TryParse(active.Version, out _)) throw new IOException("Identidade das ferramentas inválida.");
-        return active;
-    }
+    public static MediaToolStore DefaultStore { get; } = new(Path.Combine(AppLog.Root, "tools"));
+    private MediaToolStore Store => store ?? DefaultStore;
+    private string Root => Store.Root;
+    public static ToolSet? Active() => DefaultStore.Active();
     public static string? ResolveActive(string name)
     {
         if (name is not "ffmpeg" and not "ffprobe") throw new ArgumentException("Ferramenta inválida");
         var active = Active();
         if (active is null) return null;
-        string path = Path.Combine(Root, active.Id, name + ".exe");
-        return File.Exists(path) ? path : throw new IOException("Ferramentas atualizadas ausentes. Restaure o conjunto anterior.");
+        return DefaultStore.Resolve(active, name);
     }
     public static async Task ValidateActiveAsync(CancellationToken token)
     {
-        if (Active() is { } set) await ValidateAsync(set, token);
-    }
-    private static async Task ValidateAsync(ToolSet set, CancellationToken token)
-    {
-        if (!Regex.IsMatch(set.Id, "^[a-f0-9]{32}$")) throw new IOException("Identidade das ferramentas inválida.");
-        foreach (var (name, expected) in new[] { ("ffmpeg", set.FfmpegSha256), ("ffprobe", set.FfprobeSha256) })
-        {
-            await using var file = File.OpenRead(Path.Combine(Root, set.Id, name + ".exe"));
-            string actual = Convert.ToHexString(await SHA256.HashDataAsync(file, token));
-            if (!actual.Equals(expected, StringComparison.OrdinalIgnoreCase)) throw new IOException("O conjunto de ferramentas foi alterado. Restaure o conjunto anterior.");
-        }
+        if (Active() is { } set) await DefaultStore.ValidateAsync(set, token);
     }
     public async Task<ReleaseAsset> CheckAsync(CancellationToken token)
     {
@@ -65,6 +49,7 @@ public sealed class MediaToolUpdater(ReleaseClient releases)
         Directory.CreateDirectory(Root);
         string id = Guid.NewGuid().ToString("N"), directory = Path.Combine(Root, id);
         string archive = Path.Combine(Root, id + ".zip");
+        bool activated = false;
         try
         {
             await releases.DownloadAsync(asset, archive, progress, token);
@@ -83,35 +68,26 @@ public sealed class MediaToolUpdater(ReleaseClient releases)
             foreach (var name in new[] { "ffmpeg", "ffprobe" })
             {
                 var version = await InstalledVersionAsync(Path.Combine(directory, name + ".exe"), token);
-                if (!version.StartsWith($"{name} version {asset.Version}", StringComparison.Ordinal)) throw new IOException("As versões de FFmpeg/ffprobe não correspondem ao pacote.");
+                if (!version.StartsWith(name + " version ", StringComparison.Ordinal) || ParseInstalledVersion(version) != Version.Parse(asset.Version)) throw new IOException("As versões de FFmpeg/ffprobe não correspondem ao pacote.");
             }
             var codecs = await VideoEngine.ExecuteAsync(Path.Combine(directory, "ffmpeg.exe"), ["-hide_banner", "-encoders"], null, token);
             foreach (var codec in new[] { "libx264", "libx265", "libvpx", "libvpx-vp9", "libopus" })
                 if (!Regex.IsMatch(codecs, @"\b" + codec + @"\b")) throw new IOException("O pacote não contém todos os codificadores necessários.");
             var set = new ToolSet(asset.Version, id, await HashAsync(Path.Combine(directory, "ffmpeg.exe"), token), await HashAsync(Path.Combine(directory, "ffprobe.exe"), token));
-            await ValidateAsync(set, token);
-            if (Active() is { } previous) AtomicSave(Path.Combine(Root, "previous.json"), previous);
-            token.ThrowIfCancellationRequested(); AtomicSave(Pointer, set);
+            await Store.ActivateAsync(set, token);
+            activated = true;
         }
-        finally { if (File.Exists(archive)) File.Delete(archive); }
+        finally
+        {
+            if (File.Exists(archive)) File.Delete(archive);
+            if (!activated && Directory.Exists(directory)) Directory.Delete(directory, true);
+        }
         // Diretórios são imutáveis e retidos: uma operação já iniciada pode usar o conjunto antigo.
         // Só a troca atômica do ponteiro ativa o novo conjunto; falhas deixam o anterior ativo.
     }
-    public static async Task RestoreAsync(CancellationToken token)
-    {
-        string previous = Path.Combine(Root, "previous.json");
-        if (!File.Exists(previous)) throw new IOException("Nenhum conjunto anterior disponível.");
-        var set = JsonSerializer.Deserialize<ToolSet>(File.ReadAllText(previous)) ?? throw new IOException("Backup inválido.");
-        await ValidateAsync(set, token); AtomicSave(Pointer, set);
-    }
+    public static Task RestoreAsync(CancellationToken token) => DefaultStore.RestoreAsync(token);
     private static async Task<string> HashAsync(string path, CancellationToken token)
     {
         await using var file = File.OpenRead(path); return Convert.ToHexString(await SHA256.HashDataAsync(file, token));
-    }
-    private static void AtomicSave(string path, ToolSet set)
-    {
-        string temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-        try { File.WriteAllText(temp, JsonSerializer.Serialize(set)); File.Move(temp, path, true); }
-        finally { if (File.Exists(temp)) File.Delete(temp); }
     }
 }

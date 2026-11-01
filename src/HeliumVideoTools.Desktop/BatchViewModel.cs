@@ -20,7 +20,7 @@ public sealed class BatchViewModel : INotifyPropertyChanged
     private readonly Func<IVideoProcessor>? processorFactory;
     private readonly Func<CancellationToken,Task> validateTools;
     private readonly string reportDirectory;
-    public BatchViewModel() : this(null,MediaToolUpdater.ValidateActiveAsync,System.IO.Path.Combine(AppLog.Root,"reports")) { }
+    public BatchViewModel() : this(null,_=>Task.CompletedTask,System.IO.Path.Combine(AppLog.Root,"reports")) { }
     public BatchViewModel(Func<IVideoProcessor>? processorFactory,Func<CancellationToken,Task> validateTools,string reportDirectory)
     { this.processorFactory=processorFactory; this.validateTools=validateTools; this.reportDirectory=reportDirectory; }
     public ObservableCollection<InputVideo> Files { get; } = [];
@@ -39,9 +39,24 @@ public sealed class BatchViewModel : INotifyPropertyChanged
     public static string? FindTool(string name)
     {
         if (MediaToolUpdater.ResolveActive(name) is { } active) return active;
+        return FindBundledTool(name);
+    }
+    private static string? FindBundledTool(string name)
+    {
         foreach (var directory in new[] { AppContext.BaseDirectory, System.IO.Path.Combine(AppContext.BaseDirectory, "tools"), Environment.CurrentDirectory })
         { var path = System.IO.Path.Combine(directory, name + ".exe"); if (File.Exists(path)) return path; }
         return null;
+    }
+    internal static (string Ffmpeg, string Ffprobe, ToolSet? Set) CaptureTools()
+    {
+        var set = MediaToolUpdater.Active();
+        if(set is not null) return (MediaToolUpdater.DefaultStore.Resolve(set,"ffmpeg"),MediaToolUpdater.DefaultStore.Resolve(set,"ffprobe"),set);
+        foreach(var directory in new[]{AppContext.BaseDirectory,System.IO.Path.Combine(AppContext.BaseDirectory,"tools"),Environment.CurrentDirectory})
+        {
+            string ffmpeg=System.IO.Path.Combine(directory,"ffmpeg.exe"),ffprobe=System.IO.Path.Combine(directory,"ffprobe.exe");
+            if(File.Exists(ffmpeg) && File.Exists(ffprobe)) return(ffmpeg,ffprobe,null);
+        }
+        throw new IOException("FFmpeg/ffprobe ausentes. Abra Atualizações para instalar o conjunto.");
     }
     public void Cancel() => cancellation?.Cancel();
     public async Task<BatchResult> RunAsync(VideoOptions options, IProgress<VideoProgress> progress)
@@ -50,12 +65,19 @@ public sealed class BatchViewModel : INotifyPropertyChanged
         LastResult = null; LastReportPath = null; LastOutputFolder = null; ReportWarning = null;
         var sources = Files.Select(f => f.Path).ToArray();
         if (sources.Length == 0) throw new IOException("Adicione pelo menos um vídeo.");
-        var engine = processorFactory?.Invoke() ?? new VideoEngine(FindTool("ffmpeg") ?? throw new IOException("FFmpeg ausente. Coloque o conjunto de ferramentas na pasta tools."), FindTool("ffprobe") ?? throw new IOException("ffprobe ausente. Coloque o conjunto de ferramentas na pasta tools."));
         Busy = true; LastOutputFolder = null; PropertyChanged?.Invoke(this, new(nameof(Busy)));
         using var cancel = new CancellationTokenSource(); cancellation = cancel;
         try
         {
             await validateTools(cancel.Token);
+            IVideoProcessor engine;
+            if(processorFactory is not null) engine=processorFactory();
+            else
+            {
+                var tools=CaptureTools();
+                if(tools.Set is not null) await MediaToolUpdater.DefaultStore.ValidateAsync(tools.Set,cancel.Token);
+                engine=new VideoEngine(tools.Ffmpeg,tools.Ffprobe);
+            }
             LastResult = await new BatchRunner(engine).RunAsync(sources, options, progress, cancel.Token);
             LastOutputFolder = LastResult.OutputFolders.LastOrDefault();
             try
