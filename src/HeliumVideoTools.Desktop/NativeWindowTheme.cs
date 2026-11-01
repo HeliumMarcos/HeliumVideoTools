@@ -21,17 +21,19 @@ internal static class NativeWindowTheme
         window.SourceInitialized += (_, _) => Refresh();
         window.Activated += (_, _) => Refresh();
         window.Deactivated += (_, _) => Refresh();
+        EventHandler themeChanged=(_,_)=>Refresh();ThemeManager.Changed+=themeChanged;
         SystemParameters.StaticPropertyChanged += systemChanged;
-        window.Closed += (_, _) => SystemParameters.StaticPropertyChanged -= systemChanged;
+        window.Closed += (_, _) => {SystemParameters.StaticPropertyChanged -= systemChanged;ThemeManager.Changed-=themeChanged;};
     }
     internal static bool Apply(Window window)
     {
         var handle = new WindowInteropHelper(window).Handle;
         if (handle == 0 || !OperatingSystem.IsWindowsVersionAtLeast(10,0,22000)) return false;
-        bool contrast = SystemParameters.HighContrast;
-        return (Set(handle,20,contrast ? 0 : 1) >= 0)
-            & (Set(handle,35,contrast ? -1 : 0x202020) >= 0)
-            & (Set(handle,36,contrast ? -1 : window.IsActive ? 0xF3F3F3 : 0xBDBDBD) >= 0);
+        bool contrast = ThemeManager.HighContrast;
+        int Color(string key){var c=((System.Windows.Media.SolidColorBrush)Application.Current.Resources[key]).Color;return c.R|(c.G<<8)|(c.B<<16);}
+        return (Set(handle,20,contrast || ThemeManager.IsLight ? 0 : 1) >= 0)
+            & (Set(handle,35,contrast ? -1 : Color("AppBackground")) >= 0)
+            & (Set(handle,36,contrast ? -1 : Color(window.IsActive?"TextPrimary":"TextSecondary")) >= 0);
     }
     private static int Set(nint handle, int attribute, int value) => DwmSetWindowAttribute(handle, attribute, ref value, sizeof(int));
 }

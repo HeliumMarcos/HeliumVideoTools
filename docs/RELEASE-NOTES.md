@@ -1,4 +1,16 @@
-# Helium Vídeo Tools 3.0.4 — recuperação das ferramentas
+# Helium Vídeo Tools 3.0.5 — temas e acessibilidade
+
+- Proposta visual aprovada integrada: seletor Sistema (Windows), Claro e Escuro na lateral. A escolha é lembrada sem alterar os padrões de processamento.
+- Sistema acompanha a aparência do Windows. O alto contraste do Windows tem prioridade e usa suas cores, inclusive em seleções e botões.
+- Marca com variante adequada ao fundo; barra de título, campos, menus, estimativas, resultados e janela Atualizações acompanham o tema sem reiniciar.
+- Foco de teclado mais visível, ordem de Tab na navegação e nomes acessíveis dos controles revisados. Trocar o tema preserva os valores digitados.
+- Atualizações mantém o layout compacto, com progresso e cancelamento, sem rolagem no tamanho padrão nos estados testados.
+
+Mantidos Compactar ao abrir, Personalizada/98 MB, áudio original ligado e WebM VP8. Instalação por usuário, sem administrador, na mesma pasta; atualização pelo aplicativo via Releases estáveis.
+
+Testes cobrem as três ferramentas em 1280×900 e 980×700 DIPs, cores de contraste simuladas sem modificar o Windows, menus, Tab/foco, preferências e estados de Atualizações. Isso não substitui testes com leitor de tela, todas as paletas personalizadas nem movimentação real entre monitores com DPI diferente.
+
+## Melhorias preservadas da 3.0.4
 
 - A primeira atualização do FFmpeg/ffprobe agora guarda um ponto de retorno às ferramentas incluídas no instalador.
 - Um controle de ferramentas danificado pode ser reparado instalando novamente o conjunto pela janela Atualizações, preservando o ponto de restauração existente.
@@ -7,7 +19,7 @@
 - Restauração valida os hashes do conjunto anterior antes de ativá-lo. Metadados de controle têm validação de identidade, tamanho e JSON; gravações são atômicas.
 - Instalador envia uma solicitação explícita de encerramento para a janela, inclusive oculta/minimizada, para usar o fluxo normal de gravação das preferências antes de substituir o aplicativo. O encerramento forçado permanece como último recurso após o prazo.
 
-Sem mudanças no layout aprovado. Mantidos os padrões de abertura: Compactar, Personalizada/98 MB, áudio original e WebM VP8. Atualização por usuário, sem administrador, na mesma pasta.
+Mantidos os padrões de abertura: Compactar, Personalizada/98 MB, áudio original e WebM VP8. Atualização por usuário, sem administrador, na mesma pasta.
 
 Testes em perfil isolado usam FFmpeg/ffprobe reais com transporte HTTP simulado, sem modificar a instalação do usuário. Incluem instalação, restauração embutida/anterior, cancelamento, corrupção e preservação de um conjunto já capturado. Isso não simula uma queda de energia nem substitui o teste de download das ferramentas pela rede real.
 
@@ -23,4 +35,4 @@ Testes em perfil isolado usam FFmpeg/ffprobe reais com transporte HTTP simulado,
 
 O valor exibido é orçamento ou referência, não promessa de tamanho exato. O motor continua conferindo o tamanho real antes de publicar cada saída. Relatórios, preferências e vídeos ficam locais; não são enviados ao GitHub.
 
-Instalação por usuário, sem administrador, na mesma pasta; .NET e FFmpeg/ffprobe incluídos. `SHA256SUMS.txt` acompanha o instalador; não há assinatura Authenticode configurada. Validações com audiências extensas e temas/acessibilidade permanecem no plano.
+Instalação por usuário, sem administrador, na mesma pasta; .NET e FFmpeg/ffprobe incluídos. `SHA256SUMS.txt` acompanha o instalador; não há assinatura Authenticode configurada. Validações com audiências extensas, leitores de tela e monitores/DPI continuam no plano.

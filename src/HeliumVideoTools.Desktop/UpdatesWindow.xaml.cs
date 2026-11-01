@@ -23,7 +23,7 @@ public partial class UpdatesWindow : Window
     public bool Installing { get; private set; }
     public UpdatesWindow(Func<bool>? mediaBusy = null, bool preview = false, AppRelease? available = null)
     {
-        InitializeComponent(); NativeWindowTheme.Attach(this); this.preview = preview; this.mediaBusy = mediaBusy ?? (() => false); releases = new(http);
+        ThemeManager.EnsureInitialized();InitializeComponent(); NativeWindowTheme.Attach(this); this.preview = preview; this.mediaBusy = mediaBusy ?? (() => false); releases = new(http);
         AppVersion.Text = "Instalado: " + typeof(UpdatesWindow).Assembly.GetName().Version!.ToString(3) + " • C# / .NET 10";
         this.available = available;
         if (available is not null) { AppUpdateStatus.Text = "Nova versão disponível: " + available.Version.ToString(3); InstallAppButton.IsEnabled = true; }

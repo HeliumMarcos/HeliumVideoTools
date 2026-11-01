@@ -38,7 +38,14 @@ public partial class MainWindow : Window
     {
         preferenceStore=preview?null:new UserPreferenceStore(AppLog.Root,LegacyPreferences.Read);
         preferences=preferenceStore?.Load()??new(); preferredMaximized=preferences.Maximized;
+        ThemeManager.EnsureInitialized();
+        if(!preview)ThemeManager.SetPreference(preferences.Theme);
         InitializeComponent(); NativeWindowTheme.Attach(this); DataContext = model;
+        ThemeChoice.ItemsSource=new[]{"Sistema (Windows)","Claro","Escuro"};
+        ThemeChoice.SelectedIndex=ThemeManager.Preference switch {"light"=>1,"dark"=>2,_=>0};
+        void RefreshThemeHelp()=>ThemeHelp.Text=ThemeManager.HighContrast?"Contraste do Windows ativo":"Tab navega · Espaço alterna";
+        EventHandler themeChanged=(_,_)=>RefreshThemeHelp();ThemeManager.Changed+=themeChanged;RefreshThemeHelp();
+        Closed+=(_,_)=>ThemeManager.Changed-=themeChanged;
         UpdateShutdown.Attach(this);
         if(!preview)
         {
@@ -71,6 +78,12 @@ public partial class MainWindow : Window
         };
         Closed += (_, _) => lifetime.Cancel();
     }
+    private void ThemeChanged(object sender,SelectionChangedEventArgs e)
+    {
+        if(ThemeChoice.SelectedIndex<0)return;
+        string theme=ThemeChoice.SelectedIndex switch {1=>"light",2=>"dark",_=>"system"};
+        preferences=preferences with {Theme=theme};ThemeManager.SetPreference(theme);
+    }
     private void ShowUpdates(object sender, RoutedEventArgs e)
     {
         if (updates is { IsLoaded: true }) { updates.Activate(); return; }
@@ -89,10 +102,13 @@ public partial class MainWindow : Window
         DestinationLabel.Text = operation == Operation.Webm ? "SEEU • WEBM" : operation == Operation.Split ? "PARTES PARA ENVIO" : "PROJUDI • MP4";
         foreach (var nav in new[] { SplitNav, CompressNav, WebmNav })
         {
-            nav.Background = nav == sender ? new SolidColorBrush(Color.FromRgb(53, 61, 68)) : Brushes.Transparent;
-            nav.BorderBrush = nav == sender ? new SolidColorBrush(Color.FromRgb(108, 204, 240)) : Brushes.Transparent;
+            if(nav==sender) {nav.SetResourceReference(Control.BackgroundProperty,"SelectedBackground");nav.SetResourceReference(Control.BorderBrushProperty,"Icon");nav.SetResourceReference(Control.ForegroundProperty,"SelectedText");}
+            else {nav.Background=Brushes.Transparent;nav.BorderBrush=Brushes.Transparent;nav.SetResourceReference(Control.ForegroundProperty,"TextPrimary");}
             if (nav.Content is StackPanel content)
+            {
+                foreach(var icon in content.Children.OfType<Symbol>())icon.SetResourceReference(Control.ForegroundProperty,nav==sender?"SelectedIcon":"Icon");
                 foreach (var text in content.Children.OfType<TextBlock>()) text.FontWeight = nav == sender ? FontWeights.SemiBold : FontWeights.Normal;
+            }
         }
         BuildOptions();
     }
@@ -107,11 +123,11 @@ public partial class MainWindow : Window
         grid.ColumnDefinitions.Add(new() { Width = new GridLength(164) }); grid.ColumnDefinitions.Add(new());
         var labelPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         string symbol = label switch { "Preset" => "preset", "Codec" => "codec", "Áudio" => "audio", "Precisão" => "shield", "Estimativa" => "estimate", "Dividir por" => "split", "Quantidade" => "parts", _ => "size" };
-        labelPanel.Children.Add(new Symbol { Kind = symbol, Width = 17, Height = 17, Foreground = Brushes.Silver, Margin = new Thickness(0, 0, 9, 0) });
+        var rowIcon=new Symbol {Kind=symbol,Width=17,Height=17,Margin=new Thickness(0,0,9,0)};rowIcon.SetResourceReference(Control.ForegroundProperty,"TextSecondary");labelPanel.Children.Add(rowIcon);
         labelPanel.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center, FontSize = 13 });
         grid.Children.Add(labelPanel);
         Grid.SetColumn(field, 1); grid.Children.Add(field); OptionsPanel.Children.Add(grid);
-        if (field is FrameworkElement element) System.Windows.Automation.AutomationProperties.SetName(element, label);
+        if (field is FrameworkElement element) System.Windows.Automation.AutomationProperties.SetName(element,field is CheckBox check?label+": "+check.Content:label);
         return grid;
     }
     private void BuildOptions()
@@ -162,11 +178,11 @@ public partial class MainWindow : Window
             if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Manter áudio original", IsChecked = true }; copyAudio.Checked+=(_,_)=>UpdateEstimate(); copyAudio.Unchecked+=(_,_)=>UpdateEstimate(); Row("Áudio", copyAudio); }
             precise = new CheckBox { Content = "Modo preciso em 2 etapas", IsChecked = defaults.TwoPass }; precise.Checked+=(_,_)=>UpdateEstimate(); precise.Unchecked+=(_,_)=>UpdateEstimate(); Row("Precisão", precise);
         }
-        estimate = new TextBlock { Foreground = new SolidColorBrush(Color.FromRgb(177, 218, 237)), FontSize = 12 };
-        estimateNote=new TextBlock { Foreground=Brushes.Silver,FontSize=11,Margin=new Thickness(0,6,0,0),Visibility=Visibility.Collapsed };
+        estimate = new TextBlock { FontSize = 12 };estimate.SetResourceReference(TextBlock.ForegroundProperty,"InfoText");
+        estimateNote=new TextBlock {FontSize=11,Margin=new Thickness(0,6,0,0),Visibility=Visibility.Collapsed };estimateNote.SetResourceReference(TextBlock.ForegroundProperty,"TextSecondary");
         var estimateContent=new StackPanel { Margin=new Thickness(12,9,12,9),MinHeight=34 }; estimateContent.Children.Add(estimate); estimateContent.Children.Add(estimateNote);
-        Row("Estimativa", new Border { Background = new SolidColorBrush(Color.FromRgb(39, 53, 63)), CornerRadius = new CornerRadius(6), Child = estimateContent });
-        var note = new TextBlock { Text = operation == Operation.Webm ? "O arquivo final respeita o teto escolhido e um orçamento menor que o original." : operation == Operation.Split ? "Divisão precisa em MP4 (H.264/AAC), com recodificação. Os originais são preservados." : "O tamanho é conferido em MB decimais antes de salvar o resultado.", Foreground = Brushes.Silver, FontSize = 11 }; OptionsPanel.Children.Add(note);
+        var estimateBox=new Border {CornerRadius=new CornerRadius(6),Child=estimateContent};estimateBox.SetResourceReference(Border.BackgroundProperty,"InfoBackground");Row("Estimativa",estimateBox);
+        var note = new TextBlock { Text = operation == Operation.Webm ? "O arquivo final respeita o teto escolhido e um orçamento menor que o original." : operation == Operation.Split ? "Divisão precisa em MP4 (H.264/AAC), com recodificação. Os originais são preservados." : "O tamanho é conferido em MB decimais antes de salvar o resultado.", FontSize = 11 };note.SetResourceReference(TextBlock.ForegroundProperty,"TextSecondary");OptionsPanel.Children.Add(note);
         buildingOptions=false; UpdateEstimate();
     }
     private double SizeMb()
@@ -236,7 +252,7 @@ public partial class MainWindow : Window
             var options = CurrentOptions();
             ProgressPanel.Visibility = Visibility.Visible; ProgressAction.Content = "Cancelar tudo"; ProgressAction.IsEnabled = true; OverallBar.Value = 0;
             ReportButton.Visibility = ResultDetails.Visibility = Visibility.Collapsed; ProgressAction.ContextMenu = null;
-            ProgressHeading.Text = "Progresso geral"; SetProgressColor("#57CCF2");
+            ProgressHeading.Text = "Progresso geral"; SetProgressColor("Focus");
             RunButton.IsEnabled = false; OptionsPanel.IsEnabled = false;
             var result = await model.RunAsync(options, new Progress<VideoProgress>(p => { if (model.Busy && model.LastResult is null) { OverallBar.Value = p.Percent; ProgressStatus.Text = p.Status; } }));
             ShowBatchResult(result);
@@ -245,8 +261,8 @@ public partial class MainWindow : Window
         catch (Exception ex) { AppLog.Write("ERROR", "Processamento", ex.ToString()); Status.Text = ex is IOException ? ex.Message : "Não foi possível concluir. Consulte o log para detalhes."; ProgressStatus.Text = Status.Text; }
         finally { RunButton.IsEnabled = true; OptionsPanel.IsEnabled = true; int folders = model.LastResult?.OutputFolders.Count ?? 0; ProgressAction.Content = folders > 1 ? $"Pastas de saída ({folders})" : "Abrir pasta"; ProgressAction.IsEnabled = model.LastOutputFolder is not null; }
     }
-    private void SetProgressColor(string color)
-    { var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)); OverallBar.Foreground = ProgressIcon.Foreground = ProgressPanel.BorderBrush = ProgressStatus.Foreground = brush; }
+    private void SetProgressColor(string resource)
+    {OverallBar.SetResourceReference(Control.ForegroundProperty,resource);ProgressIcon.SetResourceReference(Control.ForegroundProperty,resource);ProgressPanel.SetResourceReference(Border.BorderBrushProperty,resource);ProgressStatus.SetResourceReference(TextBlock.ForegroundProperty,resource);}
     private void ShowBatchResult(BatchResult result)
     {
         static string Count(int n,string one,string many) => n + " " + (n == 1 ? one : many);
@@ -258,7 +274,7 @@ public partial class MainWindow : Window
         ProgressHeading.Text = result.Cancelled ? "Processamento cancelado" : "Resultado do lote";
         ProgressStatus.Text = string.Join(" • ",counts);
         if (!result.Cancelled) OverallBar.Value = 100;
-        SetProgressColor(result.Cancelled ? "#BDBDBD" : result.Failed > 0 ? result.Succeeded > 0 ? "#F2C66D" : "#F28B82" : "#83D19E");
+        SetProgressColor(result.Cancelled ? "TextSecondary" : result.Failed > 0 ? result.Succeeded > 0 ? "Warning" : "Error" : "Success");
         ResultDetails.Text = model.ReportWarning ?? (result.Cancelled ? "As saídas já concluídas continuam disponíveis. Os demais arquivos não foram iniciados." : result.Failed > 0 ? "As saídas concluídas foram preservadas. Veja o relatório para identificar os arquivos com erro." : "Processamento concluído. Os arquivos originais foram preservados.");
         ResultDetails.Visibility = Visibility.Visible; ReportButton.Visibility = model.LastReportPath is null ? Visibility.Collapsed : Visibility.Visible;
         Status.Text = model.ReportWarning ?? (result.Cancelled ? "Lote cancelado • resultados concluídos preservados" : result.Failed > 0 ? "Lote encerrado com erros • consulte o relatório" : "Processamento concluído");
@@ -279,9 +295,9 @@ public partial class MainWindow : Window
         if (model.Busy) { model.Cancel(); ProgressAction.IsEnabled = false; Status.Text = "Cancelando…"; }
         else if (model.LastResult is { } result && result.OutputFolders.Count > 1)
         {
-            var menu = new ContextMenu { Background = new SolidColorBrush(Color.FromRgb(41,41,41)), Foreground = Brushes.White, MaxHeight = 360, PlacementTarget = ProgressAction };
-            var template = (ControlTemplate)System.Windows.Markup.XamlReader.Parse("<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='MenuItem'><Border Name='Face' Background='{TemplateBinding Background}' Padding='12,10'><ContentPresenter ContentSource='Header'/></Border><ControlTemplate.Triggers><Trigger Property='IsHighlighted' Value='True'><Setter TargetName='Face' Property='Background' Value='#0067C0'/></Trigger></ControlTemplate.Triggers></ControlTemplate>");
-            foreach (var folder in result.OutputFolders) { var item = new MenuItem { Header = new TextBlock { Text = folder, MaxWidth = 600, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap }, ToolTip = folder, Background = menu.Background, Foreground = menu.Foreground, Template = template }; item.Click += (_,_) => OpenFolder(folder); menu.Items.Add(item); }
+            var menu = new ContextMenu {MaxHeight = 360, PlacementTarget = ProgressAction };
+            var template = (ControlTemplate)System.Windows.Markup.XamlReader.Parse("<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='MenuItem'><Border Name='Face' Background='{DynamicResource Surface}' Padding='12,10'><ContentPresenter ContentSource='Header'/></Border><ControlTemplate.Triggers><Trigger Property='IsHighlighted' Value='True'><Setter TargetName='Face' Property='Background' Value='{DynamicResource Accent}'/><Setter Property='Foreground' Value='{DynamicResource OnAccent}'/></Trigger><Trigger Property='IsKeyboardFocused' Value='True'><Setter TargetName='Face' Property='BorderBrush' Value='{DynamicResource Focus}'/><Setter TargetName='Face' Property='BorderThickness' Value='2'/></Trigger></ControlTemplate.Triggers></ControlTemplate>");
+            foreach (var folder in result.OutputFolders) { var item = new MenuItem { Header = new TextBlock { Text = folder, MaxWidth = 600, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap }, ToolTip = folder, Template = template }; item.Click += (_,_) => OpenFolder(folder); menu.Items.Add(item); }
             ProgressAction.ContextMenu = menu; menu.IsOpen = true;
         }
         else if (model.LastOutputFolder is { } folder) OpenFolder(folder);

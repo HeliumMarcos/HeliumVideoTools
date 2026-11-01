@@ -50,7 +50,7 @@ A [execução 41155944596](https://github.com/HeliumMarcos/HeliumVideoTools/acti
 
 Padrões protegidos: iniciar em Compactar, Personalizada/98 MB, áudio original ligado e WebM VP8/299 MB. Alvo, unidade, codec, preset e página inicial não são gravados nas preferências. JSON inválido não bloqueia a abertura; é preservado como `.invalid-<id>` na próxima gravação, e os padrões são usados. Testes de renderização usam modo isolado, sem ler/gravar preferências reais.
 
-- Completar validação de DPI, tema claro/alto contraste e teclado; visual escuro e ícone já aprovados.
+- Temas claro/escuro/Sistema e alto contraste aprovados e integrados na etapa 3.0.5; testes de teclado e dimensões lógicas adicionados. Continuam pendentes leitor de tela, todas as paletas personalizadas e monitores com DPI diferente.
 - Preferências úteis e importação compatível implementadas na etapa 3.0.3; padrões de abertura protegidos. Ampliar cobertura de monitores/DPI e opções quando novos temas forem implementados.
 - Divisão precisa e testes sintéticos CFR/VFR implementados. Ainda falta validar continuidade perceptual, sincronismo e qualidade com amostras extensas reais.
 - Codificação acima do limite agora repete com orçamento reduzido, até três tentativas; falha final não publica arquivo excedente.
@@ -71,6 +71,14 @@ A [execução 41327680947](https://github.com/HeliumMarcos/HeliumVideoTools/acti
 Download público anônimo real validado: instalador com 172818105 bytes, SHA-256 e assinatura de formato MZ conferidos pelo cliente do próprio aplicativo. O canal estável ofereceu atualização às versões anteriores testadas, incluindo 3.0.3, e não ofereceu à própria 3.0.4. Assinatura de formato MZ não é assinatura digital Authenticode.
 
 ## Compilar/testar
+
+## Etapa 3.0.5 — temas aprovados
+
+Usuário aprovou a comparação antes/depois e autorizou integração. Recursos semânticos dinâmicos substituem cores fixas nas duas janelas, opções criadas em código, resultados e menu de pastas. Seletor Sistema/Claro/Escuro persiste nas preferências; alto contraste do Windows prevalece e usa cores pareadas de SystemColors. Assinatura e barra nativa seguem a aparência, mantendo controles e Snap do Windows.
+
+Validação local: três ferramentas em dois tamanhos (1280×900 e 980×700 DIPs), duas paletas de contraste simuladas sem alterar o sistema, contraste de texto/ações, menus selecionados, nomes acessíveis, ordem de Tab, foco real de campo com borda de 2 DIPs e preservação dos valores na troca de tema. Atualizações permanece sem rolagem no tamanho padrão em consulta, download e verificação. Simulação de cores e renderização não atestam leitor de tela, monitores/DPI reais nem todas as personalizações possíveis do usuário.
+
+## Comandos
 
 Com SDK .NET 10:
 

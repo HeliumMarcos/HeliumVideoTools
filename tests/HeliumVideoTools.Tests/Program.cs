@@ -10,6 +10,11 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length==2 && args[0]=="--verify-themes")
+        {
+            try {ThemeTests.Run(args[1]);return 0;}
+            catch(Exception ex){Console.Error.WriteLine(ex);return 1;}
+        }
         if(args.Length==2 && args[0]=="--verify-close")
         {
             try {WindowCloseTests.Run(args[1]);return 0;}
@@ -138,7 +143,7 @@ internal static class Program
         using var verified = ReleaseClient.VerifyInstaller(path, asset);
         if (!tag.Contains("preview"))
         {
-            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0),new Version(3,0,3,0)})
+            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0),new Version(3,0,3,0),new Version(3,0,4,0)})
             {
                 if(installed>=Version.Parse(tag[1..])) continue;
                 var update = await client.CheckAppAsync(installed, default);

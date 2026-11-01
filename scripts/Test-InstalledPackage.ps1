@@ -17,7 +17,7 @@ $before = (Get-FileHash -LiteralPath $link -Algorithm SHA256).Hash
 $preferencesDirectory = Join-Path $env:LOCALAPPDATA 'HeliumVideoTools'
 New-Item -ItemType Directory -Force -Path $preferencesDirectory | Out-Null
 $preferencesPath = Join-Path $preferencesDirectory 'preferences.json'
-$fixture = @{ Width=1000; Height=720; Maximized=$false; LastDirectory=[IO.Path]::GetTempPath(); SplitParts=4; SplitMinutes=8; CompressionTwoPass=$false; WebmTwoPass=$true; LegacyImported=$true; TargetMb=12; CopyAudio=$false; WebmCodec='vp9'; StartupPage='Webm' }
+$fixture = @{ Width=1000; Height=720; Maximized=$false; LastDirectory=[IO.Path]::GetTempPath(); SplitParts=4; SplitMinutes=8; CompressionTwoPass=$false; WebmTwoPass=$true; LegacyImported=$true; Theme='dark'; TargetMb=12; CopyAudio=$false; WebmCodec='vp9'; StartupPage='Webm' }
 [IO.File]::WriteAllText($preferencesPath,($fixture | ConvertTo-Json),[Text.UTF8Encoding]::new($false))
 $startup = [Diagnostics.Stopwatch]::StartNew()
 $app = Start-Process -FilePath $expected -PassThru -WindowStyle Hidden
@@ -42,6 +42,7 @@ do {
 if (-not $reopened) { throw 'Aplicativo não reabriu após atualização /RESTART' }
 $savedPreferences = Get-Content -LiteralPath $preferencesPath -Raw | ConvertFrom-Json
 if ($savedPreferences.SplitParts -ne 4 -or $savedPreferences.SplitMinutes -ne 8 -or $savedPreferences.CompressionTwoPass -ne $false) { throw 'Preferências úteis não foram preservadas na reinstalação' }
+if ($savedPreferences.Theme -ne 'dark') { throw 'Tema selecionado não foi preservado na reinstalação' }
 if ($savedPreferences.PSObject.Properties.Name -contains 'TargetMb') {
     $logPath = Join-Path $preferencesDirectory 'app.jsonl'
     if (Test-Path -LiteralPath $logPath) { Get-Content -LiteralPath $logPath -Tail 15 }
