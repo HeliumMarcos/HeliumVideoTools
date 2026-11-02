@@ -11,6 +11,8 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length==1 && args[0]=="--verify-operation-editor")
+        {try{OperationEditorTests.Run();return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
         if(args.Length==1 && args[0]=="--verify-architecture")
         {try{ArchitectureTests.Run();return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
         if(args.Length==2 && args[0]=="--benchmark-startup")
@@ -124,8 +126,8 @@ internal static class Program
             {
                 var model=(BatchViewModel)window.DataContext;
                 long bytes=new FileInfo(args[6]).Length;
-                var target=(System.Windows.Controls.TextBox)typeof(MainWindow).GetField("target",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(window)!;
-                var unit=(System.Windows.Controls.ComboBox)typeof(MainWindow).GetField("unit",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(window)!;
+                var target=window.Editor.Target;
+                var unit=window.Editor.Unit;
                 target.Text=Math.Max(1,(int)(bytes*.7/1000)).ToString(System.Globalization.CultureInfo.InvariantCulture); unit.SelectedIndex=1;
                 model.Add([args[6]]);
                 var frame=new System.Windows.Threading.DispatcherFrame();
@@ -137,7 +139,7 @@ internal static class Program
                     if(pending is null || DateTime.UtcNow>deadline)frame.Continue=false;
                 };
                 timer.Start(); System.Windows.Threading.Dispatcher.PushFrame(frame); timer.Stop();
-                var summary=(System.Windows.Controls.TextBlock)typeof(MainWindow).GetField("estimate",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(window)!;
+                var summary=window.Editor.Estimate!;
                 Check(summary.Text.Contains("Orçamento"),"A interface não recebeu a estimativa assíncrona real: "+summary.Text);
                 Console.WriteLine("PASS: estimativa real exibida sem bloquear a janela WPF.");
             }
@@ -181,7 +183,7 @@ internal static class Program
         using var verified = ReleaseClient.VerifyInstaller(path, asset);
         if (!tag.Contains("preview"))
         {
-            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0),new Version(3,0,3,0),new Version(3,0,4,0),new Version(3,0,5,0),new Version(3,0,6,0),new Version(3,0,7,0)})
+            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0),new Version(3,0,3,0),new Version(3,0,4,0),new Version(3,0,5,0),new Version(3,0,6,0),new Version(3,0,7,0),new Version(3,0,8,0)})
             {
                 if(installed>=Version.Parse(tag[1..])) continue;
                 var update = await client.CheckAppAsync(installed, default);

@@ -46,6 +46,8 @@ Em 02/11/2026, o benchmark foi repetido a pedido do usuário, que relatou progra
 
 ## Sequência de execução
 
+Segunda entrega do item 6 (3.0.9): OperationEditor assume campos/leitura/preferências compatíveis das operações e BatchResultPresentation assume textos/contagens/estados do resultado. Janela principal reduzida de 334 para 235 linhas não vazias; configuração e apresentação testadas antes/depois, sete imagens de tema idênticas por SHA-256. Testes de mídia/recuperação/fechamento e benchmark preservam as verificações anteriores. Atualização/encerramento/coordenação de estimativas ainda estão na janela; não declarar todo o item 6 concluído. Detalhes em REFACTOR-WINDOW.md.
+
 Primeira entrega do item 6 (3.0.8): núcleo separado dos serviços externos em Infrastructure, execução/sondagem extraídas do motor, teste de fronteira e suíte funcional passando localmente. Benchmark comparativo registrado em DESEMPENHO.md, sem alteração material observada nesta amostra. Código da janela ainda precisa de uma etapa própria de redução de responsabilidades; a separação não declara o item 6 inteiro concluído.
 
 1. Recuperação após interrupções (2).

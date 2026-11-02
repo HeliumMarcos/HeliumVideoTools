@@ -55,7 +55,7 @@ internal static class ThemeTests
             Check(bounds.Bottom<=((FrameworkElement)window.Content).ActualHeight && bounds.Right<=((FrameworkElement)window.Content).ActualWidth,"Ação principal cortada");
             Check(choice.IsVisible && choice.ActualHeight>=40,"Seletor de aparência oculto");
             Check(new ButtonAutomationPeer(run).GetName().Contains(operation=="Compress"?"Compactar":operation=="Split"?"Dividir":"Converter"),"Nome acessível da ação incorreto");
-            var target=(TextBox)typeof(MainWindow).GetField("target",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(window)!;
+            var target=window.Editor.Target;
             target.Focus();window.UpdateLayout();
             Check(target.FocusVisualStyle is not null && choice.FocusVisualStyle is not null,"Controle sem foco visual");
             Check(!string.IsNullOrWhiteSpace(System.Windows.Automation.AutomationProperties.GetName(target)),"Campo sem nome acessível");
@@ -80,7 +80,7 @@ internal static class ThemeTests
         Check(split.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)) && Keyboard.FocusedElement==(Button)live.FindName("CompressNav"),"Ordem de Tab na navegação incorreta");
         var appearance=(ComboBox)live.FindName("ThemeChoice");appearance.SelectedIndex=1;live.UpdateLayout();
         Check(ThemeManager.Preference=="light" && ColorOf(live.Background)==ThemeManager.Palette(true,false)["AppBackground"],"Tema não mudou ao vivo");
-        var field=(TextBox)typeof(MainWindow).GetField("target",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(live)!;field.Text="97";
+        var field=live.Editor.Target;field.Text="97";
         Keyboard.Focus(field);Pump();live.UpdateLayout();
         Check(field.IsKeyboardFocusWithin,"Campo não recebeu foco por teclado");
         var face=(Border)field.Template.FindName("InputFace",field);

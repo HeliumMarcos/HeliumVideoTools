@@ -72,6 +72,22 @@ Diferenças pequenas, em sentidos variados (~−2,2% a +2,9% no processamento), 
 
 ## Reproduzir medições
 
+## Após extrair configuração/resultados da janela — 3.0.9
+
+Mesma entrada e mesmos hashes de FFmpeg/ffprobe da 3.0.8, .NET 10.0.14, parâmetros preservados e código de janela isolado. Registro em [performance/operation-editor-3.0.9.json](performance/operation-editor-3.0.9.json).
+
+| Medida | 3.0.8 | 3.0.9 |
+| --- | ---: | ---: |
+| Mediana das cinco aberturas seguintes | 778 ms | 802 ms |
+| Memória residente média do host | 133,7 MB | 133,9 MB |
+| H.264, média de dois ensaios | 4,78 s | 4,73 s |
+| Divisão, média de dois ensaios | 3,51 s | 3,44 s |
+| VP8, média de dois ensaios | 14,70 s | 14,35 s |
+
+Variações pequenas em sentidos diferentes, com mesmas limitações da metodologia (carga externa/cache não controlados e amostra pequena). Nenhuma alteração material observada; não se afirma equivalência estatística ou aceleração causada pelo refactor. Saídas verificadas e original preservado.
+
+## Reproduzir
+
 Com FFmpeg e ffprobe preparados e o SDK .NET 10 disponível:
 
 ```powershell

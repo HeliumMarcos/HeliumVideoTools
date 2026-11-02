@@ -1,4 +1,14 @@
-# Helium Vídeo Tools 3.0.8 — organização interna
+# Helium Vídeo Tools 3.0.9 — configuração e resultados separados da janela
+
+- Configuração das operações fica em componente próprio: campos, unidades, modos de divisão, validação e preferências compatíveis.
+- Formatação do resultado do lote separada dos controles, preservando contagens, mensagens, cores e avisos de relatório.
+- Janela principal fica menor, com responsabilidades mais claras; os eventos continuam coordenando tarefas e aplicação dos resultados à interface.
+- Testes de caracterização verificam os padrões de 98 MB, áudio original, VP8, presets, codecs e divisão de 2 a 10 partes.
+- Sete renderizações antes/depois tiveram hashes idênticos, antes da alteração do número da versão. Não há mudança visual ou de fluxo nesta entrega.
+
+Instalador por usuário, pasta fixa, atualizações, recuperação e dados preservados. Esta é mais uma etapa do item 6, não a conclusão de toda a revisão da janela. Benchmark e validações em docs/REFACTOR-WINDOW.md e docs/DESEMPENHO.md.
+
+## Melhorias preservadas da 3.0.8
 
 - Modelos, contratos, preferências tipadas e regras de orçamento ficam no núcleo Core, sem dependência do WPF ou da infraestrutura.
 - Execução de FFmpeg/ffprobe, recuperação, atualizações, registro de preferências, relatórios e logs ficam no projeto Infrastructure, que referencia o núcleo.
