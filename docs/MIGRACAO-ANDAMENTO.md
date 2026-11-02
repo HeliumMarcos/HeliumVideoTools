@@ -2,7 +2,7 @@
 
 Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
 
-Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.9 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.9) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções e duas etapas de organização interna. As pendências de validação continuam registradas abaixo.
+Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.10 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.10) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções e três etapas de organização interna. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -123,6 +123,12 @@ OperationEditor assume criação/leitura dos campos e preferências compatíveis
 A [execução 41385183429](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41385183429) passou nos testes de mídia, arquitetura, recuperação, fechamento, temas, editor, instalação/reinstalação e interrupção do instalador, publicando a versão estável. Download anônimo pelo cliente real validou 172908312 bytes, SHA-256 e formato MZ; versões anteriores testadas, incluindo 3.0.8, detectaram atualização e a 3.0.9 não recebeu atualização para si mesma.
 
 Benchmark controlado: abertura repetida mediana 802 ms, memória média do host 133,9 MB, H.264 4,73 s, divisão 3,44 s e VP8 14,35 s. Não representa abertura fria instalada nem comprova ganho estatístico. Coordenação de atualização, estimativas e encerramento permanece como continuação do item 6; telas/DPI/acessibilidade seguem depois, com prévia para qualquer alteração visual. Evidências em REFACTOR-WINDOW.md e DESEMPENHO.md.
+
+## Etapa 3.0.10 — coordenação das estimativas
+
+EstimateCoordinator passa a coordenar espera, cancelamento, substituição das solicitações e reutilização do serviço de metadados. A janela aplica a apresentação sem mudanças de texto/estilo. Testes controlados cobrem respostas e erros antigos, análise substituída, espera cancelada, limpeza/navegação e encerramento. Consulta real com FFprobe passou em 1280×900 e 980×700 e integra o workflow. Sete imagens de temas antes/depois foram idênticas por hash, antes do incremento da versão.
+
+A [execução 41389325642](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41389325642) passou em processamento, recuperação, fechamento, temas, editor, estimativas WPF e instalação/reinstalação/interrupção do instalador. Download público da 3.0.10 validado pelo cliente real: 172910552 bytes, SHA-256 e MZ; atualização detectada desde versões anteriores testadas, incluindo 3.0.9, e ausente para a própria 3.0.10. Atualização e encerramento ainda estão na janela; item 6 não está inteiramente concluído. Nenhuma alegação nova de desempenho nesta entrega.
 
 ## Comandos
 
