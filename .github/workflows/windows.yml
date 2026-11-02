@@ -49,10 +49,15 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         shell: pwsh
         run: |
-          if (-not (Test-Path "${env:ProgramFiles(x86)}\NSIS\makensis.exe")) {
+          $nsis = "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
+          for ($attempt = 1; $attempt -le 3 -and -not (Test-Path -LiteralPath $nsis); $attempt++) {
             choco install nsis -y --no-progress
-            if ($LASTEXITCODE -ne 0) { throw 'Instalação NSIS falhou' }
+            if (-not (Test-Path -LiteralPath $nsis)) {
+              Write-Output "NSIS ainda indisponível após tentativa $attempt; repetindo preparação."
+              Start-Sleep -Seconds (5 * $attempt)
+            }
           }
+          if (-not (Test-Path -LiteralPath $nsis)) { throw 'NSIS não foi instalado após três tentativas' }
       - name: Compilar instalador self-contained
         if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         shell: pwsh

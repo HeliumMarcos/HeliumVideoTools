@@ -35,9 +35,10 @@ Var PauseCheckpoint
 Function TestCheckpoint
   Exch $2
   StrCmp $PauseCheckpoint $2 0 checkpoint_done
-  FileOpen $3 "$INSTDIR\checkpoint.txt" w
+  FileOpen $3 "$INSTDIR\checkpoint.tmp" w
   FileWrite $3 $2
   FileClose $3
+  Rename "$INSTDIR\checkpoint.tmp" "$INSTDIR\checkpoint.txt"
   Sleep 300000
   checkpoint_done:
   Pop $2
