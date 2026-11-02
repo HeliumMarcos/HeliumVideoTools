@@ -30,6 +30,10 @@ Publicada e validada na execução 41379179432: os testes de interrupção do in
 
 ## 5. Desempenho
 
+Continuação do item 3 na [3.0.13 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.13): LiveRegionChanged com controle de frequência, cliente UIA separado confirmando eventos/textos, navegação WPF Tab/Shift+Tab e teste no monitor disponível (144 DPI/150%). Suíte/distribuição em 41487771927 e download/atualização pública em 41488625824 passaram. Não houve mudança visual. Restam Narrador com áudio e campanha física de escalas/monitores mistos; não existe par de monitores com DPI diferente neste ambiente. Detalhes em ACCESSIBLE-PROGRESS.md.
+
+Correção do item 5 nesta etapa: os hosts WPF antigos podiam abrir uma segunda janela via StartupUri. A garantia de isolamento das antigas medições de abertura/memória foi retirada; preservá-las como histórico e usar a nova série com uma janela confirmada, sem comparar runtimes/DPI diferentes como ganho/regressão. O host de testes foi isolado, a abertura produtiva ficou explícita e passou na instalação. DESEMPENHO.md registra método/limites. Abertura fria/instalada e memória da árvore completa continuam pendentes.
+
 Etapa aprovada/publicada do item 3: [3.0.12](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.12), com adaptação a áreas menores, reflow reversível, limites nativos de monitor, manifesto PerMonitorV2 e nomes acessíveis dos botões de arquivos/progresso. Suíte de 30 áreas/operações antes/depois, 36 combinações de estados/tamanhos e ajuste de janela real passou em 41466735914, junto com distribuição; atualização/download anônimo confirmado em 41468872516. Tamanho padrão preservado e dimensões compactas lembradas nas preferências. Simulação não substitui DPI físico, múltiplos monitores ou Narrador; esses continuam pendentes. Detalhes em RESPONSIVE-ACCESSIBILITY.md.
 
 - Registrar uma base reproduzível de abertura fria/quente, tempo até a janela utilizável e memória.

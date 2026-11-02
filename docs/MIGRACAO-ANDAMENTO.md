@@ -2,7 +2,7 @@
 
 Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
 
-Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.12 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.12) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções, organização interna e adaptação aprovada para áreas menores. As pendências de validação continuam registradas abaixo. O usuário dispensou novas cópias de instaladores na pasta Music; distribuir as próximas versões pelo GitHub.
+Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.13 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.13) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções, organização interna, adaptação para áreas menores e eventos de progresso acessíveis. As pendências de validação continuam registradas abaixo. O usuário dispensou novas cópias de instaladores na pasta Music; distribuir as próximas versões pelo GitHub.
 
 Implementado:
 
@@ -139,6 +139,10 @@ Suíte local e [execução 41390394652](https://github.com/HeliumMarcos/HeliumVi
 As extrações da janela previstas nesta sequência estão implementadas. Seguem telas/DPI/acessibilidade com prévia antes de mudanças visuais; continuam as limitações de recuperação e de desempenho descritas no escopo. Não se declara todo o plano concluído.
 
 ## Comandos
+
+Etapa 3.0.13: eventos acessíveis de progresso/resultado, intervalo de cinco segundos para periódicos, textos repetidos suprimidos e validação com painel oculto anunciada pelo rodapé. Cliente UIA separado e navegação WPF Tab/Shift+Tab passaram. Um monitor real em 150% verificado; áudio do Narrador e monitores mistos permanecem pendentes. Sete imagens antes/depois idênticas. O teste detectou abertura automática de uma segunda janela no host antigo; agora os testes usam App isolado, e a abertura produtiva cria explicitamente a mesma janela. Referências antigas de abertura/memória ficam como histórico; nova amostra confirma uma janela, com runtime/DPI registrados, sem alegação de ganho. Ver ACCESSIBLE-PROGRESS.md e DESEMPENHO.md.
+
+[Execução 41487771927](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41487771927) passou na suíte e distribuição da 3.0.13. [Verificação 41488625824](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41488625824) confirmou download público anônimo real (172937554 bytes, SHA-256/MZ) e atualização desde versões anteriores testadas incluindo 3.0.12, sem oferta à própria versão. Sem cópia nova na pasta Music.
 
 Etapa 3.0.12: adaptação de janela/lateral/formulário/ação aprovada após comparação antes/depois. ResponsiveLayout preserva campos/valores, restaura layout amplo e permite rolagem da ação em áreas muito baixas. WindowWorkArea ajusta a janela ao monitor sem ativá-la; manifesto PerMonitorV2 mantém asInvoker. Botões de arquivos/barra geral recebem nomes acessíveis. Preferências aceitam dimensões compactas de 675×329 e rejeitam números inválidos. [Execução 41466735914](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41466735914) passou na suíte de processamento, recuperação, preferências, temas, responsividade, fechamento e distribuição.
 

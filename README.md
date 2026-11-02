@@ -2,7 +2,9 @@
 
 Aplicativo Windows para preparar mídias de audiências: compactação e divisão para o Projudi, conversão para WebM para o SEEU. A implementação ativa está em **C#/.NET 10 com interface WPF**, na pasta `src`. O código Python anterior permanece como referência histórica da migração.
 
-[Baixar instalador oficial — v3.0.12](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.12). Windows x64 por usuário, sem exigir administrador, com .NET e FFmpeg/ffprobe incluídos. Versões anteriores podem atualizar pelo aplicativo; o canal automático consulta apenas versões estáveis. Download com porcentagem, cancelamento e verificação SHA-256. Novas cópias na pasta Music foram dispensadas pelo usuário; a distribuição .NET permanece no GitHub.
+[Baixar instalador oficial — v3.0.13](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.13). Windows x64 por usuário, sem exigir administrador, com .NET e FFmpeg/ffprobe incluídos. Versões anteriores podem atualizar pelo aplicativo; o canal automático consulta apenas versões estáveis. Download com porcentagem, cancelamento e verificação SHA-256. Novas cópias na pasta Music foram dispensadas pelo usuário; a distribuição .NET permanece no GitHub.
+
+Na 3.0.13, progresso e resultados emitem eventos acessíveis com controle de frequência, sem mudar o visual. Testes de teclado e cliente UIA separado confirmam navegação e recebimento. Corrigido o isolamento dos hosts WPF; as amostras antigas de abertura/memória são históricas, e uma nova referência exige uma janela. [Evidências e limites](docs/ACCESSIBLE-PROGRESS.md).
 
 Na 3.0.12, a adaptação aprovada ajusta a janela à área útil e reorganiza campos/rolagem em espaços menores, preservando valores e restaurando o layout amplo ao aumentar. PerMonitorV2 declarado e nomes acessíveis adicionados aos botões de arquivos e ao progresso. [Prévia, testes e limites](docs/RESPONSIVE-ACCESSIBILITY.md).
 

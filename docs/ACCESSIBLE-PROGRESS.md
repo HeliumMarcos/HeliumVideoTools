@@ -25,3 +25,9 @@ O teste de teclado identificou que os controles percorridos pertenciam a uma seg
 App agora tem um modo interno isolado para os testes: carrega recursos sem abertura normal, mutex, recuperação ou consulta automática. Todos os hosts WPF usam esse modo. A abertura produtiva cria explicitamente a mesma MainWindow; a distribuição precisa passar pelo teste real de instalação/abertura/reinstalação. O teste de teclado e o benchmark exigem exatamente uma janela.
 
 As antigas amostras de abertura/memória não devem mais ser descritas como referência garantidamente isolada. Mantidas como histórico, com correção em DESEMPENHO.md. Uma nova série confirma uma janela em cada amostra; condições e runtime diferentes impedem tratar diferenças como ganho/regressão. O processamento de mídia não foi alterado por esta entrega.
+
+## Distribuição validada
+
+A [execução 41487771927](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41487771927) passou na suíte, incluindo teclado/UIA/monitores disponíveis, processamento, recuperação, temas e instalação/reinstalação/interrupção do instalador. Isso valida também a abertura produtiva explícita da janela após retirar StartupUri. A [3.0.13 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.13) está publicada.
+
+A [verificação 41488625824](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41488625824) passou com download público anônimo pelo cliente real: 172937554 bytes, SHA-256/MZ e atualização desde versões anteriores testadas, incluindo 3.0.12, sem oferta para a própria 3.0.13. Nenhuma cópia nova foi colocada na pasta Music. Narração de áudio e campanha física em outras escalas continuam pendentes.
