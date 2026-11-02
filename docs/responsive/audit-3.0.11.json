@@ -1,0 +1,606 @@
+{
+  "awareness": "System",
+  "method": "Logical viewport simulation; not physical DPI or multi-monitor validation",
+  "results": [
+    {
+      "operation": "Compress",
+      "proposed": false,
+      "viewport": {
+        "width": 1280,
+        "height": 860
+      },
+      "layout": {
+        "width": 1280,
+        "height": 860
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 717.37,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Compress",
+      "proposed": true,
+      "viewport": {
+        "width": 1280,
+        "height": 860
+      },
+      "layout": {
+        "width": 1280,
+        "height": 860
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 717.37,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": false,
+      "viewport": {
+        "width": 1280,
+        "height": 860
+      },
+      "layout": {
+        "width": 1280,
+        "height": 860
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 717.37,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": true,
+      "viewport": {
+        "width": 1280,
+        "height": 860
+      },
+      "layout": {
+        "width": 1280,
+        "height": 860
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 717.37,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": false,
+      "viewport": {
+        "width": 1280,
+        "height": 860
+      },
+      "layout": {
+        "width": 1280,
+        "height": 860
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 717.37,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": true,
+      "viewport": {
+        "width": 1280,
+        "height": 860
+      },
+      "layout": {
+        "width": 1280,
+        "height": 860
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 717.37,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Compress",
+      "proposed": false,
+      "viewport": {
+        "width": 1092,
+        "height": 545
+      },
+      "layout": {
+        "width": 1092,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Compress",
+      "proposed": true,
+      "viewport": {
+        "width": 1092,
+        "height": 545
+      },
+      "layout": {
+        "width": 1092,
+        "height": 545
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 414.37,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": false,
+      "viewport": {
+        "width": 1092,
+        "height": 545
+      },
+      "layout": {
+        "width": 1092,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": true,
+      "viewport": {
+        "width": 1092,
+        "height": 545
+      },
+      "layout": {
+        "width": 1092,
+        "height": 545
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 414.37,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": false,
+      "viewport": {
+        "width": 1092,
+        "height": 545
+      },
+      "layout": {
+        "width": 1092,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": true,
+      "viewport": {
+        "width": 1092,
+        "height": 545
+      },
+      "layout": {
+        "width": 1092,
+        "height": 545
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 414.37,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Compress",
+      "proposed": false,
+      "viewport": {
+        "width": 900,
+        "height": 449
+      },
+      "layout": {
+        "width": 965.3333333333333,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Compress",
+      "proposed": true,
+      "viewport": {
+        "width": 900,
+        "height": 449
+      },
+      "layout": {
+        "width": 900,
+        "height": 449
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 274.78,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": false,
+      "viewport": {
+        "width": 900,
+        "height": 449
+      },
+      "layout": {
+        "width": 965.3333333333333,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": true,
+      "viewport": {
+        "width": 900,
+        "height": 449
+      },
+      "layout": {
+        "width": 900,
+        "height": 449
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 274.78,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": false,
+      "viewport": {
+        "width": 900,
+        "height": 449
+      },
+      "layout": {
+        "width": 965.3333333333333,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": true,
+      "viewport": {
+        "width": 900,
+        "height": 449
+      },
+      "layout": {
+        "width": 900,
+        "height": 449
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 274.78,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Compress",
+      "proposed": false,
+      "viewport": {
+        "width": 952,
+        "height": 485
+      },
+      "layout": {
+        "width": 965.3333333333333,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Compress",
+      "proposed": true,
+      "viewport": {
+        "width": 952,
+        "height": 485
+      },
+      "layout": {
+        "width": 952,
+        "height": 485
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 310.78,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": false,
+      "viewport": {
+        "width": 952,
+        "height": 485
+      },
+      "layout": {
+        "width": 965.3333333333333,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": true,
+      "viewport": {
+        "width": 952,
+        "height": 485
+      },
+      "layout": {
+        "width": 952,
+        "height": 485
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 310.78,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": false,
+      "viewport": {
+        "width": 952,
+        "height": 485
+      },
+      "layout": {
+        "width": 965.3333333333333,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": true,
+      "viewport": {
+        "width": 952,
+        "height": 485
+      },
+      "layout": {
+        "width": 952,
+        "height": 485
+      },
+      "actionInside": true,
+      "actionReachable": true,
+      "formViewport": 310.78,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Compress",
+      "proposed": false,
+      "viewport": {
+        "width": 675,
+        "height": 329
+      },
+      "layout": {
+        "width": 965.3333333333333,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Compress",
+      "proposed": true,
+      "viewport": {
+        "width": 675,
+        "height": 329
+      },
+      "layout": {
+        "width": 675,
+        "height": 329
+      },
+      "actionInside": false,
+      "actionReachable": true,
+      "formViewport": 923.3333333333335,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": false,
+      "viewport": {
+        "width": 675,
+        "height": 329
+      },
+      "layout": {
+        "width": 965.3333333333333,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Split",
+      "proposed": true,
+      "viewport": {
+        "width": 675,
+        "height": 329
+      },
+      "layout": {
+        "width": 675,
+        "height": 329
+      },
+      "actionInside": false,
+      "actionReachable": true,
+      "formViewport": 718.0933333333332,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": false,
+      "viewport": {
+        "width": 675,
+        "height": 329
+      },
+      "layout": {
+        "width": 965.3333333333333,
+        "height": 662.6666666666666
+      },
+      "actionInside": false,
+      "actionReachable": false,
+      "formViewport": 520.0366666666666,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    },
+    {
+      "operation": "Webm",
+      "proposed": true,
+      "viewport": {
+        "width": 675,
+        "height": 329
+      },
+      "layout": {
+        "width": 675,
+        "height": 329
+      },
+      "actionInside": false,
+      "actionReachable": true,
+      "formViewport": 774.7533333333333,
+      "unnamedButtons": [
+        "Adicionar v\u00EDdeos",
+        "Remover",
+        "Limpar"
+      ]
+    }
+  ]
+}

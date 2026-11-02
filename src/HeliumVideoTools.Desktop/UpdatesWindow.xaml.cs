@@ -25,6 +25,7 @@ public partial class UpdatesWindow : Window
     public UpdatesWindow(Func<bool>? mediaBusy = null, bool preview = false, AppRelease? available = null)
     {
         ThemeManager.EnsureInitialized();InitializeComponent(); NativeWindowTheme.Attach(this); this.preview = preview; this.mediaBusy = mediaBusy ?? (() => false); releases = new(http);
+        if(!preview)WindowWorkArea.Attach(this);
         AppVersion.Text = "Instalado: " + typeof(UpdatesWindow).Assembly.GetName().Version!.ToString(3) + " • C# / .NET 10";
         this.available = available;
         if (available is not null) { AppUpdateStatus.Text = "Nova versão disponível: " + available.Version.ToString(3); InstallAppButton.IsEnabled = true; }

@@ -1,4 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType><UseWPF>true</UseWPF></PropertyGroup>
+  <PropertyGroup><OutputType>Exe</OutputType><UseWPF>true</UseWPF><ApplicationManifest>../../src/HeliumVideoTools.Desktop/app.manifest</ApplicationManifest></PropertyGroup>
   <ItemGroup><ProjectReference Include="../../src/HeliumVideoTools.Desktop/HeliumVideoTools.Desktop.csproj"/></ItemGroup>
 </Project>

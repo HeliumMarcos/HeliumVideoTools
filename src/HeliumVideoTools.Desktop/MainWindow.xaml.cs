@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private readonly BatchViewModel model = new();
     private Operation operation = Operation.Compress;
     internal OperationEditor Editor {get;}
+    internal ResponsiveLayout? AdaptiveLayout {get;}
     private TextBlock? estimate=>Editor.Estimate;
     private TextBlock? estimateNote=>Editor.EstimateNote;
     private readonly EstimateCoordinator estimates=new();
@@ -27,7 +28,8 @@ public partial class MainWindow : Window
     private readonly StartupUpdateCheck updateCheck=new();
     private readonly CancellationTokenSource lifetime = new();
     public MainWindow() : this(false) { }
-    public MainWindow(bool preview)
+    public MainWindow(bool preview):this(preview,true) { }
+    internal MainWindow(bool preview,bool adaptive)
     {
         preferenceStore=preview?null:new UserPreferenceStore(AppLog.Root,LegacyPreferences.Read);
         preferences=preferenceStore?.Load()??new(); preferredMaximized=preferences.Maximized;
@@ -52,6 +54,7 @@ public partial class MainWindow : Window
         ProductVersion.Text = typeof(MainWindow).Assembly.GetName().Version!.ToString(3) + " • .NET";
         model.Files.CollectionChanged += (_, _) => { DropHint.Visibility = model.Files.Count == 0 ? Visibility.Visible : Visibility.Collapsed; FileCount.Text = model.Files.Count == 0 ? "Nenhum arquivo" : $"{model.Files.Count} arquivo(s)"; UpdateEstimate(); };
         BuildOptions();
+        if(adaptive){AdaptiveLayout=new ResponsiveLayout(this);if(!preview)WindowWorkArea.Attach(this);}
         try { Status.Text = BatchViewModel.FindTool("ffmpeg") is not null && BatchViewModel.FindTool("ffprobe") is not null ? "Pronto • FFmpeg e ffprobe detectados" : "Ferramentas não encontradas • abra Atualizações para instalar o conjunto"; }
         catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException or UnauthorizedAccessException) { Status.Text = "Conjunto de ferramentas indisponível. Abra Atualizações para restaurar o anterior."; AppLog.Write("WARNING", "Ferramentas na abertura", ex.Message); }
         ContentRendered += async (_, _) =>
@@ -103,7 +106,7 @@ public partial class MainWindow : Window
         BuildOptions();
     }
     private void BuildOptions()
-    {estimates.Cancel();Editor.Build(operation,preferences);}
+    {estimates.Cancel();Editor.Build(operation,preferences);AdaptiveLayout?.Refresh();}
     private VideoOptions CurrentOptions()=>Editor.Read();
     private async void UpdateEstimate()
     {

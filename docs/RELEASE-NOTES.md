@@ -1,4 +1,14 @@
-# Helium Vídeo Tools 3.0.11 — atualização e encerramento organizados
+# Helium Vídeo Tools 3.0.12 — adaptação aprovada para áreas menores
+
+- Janela ajustada à área útil do monitor, com declaração PerMonitorV2 e resposta a mudança de DPI/monitor/área de trabalho.
+- Formulário e lateral com rolagem quando necessário; em janelas estreitas, rótulos acima dos campos e ação principal em largura maior.
+- Em áreas muito baixas, ou baixas com progresso visível, o espaço de trabalho inteiro pode rolar até a ação. Layout amplo restaurado ao aumentar, preservando campos e valores.
+- Botões Adicionar/Remover/Limpar e barra de progresso com nomes acessíveis explícitos.
+- Proposta antes/depois aprovada pelo usuário. Testes de áreas lógicas, estados, reflow reversível e ajuste nativo ao monitor incluídos no GitHub.
+
+Não altera codecs, limites, processamento ou padrões de abertura. Validação física de movimentação entre monitores com DPI diferente e uso com leitor de tela continuam pendentes; simulação não é apresentada como validação desses cenários. Instalador somente no GitHub, sem nova cópia na pasta Music.
+
+## Melhorias preservadas da 3.0.11
 
 - Consulta inicial de atualização em coordenador próprio: ocorre uma vez, após a recuperação, e descarta respostas recebidas depois de fechar.
 - Janela de Atualizações reutilizada enquanto aberta e liberada ao fechar, permitindo reabertura imediata.
