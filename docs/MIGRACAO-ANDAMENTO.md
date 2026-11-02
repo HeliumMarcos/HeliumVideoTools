@@ -2,7 +2,7 @@
 
 Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
 
-Estado em 01/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.5 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.5) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, recuperação do conjunto FFmpeg/ffprobe e temas aprovados. As pendências de validação continuam registradas abaixo.
+Estado em 01/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.6 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.6) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas e primeira etapa de recuperação após interrupções. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -80,7 +80,19 @@ Validação local: três ferramentas em dois tamanhos (1280×900 e 980×700 DIPs
 
 A [execução 41329605153](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41329605153) repetiu os testes de processamento, fechamento e temas, instalou/reinstalou com o aplicativo aberto, conferiu tema salvo, preferências e bytes do atalho e publicou a 3.0.5 estável. A janela apareceu no runner em 0,81 s; isso não é medição de abertura fria no computador do usuário. O download público real foi validado pelo cliente do app: 172857972 bytes, SHA-256 e MZ; versões anteriores testadas, incluindo 3.0.4, detectaram a atualização, e a própria 3.0.5 não recebeu atualização para si mesma.
 
-## Comandos
+## Etapa 3.0.6 — primeira entrega de recuperação após interrupções
+
+`RecoveryJournal` registra os novos temporários de vídeo e estatísticas antes de criá-los, mantendo um arquivo exclusivo aberto durante a operação. Gravação e limpeza do registro/temporário são executadas fora da thread da interface. Ao abrir, a recuperação em segundo plano ignora registros bloqueados, limpa artefatos registrados de tarefas interrompidas e preserva saídas publicadas. Não faz busca por extensão nas pastas dos vídeos nem tenta identificar temporários de versões antigas.
+
+Diretórios redirecionados são resolvidos ao registrar; a recuperação recusa reparse points posteriores. Pastas de estatísticas só são removidas quando contêm apenas os nomes conhecidos, sem links ou subpastas. Conteúdo desconhecido e registros inválidos permanecem para inspeção, sem excluir dados por suposição. A recuperação não retoma a codificação nem reconstrói o relatório de um lote interrompido.
+
+Cada processo de FFmpeg/ffprobe iniciado pelo motor recebe um Job Object não herdável com `KILL_ON_JOB_CLOSE`. A associação é feita logo após `Process.Start`; existe uma janela curta antes da associação, que não foi eliminada por esta etapa. Falha de associação em processo ainda ativo aborta e tenta encerrá-lo. Não há enumeração/encerramento por nome de processos de outros aplicativos. Referência: https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects.
+
+Teste isolado força somente o fechamento do hospedeiro enquanto o FFmpeg grava um MP4 real; confirma o encerramento do filho associado e a continuidade de um segundo FFmpeg independente. Verifica recuperação bloqueada durante tarefa ativa, limpeza após a morte do host, cancelamento/idempotência, JSON corrompido e preservação de originais, resultados e conteúdos não registrados/desconhecidos. Não simula desligamento real do computador. Interrupções de atualização das ferramentas/instalador e recuperação de histórico continuam pendentes no item 2; itens 3, 5 e 6 seguem no escopo aprovado.
+
+A [execução 41371554496](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41371554496) passou pelos testes de mídia, recuperação real do processo, fechamento, temas e instalação/reinstalação com reabertura e publicou a 3.0.6 estável. Download anônimo real conferido pelo cliente do próprio app: 172872698 bytes, SHA-256 e MZ; versões anteriores testadas, incluindo 3.0.5, detectaram a atualização, e a 3.0.6 não recebeu atualização para si mesma.
+
+## Comandos de desenvolvimento
 
 Com SDK .NET 10:
 
