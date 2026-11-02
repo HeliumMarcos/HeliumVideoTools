@@ -2,7 +2,9 @@
 
 Aplicativo Windows para preparar mídias de audiências: compactação e divisão para o Projudi, conversão para WebM para o SEEU. A implementação ativa está em **C#/.NET 10 com interface WPF**, na pasta `src`. O código Python anterior permanece como referência histórica da migração.
 
-[Baixar instalador oficial — v3.0.7](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.7). Windows x64 por usuário, sem exigir administrador, com .NET e FFmpeg/ffprobe incluídos. Versões anteriores podem atualizar pelo aplicativo; o canal automático consulta apenas versões estáveis. Download com porcentagem, cancelamento e verificação SHA-256.
+[Baixar instalador oficial — v3.0.8](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.8). Windows x64 por usuário, sem exigir administrador, com .NET e FFmpeg/ffprobe incluídos. Versões anteriores podem atualizar pelo aplicativo; o canal automático consulta apenas versões estáveis. Download com porcentagem, cancelamento e verificação SHA-256.
+
+Na 3.0.8, contratos e regras foram separados dos serviços de infraestrutura. Execução de processos e sondagem saíram do motor de vídeo, mantendo comandos, limites, caminhos e interface. Testes de arquitetura/funcionais e benchmark antes/depois verificam a separação; não há promessa de aceleração dos codecs.
 
 Na 3.0.7, tentativas interrompidas de atualização das ferramentas têm registro próprio e recuperação do conjunto anterior/embutido. Se a substituição do app for interrompida no intervalo entre as pastas, executar o instalador novamente restaura a instalação anterior antes de continuar. Testes encerram processos em pontos controlados, sem desligar o computador.
 
@@ -23,6 +25,8 @@ O tamanho é conferido antes de salvar. Compactação começa em 98 MB decimais;
 O repositório é público; atualizações e downloads de Releases não exigem login nem token do usuário. O visual e a identidade A (Vídeo em movimento) foram aprovados. Consulte [andamento e pendências](docs/MIGRACAO-ANDAMENTO.md) e [plano](docs/PLANO-MIGRACAO.md). O instalador .NET é produzido pelo GitHub Actions e publicado em [Releases](https://github.com/HeliumMarcos/HeliumVideoTools/releases), sem exigir administrador. Uma build não deve ser descrita como estável antes da validação da distribuição.
 
 ## Desenvolvimento .NET
+
+Estrutura interna: `Core` contém contratos/modelos e regras; `Infrastructure` implementa FFmpeg/ffprobe, processos, atualizações, recuperação, preferências, relatórios e logs; `Desktop` compõe os serviços e a interface WPF; `UpdateHost` auxilia o instalador. A infraestrutura referencia Core, e o núcleo não referencia a interface nem a infraestrutura. Consulte [separação e validação](docs/REFACTOR-INFRASTRUCTURE.md) e [medições antes/depois](docs/DESEMPENHO.md).
 
 ```powershell
 dotnet build src/HeliumVideoTools.Desktop -c Release

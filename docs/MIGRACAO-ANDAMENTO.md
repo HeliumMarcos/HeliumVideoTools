@@ -2,7 +2,7 @@
 
 Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
 
-Estado em 01/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.7 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.7) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas e recuperação após interrupções de processamento e atualização. As pendências de validação continuam registradas abaixo.
+Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.8 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.8) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções e núcleo separado da infraestrutura. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -105,6 +105,16 @@ A [execução 41379179432](https://github.com/HeliumMarcos/HeliumVideoTools/acti
 Medições iniciais de 02/11/2026 registradas em [DESEMPENHO.md](DESEMPENHO.md), incluindo método, limitações, ambiente, entrada e parâmetros. Janela real em host isolado: primeira amostra 1.116 ms; cinco seguintes 773–827 ms, mediana 780 ms; memória residente do host ~131 MB. Mídia sintética de 45 s/720p: média de dois ensaios de 5,10 s para H.264 em duas etapas, 3,76 s para três partes precisas e 16,30 s para VP8 em duas etapas. Saídas sondadas, teto aplicável e hash original conferidos.
 
 O host não carrega preferências, consulta de atualização ou recuperação inicial e não representa a distribuição self-contained. Não foi medido cache frio controlado nem memória de toda a árvore FFmpeg. A referência não é alegação de ganho ou promessa para audiências. Próxima etapa: organização interna (item 6), mantendo comportamento e comparando o mesmo benchmark. Apenas testes/documentação foram adicionados; nenhuma release nova é necessária para esta medição.
+
+## Etapa 3.0.8 — primeira fronteira de arquitetura
+
+Core passa a conter modelos/contratos, preferências tipadas, padrões protegidos e regras de tamanho/bitrate. Infrastructure referencia Core e implementa motor, execução de processos, sondagem, cache de metadados, lotes/relatórios, preferências de disco/registro, logs, recuperação e atualizações. Desktop compõe os serviços sem mudança visual; UpdateHost permanece independente. Métodos de entrada do motor delegam às implementações extraídas. Esquemas JSON/caminhos permanecem, sem migração dos dados do usuário. A redução do código da janela continua pendente no item 6.
+
+Teste de fronteira reproduziu a ausência da separação antes e passou depois. Suíte local de mídia, interrupções/recuperação, preferências, temas e fechamento passou; build Release sem avisos/erros. Comparação textual dos corpos de execução/sondagem/processamento confirmou preservação. Benchmark com mesma entrada/ferramentas: abertura mediana 778 ms, memória média do host 133,7 MB, H.264 4,78 s, divisão 3,51 s e VP8 14,70 s. Diferenças pequenas frente à repetição de referência, sem alegação estatística de equivalência/ganho; limitações em DESEMPENHO.md.
+
+A [execução 41383735979](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41383735979) passou em testes funcionais/arquitetura, instalação/reinstalação com app aberto, presença de Infrastructure.dll no pacote, preferências e interrupção do instalador isolado, publicando a 3.0.8 estável. Plano e detalhes em REFACTOR-INFRASTRUCTURE.md.
+
+Download público anônimo da 3.0.8 validado pelo cliente do app: 172903717 bytes, SHA-256 e formato MZ; versões anteriores testadas, incluindo 3.0.7, detectaram a atualização e a 3.0.8 não recebeu atualização para si mesma.
 
 ## Comandos
 
