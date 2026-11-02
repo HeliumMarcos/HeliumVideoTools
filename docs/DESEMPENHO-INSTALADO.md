@@ -33,6 +33,8 @@ O sampler percorre a árvore de processos pelo PID do app e soma memória reside
 
 ## Verificações e proteção dos dados
 
+O cliente de medição e a suíte passaram no GitHub Actions em [41499838959](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41499838959), para o commit `08baaa2`. Os tempos e a memória deste relatório foram medidos localmente na instalação; a execução no GitHub valida os testes, sem substituir essas medições.
+
 - Cliente recusou sessão do aplicativo já aberta e controlou somente os processos que iniciou. Nenhum vídeo do usuário foi selecionado.
 - O diálogo nativo exigiu seleção assistida da amostra: identificadores de controles se repetem e variam entre provedores. Essa etapa não integra os tempos de processamento. O teste valida a quantidade/nome e o caminho de ajuda acessível quando exposto antes de iniciar.
 - Cada saída foi sondada: áudio presente, duração total com diferença menor que um segundo e tetos aplicáveis respeitados. Os três trechos têm aproximadamente 60 s cada.
