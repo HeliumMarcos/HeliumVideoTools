@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag da release (ex.: v3.0.12)'
-        default: 'v3.0.12'
+        description: 'Tag da release (ex.: v3.0.13)'
+        default: 'v3.0.13'
         required: true
       publish:
         description: Publicar instalador em Releases
@@ -49,6 +49,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Teste de configuração/resultados WPF falhou' }
           dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --audit-responsive work/responsive-validation
           if ($LASTEXITCODE -ne 0) { throw 'Teste de layout adaptável/DPI falhou' }
+          dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --verify-keyboard
+          if ($LASTEXITCODE -ne 0) { throw 'Teste de teclado falhou' }
+          dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --verify-accessible-events work/accessibility-events
+          if ($LASTEXITCODE -ne 0) { throw 'Teste UIA entre processos falhou' }
+          dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --verify-displays work/accessibility-displays
+          if ($LASTEXITCODE -ne 0) { throw 'Teste de monitores disponíveis falhou' }
           $fixture = (Get-ChildItem -Path 'work/smoke-*/audiência teste.mp4' | Select-Object -Last 1).FullName
           if (-not $fixture) { throw 'Amostra sintética de estimativa ausente' }
           dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --render work/estimate-standard.png Compress 1280 900 estimate $fixture

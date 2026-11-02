@@ -1,4 +1,14 @@
-# Helium Vídeo Tools 3.0.12 — adaptação aprovada para áreas menores
+# Helium Vídeo Tools 3.0.13 — notificações de progresso acessíveis
+
+- Eventos de região dinâmica no progresso: primeiro evento, atualizações com intervalo mínimo de cinco segundos e resultado/erro/cancelamento sem aguardar esse intervalo. Textos repetidos são suprimidos; o leitor decide quando falar, respeitando Polite.
+- Erro de validação com painel oculto usa o status acessível do rodapé. Visual, conteúdo e foco preservados.
+- Cliente de acessibilidade separado confirma recebimento de eventos e textos, incluindo resultados reais da janela e rajada de progresso sem excesso.
+- Tab/Shift+Tab verificados nas três ferramentas, incluindo acesso a Cancelar com os campos desabilitados.
+- Corrigido isolamento dos testes WPF: evitam abertura automática de uma segunda janela normal. Benchmark antigo de abertura/memória fica como histórico; nova amostra exige uma única janela.
+
+Sete imagens antes/depois idênticas. Um monitor real em 150% foi verificado localmente; troca física entre escalas diferentes e áudio do Narrador continuam pendentes. Instalador somente nas Releases, sem cópia na pasta Music. Detalhes em docs/ACCESSIBLE-PROGRESS.md.
+
+## Melhorias preservadas da 3.0.12
 
 - Janela ajustada à área útil do monitor, com declaração PerMonitorV2 e resposta a mudança de DPI/monitor/área de trabalho.
 - Formulário e lateral com rolagem quando necessário; em janelas estreitas, rótulos acima dos campos e ação principal em largura maior.

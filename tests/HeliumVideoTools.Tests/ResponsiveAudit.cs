@@ -24,7 +24,7 @@ internal static class ResponsiveAudit
     internal static void Run(string folder)
     {
         Directory.CreateDirectory(folder);
-        var app=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();
+        var app=new App(isolated:true) {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();
         ThemeManager.EnsureInitialized();ThemeManager.SetPreference("dark");
         var context=GetThreadDpiAwarenessContext();
         string awareness=AreDpiAwarenessContextsEqual(context,-4)?"PerMonitorV2":AreDpiAwarenessContextsEqual(context,-3)?"PerMonitor":AreDpiAwarenessContextsEqual(context,-2)?"System":"Other";

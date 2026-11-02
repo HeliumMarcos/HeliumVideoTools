@@ -1,5 +1,9 @@
 # Referência de desempenho — 3.0.7
 
+**Correção na etapa 3.0.13:** o host antigo podia executar StartupUri ao processar o Dispatcher, abrindo uma segunda janela normal. Por isso, as tabelas anteriores de abertura/memória são históricas e não comprovam uma janela isolada; não usar suas diferenças como comparação de produção. O host foi corrigido e agora exige uma janela. A medição do motor de mídia é separada desse host, mas continua sujeita às limitações de carga/cache/amostra descritas abaixo.
+
+Nova referência de host isolado em [performance/startup-isolated-host-3.0.13.json](performance/startup-isolated-host-3.0.13.json), medida antes do incremento da versão (número 3.0.12 no JSON, com as correções desta etapa): seis processos, uma janela por amostra, tema escuro, 144 DPI, runtime direto do apphost .NET 10.0.3. Mediana das cinco aberturas seguintes: **973 ms**; memória residente média: **121,0 MB**. O runtime anterior registrado era 10.0.14, e o isolamento mudou; não comparar numericamente para atribuir ganho/regressão. Não mede abertura fria, instalação self-contained ou memória da árvore FFmpeg.
+
 Medição em 02/11/2026, antes da reorganização interna. Código de produção correspondente ao commit `234bf89`; a documentação foi atualizada em `6dfde05`. O benchmark foi adicionado em `tests/HeliumVideoTools.Tests/PerformanceBenchmarks.cs` sem alterar o aplicativo.
 
 ## Ambiente
@@ -12,7 +16,7 @@ Medição em 02/11/2026, antes da reorganização interna. Código de produção
 
 ## Abertura e memória
 
-Cada amostra inicia um processo novo com a janela real `MainWindow(preview:true)`. O ponto final é um callback do dispatcher em ApplicationIdle agendado após ContentRendered. O teste não lê/grava preferências reais e não executa atualização automática ou recuperação na abertura.
+O método inicial pretendia iniciar um processo novo apenas com `MainWindow(preview:true)`, medindo um callback ApplicationIdle após ContentRendered. A janela preview não lê/grava preferências, mas o StartupUri do App ainda podia iniciar uma segunda janela normal; a exclusão de preferências/consulta/recuperação não estava garantida pelo host. Ver a correção acima.
 
 | Medida | Resultado |
 | --- | --- |

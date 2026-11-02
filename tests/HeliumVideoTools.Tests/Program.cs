@@ -11,6 +11,15 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length==2 && args[0]=="--verify-displays")
+        {try{DisplayAccessibilityTests.Run(args[1]);return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
+        if(args.Length==1 && args[0]=="--verify-keyboard")
+        {try{KeyboardAccessibilityTests.Run();return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
+        if(args.Length==3 && args[0]=="--uia-listener")return AccessibleEventsTests.Listen(args[1],args[2]);
+        if(args.Length==2 && args[0]=="--verify-accessible-events")
+        {try{AccessibleEventsTests.Run(args[1]);return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
+        if(args.Length==1 && args[0]=="--verify-announcements")
+        {try{AnnouncementTests.Run();return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
         if(args.Length==2 && args[0]=="--audit-responsive")
         {try{ResponsiveAudit.Run(args[1]);return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
         if(args.Length==1 && args[0]=="--verify-window-lifecycle")
@@ -73,7 +82,7 @@ internal static class Program
         }
         if (args.Length >= 2 && args[0] == "--render-updates")
         {
-            var app = new App(); app.InitializeComponent();
+            var app = new App(isolated:true); app.InitializeComponent();
             var window = new UpdatesWindow(preview: true); window.Show(); window.UpdateLayout();
             if (args.Length > 2)
             {
@@ -102,7 +111,7 @@ internal static class Program
         }
         if (args.Length >= 2 && args[0] == "--render")
         {
-            var app = new App(); app.InitializeComponent();
+            var app = new App(isolated:true); app.InitializeComponent();
             var window = new MainWindow(preview:true) { WindowState=WindowState.Normal, Width = args.Length > 3 ? int.Parse(args[3]) : 1280, Height = args.Length > 4 ? int.Parse(args[4]) : 900 };
             if (args.Length > 2 && args[2] != "Compress")
             {
@@ -188,7 +197,7 @@ internal static class Program
         using var verified = ReleaseClient.VerifyInstaller(path, asset);
         if (!tag.Contains("preview"))
         {
-            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0),new Version(3,0,3,0),new Version(3,0,4,0),new Version(3,0,5,0),new Version(3,0,6,0),new Version(3,0,7,0),new Version(3,0,8,0),new Version(3,0,9,0),new Version(3,0,10,0),new Version(3,0,11,0)})
+            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0),new Version(3,0,3,0),new Version(3,0,4,0),new Version(3,0,5,0),new Version(3,0,6,0),new Version(3,0,7,0),new Version(3,0,8,0),new Version(3,0,9,0),new Version(3,0,10,0),new Version(3,0,11,0),new Version(3,0,12,0)})
             {
                 if(installed>=Version.Parse(tag[1..])) continue;
                 var update = await client.CheckAppAsync(installed, default);
@@ -202,6 +211,7 @@ internal static class Program
     private static async Task RunAsync()
     {
         ArchitectureTests.Run();
+        AnnouncementTests.Run();
         await WindowLifecycleTests.RunAsync();
         await EstimateCoordinatorTests.RunAsync();
         Check(VideoEngine.Bitrate(60, 98, 128) < 13000, "Orçamento deve usar MB decimal com margem.");

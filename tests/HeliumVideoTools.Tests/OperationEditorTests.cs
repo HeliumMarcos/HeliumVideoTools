@@ -15,7 +15,7 @@ internal static class OperationEditorTests
     private static VideoOptions Read(MainWindow window)=>(VideoOptions)Invoke(window,"CurrentOptions")!;
     internal static void Run()
     {
-        var app=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();
+        var app=new App(isolated:true) {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();
         var window=new MainWindow(preview:true);window.Show();window.UpdateLayout();
         FrameworkElement Panel()=>(FrameworkElement)window.FindName("OptionsPanel");
         T Field<T>(string label) where T:FrameworkElement=>Walk(Panel()).OfType<T>().Single(c=>System.Windows.Automation.AutomationProperties.GetName(c)==label);

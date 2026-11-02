@@ -27,7 +27,7 @@ internal static class ThemeTests
     internal static void Run(string folder)
     {
         Directory.CreateDirectory(folder);
-        var app=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();ThemeManager.EnsureInitialized();
+        var app=new App(isolated:true) {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();ThemeManager.EnsureInitialized();
         foreach(bool light in new[]{false,true})
         {
             var p=ThemeManager.Palette(light,false);

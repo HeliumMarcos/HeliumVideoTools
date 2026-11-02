@@ -13,20 +13,25 @@ internal static class PerformanceBenchmarks
     internal static void Startup(string destination)
     {
         var managed=Stopwatch.StartNew();
-        var app=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();
+        var app=new App(isolated:true) {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();
+        ThemeManager.EnsureInitialized();ThemeManager.SetPreference("dark");
         var window=new MainWindow(preview:true);
         window.ContentRendered+=(_,_)=>
         {
             _=window.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,new Action(()=>
             {
                 using var process=Process.GetCurrentProcess();process.Refresh();
+                if(app.Windows.Count!=1)throw new Exception("Benchmark não tem exatamente uma janela isolada");
+                var dpi=System.Windows.Media.VisualTreeHelper.GetDpi(window);
                 File.WriteAllText(destination,JsonSerializer.Serialize(new
                 {
                     ManagedToIdleMs=managed.Elapsed.TotalMilliseconds,
                     ProcessToIdleMs=(DateTime.UtcNow-process.StartTime.ToUniversalTime()).TotalMilliseconds,
                     WorkingSetMb=process.WorkingSet64/1_000_000d,PrivateMb=process.PrivateMemorySize64/1_000_000d,
                     PeakWorkingSetMb=process.PeakWorkingSet64/1_000_000d,
-                    Scenario="MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+                    WindowCount=app.Windows.Count,DpiX=dpi.PixelsPerInchX,DpiY=dpi.PixelsPerInchY,Theme="dark",
+                    Runtime=System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,Version=typeof(MainWindow).Assembly.GetName().Version!.ToString(3),
+                    Scenario="Isolated App and one MainWindow(preview:true): no preferences, automatic network check or startup recovery"
                 }));
                 window.Close();app.Shutdown();
             }));

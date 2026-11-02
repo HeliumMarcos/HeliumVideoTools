@@ -1,0 +1,15 @@
+{
+  "monitors": 1,
+  "dpiChanges": 1,
+  "mixedDpiValidated": false,
+  "results": [
+    {
+      "width": 3840,
+      "height": 2088,
+      "dpi": 144,
+      "scale": 1.5,
+      "insideWorkArea": true
+    }
+  ],
+  "limitation": "This environment has no different-DPI monitor pair; 100/125/150/200% physical campaign remains pending."
+}

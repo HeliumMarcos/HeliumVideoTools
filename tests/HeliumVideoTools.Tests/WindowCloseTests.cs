@@ -15,7 +15,7 @@ internal static class WindowCloseTests
     public static void Run(string folder)
     {
         Directory.CreateDirectory(folder);
-        var app=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();
+        var app=new App(isolated:true) {ShutdownMode=ShutdownMode.OnExplicitShutdown};app.InitializeComponent();
         for(int i=0;i<8;i++)
         {
             string path=Path.Combine(folder,"preferences.json");

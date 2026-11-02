@@ -6,11 +6,15 @@ using HeliumVideoTools.Infrastructure;
 namespace HeliumVideoTools.Desktop;
 public partial class App : Application
 {
+    private readonly bool isolated;
+    public App():this(false) { }
+    internal App(bool isolated) {this.isolated=isolated;}
     private Mutex? instance;
     internal static Task StartupRecoveryTask {get;private set;}=Task.CompletedTask;
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)] private static extern int SetCurrentProcessExplicitAppUserModelID(string id);
     protected override void OnStartup(StartupEventArgs e)
     {
+        if(isolated){base.OnStartup(e);return;}
         if (Mutex.TryOpenExisting("Local\\Helium.HeliumVideoTools.Installer", out var installing)) { installing.Dispose(); Shutdown(); return; }
         instance = new Mutex(true, "Local\\Helium.HeliumVideoTools.Desktop", out bool created);
         if (!created) { Shutdown(); return; }
@@ -18,6 +22,7 @@ public partial class App : Application
         StartupRecoveryTask=RecoverAfterStartupAsync();
         DispatcherUnhandledException += (_, args) => { AppLog.Write("ERROR", "Erro inesperado", args.Exception.ToString()); MessageBox.Show("O aplicativo encontrou um problema. Os detalhes foram salvos no log.", "Helium Vídeo Tools"); args.Handled = true; };
         base.OnStartup(e);
+        MainWindow=new MainWindow();MainWindow.Show();
     }
     protected override void OnExit(ExitEventArgs e) { instance?.Dispose(); base.OnExit(e); }
     private static async Task RecoverAfterStartupAsync()

@@ -1,0 +1,92 @@
+{
+  "Date": "2026-11-02",
+  "Method": "Six fresh processes, isolated App, dark theme, exactly one preview MainWindow; not cold or installed startup",
+  "MedianRepeatedMs": 973.3932,
+  "MeanWorkingSetMb": 120.99447466666668,
+  "Samples": [
+    {
+      "ManagedToIdleMs": 1254.5276,
+      "ProcessToIdleMs": 2128.2032,
+      "WorkingSetMb": 120.868864,
+      "PrivateMb": 108.519424,
+      "PeakWorkingSetMb": 120.868864,
+      "WindowCount": 1,
+      "DpiX": 144,
+      "DpiY": 144,
+      "Theme": "dark",
+      "Runtime": ".NET 10.0.3",
+      "Version": "3.0.12",
+      "Scenario": "Isolated App and one MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 916.1679,
+      "ProcessToIdleMs": 1032.1883,
+      "WorkingSetMb": 121.483264,
+      "PrivateMb": 107.278336,
+      "PeakWorkingSetMb": 121.483264,
+      "WindowCount": 1,
+      "DpiX": 144,
+      "DpiY": 144,
+      "Theme": "dark",
+      "Runtime": ".NET 10.0.3",
+      "Version": "3.0.12",
+      "Scenario": "Isolated App and one MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 852.7354,
+      "ProcessToIdleMs": 973.3932,
+      "WorkingSetMb": 120.676352,
+      "PrivateMb": 107.134976,
+      "PeakWorkingSetMb": 120.676352,
+      "WindowCount": 1,
+      "DpiX": 144,
+      "DpiY": 144,
+      "Theme": "dark",
+      "Runtime": ".NET 10.0.3",
+      "Version": "3.0.12",
+      "Scenario": "Isolated App and one MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 838.8494,
+      "ProcessToIdleMs": 957.8614,
+      "WorkingSetMb": 121.188352,
+      "PrivateMb": 108.285952,
+      "PeakWorkingSetMb": 121.188352,
+      "WindowCount": 1,
+      "DpiX": 144,
+      "DpiY": 144,
+      "Theme": "dark",
+      "Runtime": ".NET 10.0.3",
+      "Version": "3.0.12",
+      "Scenario": "Isolated App and one MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 893.48,
+      "ProcessToIdleMs": 1028.3406,
+      "WorkingSetMb": 121.0368,
+      "PrivateMb": 108.150784,
+      "PeakWorkingSetMb": 121.0368,
+      "WindowCount": 1,
+      "DpiX": 144,
+      "DpiY": 144,
+      "Theme": "dark",
+      "Runtime": ".NET 10.0.3",
+      "Version": "3.0.12",
+      "Scenario": "Isolated App and one MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 837.893,
+      "ProcessToIdleMs": 969.612,
+      "WorkingSetMb": 120.713216,
+      "PrivateMb": 105.7792,
+      "PeakWorkingSetMb": 120.713216,
+      "WindowCount": 1,
+      "DpiX": 144,
+      "DpiY": 144,
+      "Theme": "dark",
+      "Runtime": ".NET 10.0.3",
+      "Version": "3.0.12",
+      "Scenario": "Isolated App and one MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    }
+  ]
+}

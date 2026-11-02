@@ -1,4 +1,4 @@
-<Application x:Class="HeliumVideoTools.Desktop.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" StartupUri="MainWindow.xaml">
+<Application x:Class="HeliumVideoTools.Desktop.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Application.Resources>
     <Style x:Key="KeyboardFocusVisual" TargetType="Control"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Control"><Border BorderBrush="{DynamicResource Focus}" BorderThickness="2" CornerRadius="6" Margin="-2"/></ControlTemplate></Setter.Value></Setter></Style>
     <Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/></Style>

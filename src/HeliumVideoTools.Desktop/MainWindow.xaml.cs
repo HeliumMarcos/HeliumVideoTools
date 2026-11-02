@@ -16,6 +16,8 @@ public partial class MainWindow : Window
     private Operation operation = Operation.Compress;
     internal OperationEditor Editor {get;}
     internal ResponsiveLayout? AdaptiveLayout {get;}
+    private readonly ProgressAnnouncer progressAnnouncements;
+    private readonly ProgressAnnouncer statusAnnouncements;
     private TextBlock? estimate=>Editor.Estimate;
     private TextBlock? estimateNote=>Editor.EstimateNote;
     private readonly EstimateCoordinator estimates=new();
@@ -36,6 +38,9 @@ public partial class MainWindow : Window
         ThemeManager.EnsureInitialized();
         if(!preview)ThemeManager.SetPreference(preferences.Theme);
         InitializeComponent(); NativeWindowTheme.Attach(this); DataContext = model;
+        progressAnnouncements=new ProgressAnnouncer(ProgressStatus);
+        System.Windows.Automation.AutomationProperties.SetLiveSetting(Status,System.Windows.Automation.AutomationLiveSetting.Polite);
+        statusAnnouncements=new ProgressAnnouncer(Status);
         updates=new UpdateWindowController(this,()=>model.Busy || shutdown.Saving,()=>updateCheck.Available);
         Editor=new OperationEditor(OptionsPanel,UpdateEstimate);
         ThemeChoice.ItemsSource=new[]{"Sistema (Windows)","Claro","Escuro"};
@@ -137,16 +142,18 @@ public partial class MainWindow : Window
         if (updates.Installing) { Status.Text = "Instalação da atualização iniciada. Aguarde a reabertura do aplicativo."; return; }
         try
         {
+            progressAnnouncements.Reset();
+            statusAnnouncements.Reset();
             var options = CurrentOptions();
             ProgressPanel.Visibility = Visibility.Visible; ProgressAction.Content = "Cancelar tudo"; ProgressAction.IsEnabled = true; OverallBar.Value = 0;
             ReportButton.Visibility = ResultDetails.Visibility = Visibility.Collapsed; ProgressAction.ContextMenu = null;
             ProgressHeading.Text = "Progresso geral"; SetProgressColor("Focus");
             RunButton.IsEnabled = false; OptionsPanel.IsEnabled = false;
-            var result = await model.RunAsync(options, new Progress<VideoProgress>(p => { if (model.Busy && model.LastResult is null) { OverallBar.Value = p.Percent; ProgressStatus.Text = p.Status; } }));
+            var result = await model.RunAsync(options, new Progress<VideoProgress>(p => { if (model.Busy && model.LastResult is null) { OverallBar.Value = p.Percent; ProgressStatus.Text = p.Status; progressAnnouncements.Notify(); } }));
             ShowBatchResult(result);
         }
-        catch (OperationCanceledException) { ProgressPanel.Visibility = Visibility.Collapsed; Status.Text = "Processamento cancelado. Os originais foram preservados."; }
-        catch (Exception ex) { AppLog.Write("ERROR", "Processamento", ex.ToString()); Status.Text = ex is IOException ? ex.Message : "Não foi possível concluir. Consulte o log para detalhes."; ProgressStatus.Text = Status.Text; }
+        catch (OperationCanceledException) { ProgressPanel.Visibility = Visibility.Collapsed; Status.Text = "Processamento cancelado. Os originais foram preservados."; statusAnnouncements.Notify(final:true); }
+        catch (Exception ex) { AppLog.Write("ERROR", "Processamento", ex.ToString()); Status.Text = ex is IOException ? ex.Message : "Não foi possível concluir. Consulte o log para detalhes."; ProgressStatus.Text = Status.Text; if(ProgressStatus.IsVisible)progressAnnouncements.Notify(final:true);else statusAnnouncements.Notify(final:true); }
         finally { RunButton.IsEnabled = true; OptionsPanel.IsEnabled = true; int folders = model.LastResult?.OutputFolders.Count ?? 0; ProgressAction.Content = folders > 1 ? $"Pastas de saída ({folders})" : "Abrir pasta"; ProgressAction.IsEnabled = model.LastOutputFolder is not null; }
     }
     private void SetProgressColor(string resource)
@@ -160,6 +167,7 @@ public partial class MainWindow : Window
         ResultDetails.Text=presentation.Details;
         ResultDetails.Visibility = Visibility.Visible; ReportButton.Visibility = model.LastReportPath is null ? Visibility.Collapsed : Visibility.Visible;
         Status.Text=presentation.Status;
+        progressAnnouncements.Notify(final:true);
     }
     private void OpenReport(object sender,RoutedEventArgs e)
     {
