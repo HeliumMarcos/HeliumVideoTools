@@ -17,9 +17,7 @@ public partial class MainWindow : Window
     internal OperationEditor Editor {get;}
     private TextBlock? estimate=>Editor.Estimate;
     private TextBlock? estimateNote=>Editor.EstimateNote;
-    private CancellationTokenSource? estimateCancellation;
-    private VideoEstimateService? estimateService;
-    private string? estimateProbe;
+    private readonly EstimateCoordinator estimates=new();
     private readonly UserPreferenceStore? preferenceStore;
     private UserPreferences preferences;
     private bool preferredMaximized;
@@ -118,39 +116,23 @@ public partial class MainWindow : Window
         BuildOptions();
     }
     private void BuildOptions()
-    {estimateCancellation?.Cancel();Editor.Build(operation,preferences);}
+    {estimates.Cancel();Editor.Build(operation,preferences);}
     private VideoOptions CurrentOptions()=>Editor.Read();
     private async void UpdateEstimate()
     {
         if (estimate is null || buildingOptions) return;
-        estimateCancellation?.Cancel();
+        estimates.Cancel();
         estimate.ToolTip=null; System.Windows.Automation.AutomationProperties.SetHelpText(estimate,"");
         if(model.Files.Count==0) {estimate.Text="Adicione vídeos para estimar o tamanho final";estimate.ToolTip=null;estimateNote!.Visibility=Visibility.Collapsed;return;}
-        var request=CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token); estimateCancellation=request;
-        try
-        {
-            var options=CurrentOptions(); var sources=model.Files.Select(f=>f.Path).ToArray();
-            estimate.Text="Analisando duração, áudio e tamanho…"; estimateNote!.Visibility=Visibility.Collapsed;
-            await Task.Delay(250,request.Token);
-            var tools=BatchViewModel.CaptureTools();
-            string probe=tools.Ffprobe;
-            if(estimateService is null || estimateProbe!=probe)
-            {
-                var engine=new VideoEngine(tools.Ffmpeg,probe);
-                estimateService=new VideoEstimateService(async (path,token)=>{if(tools.Set is not null) await MediaToolUpdater.DefaultStore.ValidateAsync(tools.Set,token);return await engine.ProbeAsync(path,token);}); estimateProbe=probe;
-            }
-            var result=await estimateService.EstimateAsync(sources,options,request.Token);
-            request.Token.ThrowIfCancellationRequested();
-            if(!ReferenceEquals(estimateCancellation,request)) return;
-            var presentation=EstimatePresentation.From(result,options);
+        await estimates.RequestAsync(model.Files.Select(f=>f.Path).ToArray(),CurrentOptions,
+            ()=>{estimate.Text="Analisando duração, áudio e tamanho…";estimateNote!.Visibility=Visibility.Collapsed;},
+            presentation=>{
             estimate.Text=presentation.Summary; estimate.ToolTip=new TextBlock {Text=presentation.Details,MaxWidth=640};
             System.Windows.Automation.AutomationProperties.SetHelpText(estimate,presentation.Details);
-            estimateNote.Text=presentation.Explanation;estimateNote.Visibility=Visibility.Visible;
-        }
-        catch(OperationCanceledException) { }
-        catch(Exception ex)
-        { if(ReferenceEquals(estimateCancellation,request)) {estimate.Text=ex is IOException?ex.Message:"Não foi possível calcular a estimativa.";estimateNote!.Visibility=Visibility.Collapsed;AppLog.Write("INFO","Estimativa indisponível",ex.Message);} }
-        finally {if(ReferenceEquals(estimateCancellation,request))estimateCancellation=null;request.Dispose();}
+            estimateNote!.Text=presentation.Explanation;estimateNote.Visibility=Visibility.Visible;
+            },
+            ex=>{estimate.Text=ex is IOException?ex.Message:"Não foi possível calcular a estimativa.";estimateNote!.Visibility=Visibility.Collapsed;AppLog.Write("INFO","Estimativa indisponível",ex.Message);},
+            lifetime.Token);
     }
     private void RememberToolPreferences()=>preferences=Editor.Remember(preferences);
     private void Browse(object sender, RoutedEventArgs e) { var dialog = new Microsoft.Win32.OpenFileDialog { Multiselect = true, Filter = "Vídeos|*.mp4;*.mkv;*.mov;*.avi;*.m4v;*.webm",InitialDirectory=preferences.LastDirectory??"" }; if (dialog.ShowDialog() == true) {preferences=preferences with {LastDirectory=Path.GetDirectoryName(dialog.FileNames[0])};model.Add(dialog.FileNames);} }

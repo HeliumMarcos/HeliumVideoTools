@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag da release (ex.: v3.0.9)'
-        default: 'v3.0.9'
+        description: 'Tag da release (ex.: v3.0.10)'
+        default: 'v3.0.10'
         required: true
       publish:
         description: Publicar instalador em Releases
@@ -47,6 +47,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Teste de temas WPF falhou' }
           dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --verify-operation-editor
           if ($LASTEXITCODE -ne 0) { throw 'Teste de configuração/resultados WPF falhou' }
+          $fixture = (Get-ChildItem -Path 'work/smoke-*/audiência teste.mp4' | Select-Object -Last 1).FullName
+          if (-not $fixture) { throw 'Amostra sintética de estimativa ausente' }
+          dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --render work/estimate-standard.png Compress 1280 900 estimate $fixture
+          if ($LASTEXITCODE -ne 0) { throw 'Estimativa WPF padrão falhou' }
+          dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --render work/estimate-minimum.png Compress 980 700 estimate $fixture
+          if ($LASTEXITCODE -ne 0) { throw 'Estimativa WPF mínima falhou' }
       - name: Preparar NSIS
         if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         shell: pwsh

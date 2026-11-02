@@ -1,4 +1,13 @@
-# Helium Vídeo Tools 3.0.9 — configuração e resultados separados da janela
+# Helium Vídeo Tools 3.0.10 — controle das estimativas separado da janela
+
+- Coordenação das análises em componente próprio, mantendo a espera de 250 ms, cache de metadados e uso do conjunto capturado de ferramentas.
+- Testes verificam que respostas ou erros atrasados não substituem a análise atual ao mudar parâmetros, limpar arquivos, navegar ou fechar.
+- Consulta com FFprobe real na janela padrão e mínima incluída na validação do GitHub.
+- Aparência e padrões preservados: sete imagens de temas idênticas antes/depois, comparadas antes do incremento da versão. Sem alteração de codecs ou comandos de processamento.
+
+Instalação por usuário, mesma pasta, atualização pelo aplicativo e recuperação preservadas. A organização interna continua: atualização e encerramento ainda são coordenados pela janela. Detalhes em docs/REFACTOR-WINDOW.md.
+
+## Melhorias preservadas da 3.0.9
 
 - Configuração das operações fica em componente próprio: campos, unidades, modos de divisão, validação e preferências compatíveis.
 - Formatação do resultado do lote separada dos controles, preservando contagens, mensagens, cores e avisos de relatório.

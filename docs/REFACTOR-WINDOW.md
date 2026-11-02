@@ -17,3 +17,11 @@ Antes de alterar a versão, as renderizações dos testes de temas foram executa
 Testes que precisavam manipular controles do editor usam seu acesso interno de teste, em vez de procurar campos privados removidos da janela. A interface não recebe API pública adicional para essa finalidade. O novo teste de caracterização integra o workflow Windows antes do empacotamento.
 
 A [execução 41385183429](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41385183429) passou na suíte de mídia/recuperação/arquitetura, fechamento, temas, editor e distribuição, publicando a [3.0.9 estável](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.9). O cliente real baixou anonimamente o instalador de 172908312 bytes e validou SHA-256/MZ; a consulta ofereceu atualização para a 3.0.8 e demais versões anteriores testadas, mas não para a própria 3.0.9. Benchmark comparativo em DESEMPENHO.md. Alterações visuais futuras continuam exigindo a prévia/aprovação do usuário.
+
+## Continuação 3.0.10 — ciclo de vida das estimativas
+
+EstimateCoordinator assume cancelamento/substituição das solicitações, espera de 250 ms, captura das ferramentas, reutilização do VideoEstimateService por caminho de ffprobe e conversão em EstimatePresentation. A janela aplica os mesmos textos, tooltip, ajuda acessível e visibilidade. Cancelar invalida a solicitação antes de sinalizar o token; cada solicitação descarta sua própria fonte de cancelamento ao terminar. Fechar a janela cancela pelo token de vida já existente.
+
+Testes controlados usam respostas que ignoram cancelamento: sucesso e falha antigos não publicam sobre a solicitação nova; espera cancelada não inicia sondagem; limpar/navegar e encerrar descartam resposta tardia; opções inválidas preservam a exceção para a mensagem humana existente. A suíte principal inclui esses casos. O teste WPF com FFprobe real passou localmente em 1280×900 e 980×700 e passa a integrar o workflow.
+
+Comparação local antes/depois, ainda na versão 3.0.9: sete PNGs em work/coordinator-before e work/coordinator-after têm hashes idênticos. Nenhum XAML/estilo foi alterado. Atualização e encerramento ainda precisam da etapa de separação; isso não conclui o item 6. Não foi repetido o benchmark de codificação nesta etapa: os comandos/motor não mudaram e não se alega ganho de desempenho.
