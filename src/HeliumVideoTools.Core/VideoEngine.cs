@@ -12,8 +12,9 @@ public sealed record VideoOptions(Operation Operation = Operation.Compress, doub
 public sealed record MediaInfo(double Duration, long Bytes, double AudioKbps, double FrameRate = 25);
 public sealed record VideoProgress(double Percent, string Status);
 
-public sealed class VideoEngine(string ffmpeg, string ffprobe) : IVideoProcessor
+public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? recovery=null) : IVideoProcessor
 {
+    private RecoveryJournal Recovery=>recovery??RecoveryJournal.Default;
     public static bool Supported(string path) => new[] { ".mp4", ".mkv", ".avi", ".mov", ".m4v", ".webm" }.Contains(Path.GetExtension(path).ToLowerInvariant());
     private static string N(double value) => value.ToString("0.#########", CultureInfo.InvariantCulture);
     public static int Bitrate(double duration, double targetMb, double audioKbps)
@@ -28,8 +29,10 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe) : IVideoProcessor
         token.ThrowIfCancellationRequested();
         var start = new ProcessStartInfo(binary) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
         foreach (var arg in args) start.ArgumentList.Add(arg);
+        using var group=new OwnedProcessGroup();
         using var process = new Process { StartInfo = start };
         process.Start();
+        group.Attach(process);
         using var registration = token.Register(() => { try { if (!process.HasExited) process.Kill(true); } catch (Exception ex) when(ex is InvalidOperationException or System.ComponentModel.Win32Exception) { } });
         var error = process.StandardError.ReadToEndAsync();
         var output = new System.Text.StringBuilder();
@@ -104,9 +107,10 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe) : IVideoProcessor
             var audio = info.AudioKbps == 0 ? 0 : webm ? 128 : options.CopyAudio ? info.AudioKbps : 128;
             var rate = Bitrate(info.Duration, target, audio);
             var output = Unique(Path.Combine(folder, Path.GetFileNameWithoutExtension(source) + (webm ? $"_{options.Codec}.webm" : "_compactado.mp4")));
-            var passFolder = Path.Combine(Path.GetTempPath(), "HeliumVideoTools", Guid.NewGuid().ToString("N"));
+            var passRoot=Path.Combine(Path.GetTempPath(),"HeliumVideoTools");Directory.CreateDirectory(passRoot);
+            await using var passTemporary=await Task.Run(()=>Recovery.TrackPassDirectory(passRoot),token);
+            var passFolder = passTemporary.Path;
             Directory.CreateDirectory(passFolder);
-            try
             {
                 var passes = options.TwoPass ? 2 : 1;
                 for (var attempt = 0; attempt < 3; attempt++)
@@ -150,26 +154,22 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe) : IVideoProcessor
                 }
                 }
             }
-            finally { try { Directory.Delete(passFolder, true); } catch (IOException) { } }
             outputs.Add(output);
         }
         return outputs;
     }
     private async Task RunOutput(List<string> args, string output, double duration, Action<double> report, CancellationToken token, long? maxBytes = null, Action<string>? outputPublished = null)
     {
-        var temp = Path.Combine(Path.GetDirectoryName(output)!, $".{Guid.NewGuid():N}.partial{Path.GetExtension(output)}");
-        try
-        {
-            args.AddRange(["-progress", "pipe:1", "-nostats", temp]);
-            await Run(args, duration, report, token);
-            token.ThrowIfCancellationRequested();
-            if (maxBytes is { } limit && new FileInfo(temp).Length > limit)
-                throw new OutputTooLargeException(limit, new FileInfo(temp).Length);
-            await ProbeAsync(temp, token); // Não publicar um arquivo vazio ou sem vídeo.
-            File.Move(temp, output, false);
-            outputPublished?.Invoke(output);
-        }
-        finally { if (File.Exists(temp)) File.Delete(temp); }
+        await using var temporary=await Task.Run(()=>Recovery.TrackFile(Path.GetDirectoryName(output)!,Path.GetExtension(output)),token);
+        var temp=temporary.Path;
+        args.AddRange(["-progress", "pipe:1", "-nostats", temp]);
+        await Run(args, duration, report, token);
+        token.ThrowIfCancellationRequested();
+        if (maxBytes is { } limit && new FileInfo(temp).Length > limit)
+            throw new OutputTooLargeException(limit, new FileInfo(temp).Length);
+        await ProbeAsync(temp, token); // Não publicar um arquivo vazio ou sem vídeo.
+        File.Move(temp, output, false);
+        outputPublished?.Invoke(output);
     }
     private async Task<IReadOnlyList<string>> SplitBySizeAsync(string source, double targetMb, MediaInfo info, IProgress<VideoProgress> progress, CancellationToken token, Action<string>? outputPublished)
     {

@@ -12,6 +12,8 @@ Após a publicação da 3.0.5, o usuário limitou a continuação aos itens 2, 3
 
 Auditoria inicial: `VideoEngine.RunOutput` e a pasta de estatísticas de duas etapas usam `finally` para remover temporários. Isso cobre cancelamento/erros normais, mas não executa após encerramento forçado ou queda de energia. A próxima implementação deve registrar a propriedade desses temporários antes de criá-los, para permitir limpeza específica no próximo início; não procurar e apagar arquivos pela extensão nas pastas dos vídeos.
 
+Etapa 3.0.6: registro durável/exclusivo de temporários de vídeo e estatísticas, limpeza em segundo plano ao abrir e Job Objects para os processos próprios implementados. Teste mata apenas o hospedeiro enquanto FFmpeg grava um MP4; confirma encerramento do filho, preservação de FFmpeg independente, saídas e arquivos desconhecidos. A etapa não retoma codificação nem conclui o item 2 inteiro: interrupções reais do atualizador de ferramentas e do instalador, recuperação de histórico do lote e queda de energia permanecem pendentes. Referência do mecanismo de processos: https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects.
+
 ## 3. Telas e acessibilidade
 
 - Validar 100%, 125%, 150% e 200%, área útil pequena e movimentação entre monitores com escalas diferentes.

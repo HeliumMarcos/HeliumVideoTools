@@ -13,8 +13,19 @@ public partial class App : Application
         instance = new Mutex(true, "Local\\Helium.HeliumVideoTools.Desktop", out bool created);
         if (!created) { Shutdown(); return; }
         SetCurrentProcessExplicitAppUserModelID("Helium.HeliumVideoTools");
+        _=RecoverAfterStartupAsync();
         DispatcherUnhandledException += (_, args) => { AppLog.Write("ERROR", "Erro inesperado", args.Exception.ToString()); MessageBox.Show("O aplicativo encontrou um problema. Os detalhes foram salvos no log.", "Helium Vídeo Tools"); args.Handled = true; };
         base.OnStartup(e);
     }
     protected override void OnExit(ExitEventArgs e) { instance?.Dispose(); base.OnExit(e); }
+    private static async Task RecoverAfterStartupAsync()
+    {
+        try
+        {
+            var result=await RecoveryJournal.Default.RecoverAsync();
+            if(result.Cleaned>0 || result.Deferred>0 || result.Invalid>0)AppLog.Write("INFO","Recuperação de temporários após interrupção",System.Text.Json.JsonSerializer.Serialize(result));
+        }
+        catch(Exception ex) when(ex is System.IO.IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {AppLog.Write("WARNING","Recuperação adiada",ex.Message);}
+    }
 }

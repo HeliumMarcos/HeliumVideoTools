@@ -1,4 +1,16 @@
-# Helium Vídeo Tools 3.0.5 — temas e acessibilidade
+# Helium Vídeo Tools 3.0.6 — temporários após interrupções
+
+- Novos temporários de vídeo e estatísticas de codificação são registrados antes da criação, com gravação do registro em disco e bloqueio enquanto a operação está ativa.
+- Na abertura, uma recuperação em segundo plano limpa apenas temporários registrados de tarefas interrompidas. Originais, resultados publicados e conteúdos desconhecidos são preservados.
+- Processos de vídeo são vinculados a um Job Object do Windows com encerramento ao fechar o último identificador. Isso reduz o risco de FFmpeg órfão após encerrar o aplicativo à força, sem procurar e matar processos pelo nome.
+- Diretórios redirecionados são resolvidos ao registrar os temporários; a recuperação recusa caminhos posteriormente redirecionados.
+- Sem alteração visual; temas, padrões de 98 MB/VP8 e instalador por usuário preservados.
+
+Teste isolado encerra somente o hospedeiro enquanto FFmpeg grava um MP4, verifica a saída do processo vinculado e mantém um segundo FFmpeg independente. Também cobre bloqueio durante tarefa ativa, cancelamento da recuperação, repetição, JSON danificado e preservação de arquivos concluídos/desconhecidos.
+
+A recuperação faz limpeza; não retoma automaticamente uma codificação de onde parou. Abrange os novos temporários registrados, sem tentar adivinhar a propriedade de arquivos de versões antigas. Queda real de energia e interrupções do instalador/atualização de ferramentas continuam em validação separada.
+
+## Melhorias preservadas da 3.0.5
 
 - Proposta visual aprovada integrada: seletor Sistema (Windows), Claro e Escuro na lateral. A escolha é lembrada sem alterar os padrões de processamento.
 - Sistema acompanha a aparência do Windows. O alto contraste do Windows tem prioridade e usa suas cores, inclusive em seleções e botões.
