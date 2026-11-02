@@ -1,0 +1,106 @@
+{
+  "Method": "Post-run installed ffprobe stream inspection and copied audio packet SHA-256 using ffmpeg hash muxer",
+  "Outputs": [
+    {
+      "File": "synthetic-720p-180s_compactado.mp4",
+      "Bytes": 92250324,
+      "Duration": 180.0,
+      "Streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio"
+        }
+      ]
+    },
+    {
+      "File": "synthetic-720p-180s_parte_001.mp4",
+      "Bytes": 27688253,
+      "Duration": 60.000363,
+      "Streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio"
+        }
+      ]
+    },
+    {
+      "File": "synthetic-720p-180s_parte_002.mp4",
+      "Bytes": 27640306,
+      "Duration": 60.000363,
+      "Streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio"
+        }
+      ]
+    },
+    {
+      "File": "synthetic-720p-180s_parte_003.mp4",
+      "Bytes": 27640142,
+      "Duration": 60.0,
+      "Streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio"
+        }
+      ]
+    },
+    {
+      "File": "synthetic-720p-180s_vp8.webm",
+      "Bytes": 188936684,
+      "Duration": 180.008,
+      "Streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video"
+        },
+        {
+          "codec_name": "opus",
+          "codec_type": "audio"
+        }
+      ]
+    },
+    {
+      "File": "synthetic-720p-180s.mp4",
+      "Bytes": 249981084,
+      "Duration": 180.0,
+      "Streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio"
+        }
+      ]
+    }
+  ],
+  "OriginalAudio": [
+    {
+      "File": "synthetic-720p-180s.mp4",
+      "PacketHash": "SHA256=cc45dd2bdfa05af33cf960b578575ddffdc372ee3481caf48c4f98f98254a45a"
+    },
+    {
+      "File": "synthetic-720p-180s_compactado.mp4",
+      "PacketHash": "SHA256=cc45dd2bdfa05af33cf960b578575ddffdc372ee3481caf48c4f98f98254a45a"
+    }
+  ],
+  "OriginalAudioPreserved": true
+}

@@ -1,5 +1,7 @@
 # Helium Vídeo Tools — C# / .NET 10 / WPF
 
+[Desempenho medido da instalação 3.0.14](docs/DESEMPENHO-INSTALADO.md): abertura repetida mediana 727 ms; processamento real pela interface e memória simultânea com FFmpeg registrados, sem alterar o aplicativo. Primeira amostra não é garantia de cache frio.
+
 Aplicativo Windows para preparar mídias de audiências: compactação e divisão para o Projudi, conversão para WebM para o SEEU. A implementação ativa está em **C#/.NET 10 com interface WPF**, na pasta `src`. O código Python anterior permanece como referência histórica da migração.
 
 [Baixar instalador oficial — v3.0.14](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.14). Windows x64 por usuário, sem exigir administrador, com .NET e FFmpeg/ffprobe incluídos. Versões anteriores podem atualizar pelo aplicativo; o canal automático consulta apenas versões estáveis. Download com porcentagem, cancelamento e verificação SHA-256. Novas cópias na pasta Music foram dispensadas pelo usuário; a distribuição .NET permanece no GitHub.

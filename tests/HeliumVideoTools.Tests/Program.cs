@@ -11,6 +11,14 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length==1 && args[0]=="--benchmark-memory-child")
+        {Console.WriteLine("ready");Thread.Sleep(30000);return 0;}
+        if(args.Length==1 && args[0]=="--verify-installed-metrics")
+        {try{InstalledPerformanceBenchmarks.VerifySamplerAsync().GetAwaiter().GetResult();return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
+        if(args.Length==3 && args[0]=="--benchmark-installed-startup")
+        {try{Task.Run(()=>InstalledPerformanceBenchmarks.RunAsync(args[1],args[2],startupOnly:true)).GetAwaiter().GetResult();return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
+        if(args.Length is 3 or 4 && args[0]=="--benchmark-installed")
+        {try{Task.Run(()=>InstalledPerformanceBenchmarks.RunAsync(args[1],args[2],args.Length==4?args[3]:null)).GetAwaiter().GetResult();return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
         if(args.Length==2 && args[0]=="--verify-recovered-summary")
         {try{RecoveredSummaryTests.Run(args[1]);return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
         if(args.Length==2 && args[0]=="--batch-recovery-worker")
@@ -217,6 +225,7 @@ internal static class Program
     private static async Task RunAsync()
     {
         ArchitectureTests.Run();
+        await InstalledPerformanceBenchmarks.VerifySamplerAsync();
         await BatchRecoveryTests.RunAsync(Path.Combine(Environment.CurrentDirectory,"work"));
         AnnouncementTests.Run();
         await WindowLifecycleTests.RunAsync();

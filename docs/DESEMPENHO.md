@@ -1,5 +1,7 @@
 # Referência de desempenho — 3.0.7
 
+**Medição da instalação real disponível:** [DESEMPENHO-INSTALADO.md](DESEMPENHO-INSTALADO.md), versão 3.0.14 self-contained: abertura repetida mediana 727 ms, residente médio 136,8 MB, fonte sintética de 180 s/720p processada pela UI. H.264 18,28 s, três partes 12,78 s, VP8 59,45 s; memória simultânea app+filhos amostrada. Não compara com os hosts históricos abaixo nem comprova abertura fria.
+
 **Correção na etapa 3.0.13:** o host antigo podia executar StartupUri ao processar o Dispatcher, abrindo uma segunda janela normal. Por isso, as tabelas anteriores de abertura/memória são históricas e não comprovam uma janela isolada; não usar suas diferenças como comparação de produção. O host foi corrigido e agora exige uma janela. A medição do motor de mídia é separada desse host, mas continua sujeita às limitações de carga/cache/amostra descritas abaixo.
 
 Nova referência de host isolado em [performance/startup-isolated-host-3.0.13.json](performance/startup-isolated-host-3.0.13.json), medida antes do incremento da versão (número 3.0.12 no JSON, com as correções desta etapa): seis processos, uma janela por amostra, tema escuro, 144 DPI, runtime direto do apphost .NET 10.0.3. Mediana das cinco aberturas seguintes: **973 ms**; memória residente média: **121,0 MB**. O runtime anterior registrado era 10.0.14, e o isolamento mudou; não comparar numericamente para atribuir ganho/regressão. Não mede abertura fria, instalação self-contained ou memória da árvore FFmpeg.

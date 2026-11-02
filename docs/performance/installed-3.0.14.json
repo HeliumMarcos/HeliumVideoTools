@@ -1,0 +1,188 @@
+{
+  "RecordedAt": "2026-11-02T15:15:30.4359402-03:00",
+  "ProductVersion": "3.0.14\u002B22931bf2605fed0c3486cd99b5d960ecb548b029",
+  "InstalledExeSha256": "478D10D910641E4A387EC1DAEC8209A3F8D815BFF1AA6E388EC88FDCE88410C7",
+  "InstalledRuntime": {
+    "runtimeOptions": {
+      "tfm": "net10.0",
+      "includedFrameworks": [
+        {
+          "name": "Microsoft.NETCore.App",
+          "version": "10.0.14"
+        },
+        {
+          "name": "Microsoft.WindowsDesktop.App",
+          "version": "10.0.14"
+        }
+      ],
+      "configProperties": {
+        "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
+        "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
+        "CSWINRT_USE_WINDOWS_UI_XAML_PROJECTIONS": false
+      }
+    }
+  },
+  "OS": "Microsoft Windows 10.0.26300",
+  "LogicalProcessors": 16,
+  "Cpu": "AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD",
+  "Ffmpeg": "ffmpeg version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "Ffprobe": "ffprobe version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers",
+  "FfmpegSha256": "3256173F3F8BFFD7DF12227C68ADF68025EDB1832273A9530688A7BB1ED8EDEC",
+  "FfprobeSha256": "F0D36ECBBDD3BCFAC3EFA078C96C7271C2E68B3810595552AC3B7F17E9A65C52",
+  "Source": {
+    "Duration": 180,
+    "Bytes": 249981084,
+    "FrameRate": 25,
+    "AudioKbps": 69.269,
+    "Sha256": "49A9B681109D1C495243EFA053F94584C734C45C388F020D3ECA5A6C55763174",
+    "Width": 1280,
+    "Height": 720
+  },
+  "Startup": [
+    {
+      "Iteration": 1,
+      "ActionReadyMs": 790.4239,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 137.117696,
+        "AppPrivateMb": 113.82784,
+        "TreeWorkingMb": 137.117696,
+        "TreePrivateMb": 113.82784,
+        "Processes": 1
+      }
+    },
+    {
+      "Iteration": 2,
+      "ActionReadyMs": 725.2328,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 136.667136,
+        "AppPrivateMb": 112.799744,
+        "TreeWorkingMb": 136.667136,
+        "TreePrivateMb": 112.799744,
+        "Processes": 1
+      }
+    },
+    {
+      "Iteration": 3,
+      "ActionReadyMs": 727.39,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 136.933376,
+        "AppPrivateMb": 113.893376,
+        "TreeWorkingMb": 136.933376,
+        "TreePrivateMb": 113.893376,
+        "Processes": 1
+      }
+    },
+    {
+      "Iteration": 4,
+      "ActionReadyMs": 734.0884,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 136.9088,
+        "AppPrivateMb": 114.081792,
+        "TreeWorkingMb": 136.9088,
+        "TreePrivateMb": 114.081792,
+        "Processes": 1
+      }
+    },
+    {
+      "Iteration": 5,
+      "ActionReadyMs": 718.2978,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 136.630272,
+        "AppPrivateMb": 111.079424,
+        "TreeWorkingMb": 136.630272,
+        "TreePrivateMb": 111.079424,
+        "Processes": 1
+      }
+    },
+    {
+      "Iteration": 6,
+      "ActionReadyMs": 731.6232,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 136.74496,
+        "AppPrivateMb": 112.095232,
+        "TreeWorkingMb": 136.74496,
+        "TreePrivateMb": 112.095232,
+        "Processes": 1
+      }
+    }
+  ],
+  "Operations": [
+    {
+      "Scenario": "Compress",
+      "Seconds": 18.2762425,
+      "SampleCount": 94,
+      "PeakConcurrentTreeWorkingMb": 673.13664,
+      "PeakConcurrentTreePrivateMb": 747.7985279999999,
+      "PeakAppWorkingMb": 216.756224,
+      "MaximumProcessCount": 3,
+      "OutputBytes": 92250324,
+      "CapMb": 98,
+      "Outputs": [
+        {
+          "Bytes": 92250324,
+          "Duration": 180,
+          "AudioKbps": 69.269
+        }
+      ],
+      "TwoPass": true,
+      "CopyOriginalAudio": true
+    },
+    {
+      "Scenario": "Split",
+      "Seconds": 12.7764913,
+      "SampleCount": 62,
+      "PeakConcurrentTreeWorkingMb": 655.2985600000001,
+      "PeakConcurrentTreePrivateMb": 675.995648,
+      "PeakAppWorkingMb": 224.989184,
+      "MaximumProcessCount": 3,
+      "OutputBytes": 82968701,
+      "CapMb": null,
+      "Outputs": [
+        {
+          "Bytes": 27688253,
+          "Duration": 60.000363,
+          "AudioKbps": 81.281
+        },
+        {
+          "Bytes": 27640306,
+          "Duration": 60.000363,
+          "AudioKbps": 77.25
+        },
+        {
+          "Bytes": 27640142,
+          "Duration": 60,
+          "AudioKbps": 77.234
+        }
+      ],
+      "TwoPass": false,
+      "CopyOriginalAudio": false
+    },
+    {
+      "Scenario": "Webm",
+      "Seconds": 59.4523913,
+      "SampleCount": 328,
+      "PeakConcurrentTreeWorkingMb": 401.49401599999993,
+      "PeakConcurrentTreePrivateMb": 349.83116799999993,
+      "PeakAppWorkingMb": 225.13664,
+      "MaximumProcessCount": 3,
+      "OutputBytes": 188936684,
+      "CapMb": 244.98146232,
+      "Outputs": [
+        {
+          "Bytes": 188936684,
+          "Duration": 180.008,
+          "AudioKbps": 128
+        }
+      ],
+      "TwoPass": true,
+      "CopyOriginalAudio": false
+    }
+  ],
+  "Limitations": [
+    "First observed launch is not cold-cache controlled. Normal startup includes preferences, recovery and network check.",
+    "Action-ready time is external UIA polling, not precise ContentRendered timing. Memory sampled 500 ms later.",
+    "Processing has one sample per operation, includes UI/report overhead, excludes fixture generation and post-run probing.",
+    "Tree memory is simultaneous working/private bytes sampled around 150 ms plus UIA/query overhead. Shared pages may be counted twice; short peaks/processes may be missed.",
+    "User/system load, power, caches and temperature are not controlled. Synthetic 180s 720p CPU media does not represent all hearings."
+  ]
+}
