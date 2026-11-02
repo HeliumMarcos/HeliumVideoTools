@@ -17,6 +17,12 @@ Seis processos novos da instalação normal, com preferências, recuperação e 
 
 Todas são aberturas observadas com cache potencialmente aquecido. Houve tentativas anteriores para ajustar a seleção no diálogo nativo, sem executar operações de vídeo; por isso nem a primeira amostra da série final deve ser tratada como fria. Não houve reinicialização, esvaziamento de cache, alteração de energia, escala ou encerramento de programas do usuário. Abertura fria controlada permanece não medida. Não comparar esses tempos/memória com hosts antigos de teste, que tinham outro isolamento/runtime/método.
 
+## Complemento após reinício — 02/11/2026
+
+Após o usuário informar que reiniciou o computador, uma nova série de seis aberturas da instalação 3.0.14 terminou sem erro. A primeira abertura observada levou **1.306,7 ms**; as cinco seguintes, **639,8–705,2 ms**, com mediana **646,8 ms**. Memória residente da primeira observação: **142,7 MB**, amostrada 500 ms após a ação ficar disponível. [Registro bruto](performance/installed-3.0.14-after-restart.json).
+
+O Windows tinha aproximadamente 998 segundos de atividade na primeira observação. Não houve auditoria de possíveis aberturas anteriores desde o boot, limpeza de cache ou controle de prefetch/carga externa: esta é uma observação após reinício, não uma garantia de cache frio. O cliente encerrou suas próprias sessões e restaurou as preferências; SHA-256 do perfil foi conferido contra o backup. Nenhuma operação de mídia foi repetida. A verificação de abertura após reinício encerra o item 5 no escopo combinado, com essa limitação registrada.
+
 ## Processamento pela interface instalada
 
 Fonte artificial: 180 segundos, 1280×720/25 fps, H.264 ultrafast CRF 12 com áudio AAC, **249.981.084 bytes**. São quatro vezes a duração/tamanho aproximado da amostra anterior de 45 s. A amostra foi gerada uma vez e copiada para a pasta nova da série final; o hash permaneceu igual após as operações.
@@ -60,4 +66,4 @@ Para uma futura observação após reiniciar o computador por decisão do usuár
 .\work\tools\dotnet\dotnet.exe run --project tests/HeliumVideoTools.Tests -c Release -- --benchmark-installed-startup "$env:LOCALAPPDATA\Programs\HeliumVideoTools\app\HeliumVideoTools.exe" work/installed-startup-after-restart
 ```
 
-Esse modo também registra o tempo de atividade do Windows. Ele não reinicia nem agenda nada e não garante cache frio por si só. A medição controlada após reinício continua pendente; não se provoca interrupção da sessão do usuário para obter esse número.
+Esse modo também registra o tempo de atividade do Windows. Ele não reinicia nem agenda nada e não garante cache frio por si só. Foi utilizado no complemento após reinício acima; controle estrito de cache não foi realizado nem é declarado validado.

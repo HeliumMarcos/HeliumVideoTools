@@ -1,0 +1,85 @@
+{
+  "RecordedAt": "2026-11-02T20:53:23.2578838-03:00",
+  "ProductVersion": "3.0.14+22931bf2605fed0c3486cd99b5d960ecb548b029",
+  "InstalledExeSha256": "478D10D910641E4A387EC1DAEC8209A3F8D815BFF1AA6E388EC88FDCE88410C7",
+  "UserReportedRestart": true,
+  "Startup": [
+    {
+      "Iteration": 1,
+      "ActionReadyMs": 1306.7141,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 142.680064,
+        "AppPrivateMb": 126.554112,
+        "TreeWorkingMb": 142.680064,
+        "TreePrivateMb": 126.554112,
+        "Processes": 1
+      },
+      "WindowsUptimeSeconds": 998.218
+    },
+    {
+      "Iteration": 2,
+      "ActionReadyMs": 705.1833,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 142.024704,
+        "AppPrivateMb": 126.60736,
+        "TreeWorkingMb": 142.024704,
+        "TreePrivateMb": 126.60736,
+        "Processes": 1
+      },
+      "WindowsUptimeSeconds": 999.64
+    },
+    {
+      "Iteration": 3,
+      "ActionReadyMs": 646.8492,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 136.82688,
+        "AppPrivateMb": 112.422912,
+        "TreeWorkingMb": 136.82688,
+        "TreePrivateMb": 112.422912,
+        "Processes": 1
+      },
+      "WindowsUptimeSeconds": 1000.937
+    },
+    {
+      "Iteration": 4,
+      "ActionReadyMs": 644.3592,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 136.37632,
+        "AppPrivateMb": 112.050176,
+        "TreeWorkingMb": 136.37632,
+        "TreePrivateMb": 112.050176,
+        "Processes": 1
+      },
+      "WindowsUptimeSeconds": 1002.234
+    },
+    {
+      "Iteration": 5,
+      "ActionReadyMs": 639.7627,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 136.372224,
+        "AppPrivateMb": 111.947776,
+        "TreeWorkingMb": 136.372224,
+        "TreePrivateMb": 111.947776,
+        "Processes": 1
+      },
+      "WindowsUptimeSeconds": 1003.5
+    },
+    {
+      "Iteration": 6,
+      "ActionReadyMs": 648.3318,
+      "IdleMemoryAfter500Ms": {
+        "AppWorkingMb": 136.466432,
+        "AppPrivateMb": 113.19296,
+        "TreeWorkingMb": 136.466432,
+        "TreePrivateMb": 113.19296,
+        "Processes": 1
+      },
+      "WindowsUptimeSeconds": 1004.812
+    }
+  ],
+  "Limitations": [
+    "First observed launch after user-reported restart, approximately 998 seconds after Windows boot. Earlier launches since boot were not independently audited.",
+    "OS cache, background load and prefetch were not controlled. Not a guaranteed cold-cache launch.",
+    "UIA polling around 100 ms plus query overhead; memory sampled 500 ms after action ready. Preferences restored byte-for-byte."
+  ]
+}
