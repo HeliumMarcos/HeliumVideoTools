@@ -60,6 +60,12 @@ internal static class ToolInterruptionTests
                     if(test=="activated-corrupt")File.AppendAllText(store.Resolve(store.Active()!,"ffprobe"),"damaged");
                     if(test=="activated-pointer" || bundled)File.WriteAllText(Path.Combine(root,"active.json"),"{");
                     var recovered=await store.RecoverAsync();
+                    // A signalled process handle is not proof that all file handles
+                    // have finished closing. Poll the observable recovery condition;
+                    // the product must keep deferring an exclusively locked journal.
+                    var releaseDeadline=DateTime.UtcNow.AddSeconds(10);
+                    while(recovered.Cleaned==0 && recovered.Deferred>0 && DateTime.UtcNow<releaseDeadline)
+                    {await Task.Delay(100);recovered=await store.RecoverAsync();}
                     if(recovered.Cleaned!=1)
                     {
                         string log=Path.Combine(AppLog.Root,"app.jsonl");
