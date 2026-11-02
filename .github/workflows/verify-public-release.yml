@@ -1,0 +1,29 @@
+name: Verify public stable release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Versão estável mais recente para validar'
+        required: true
+        default: 'v3.0.11'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-dotnet@v6.0.0
+        with:
+          dotnet-version: '10.0.403'
+      - name: Conferir download anônimo e canal estável pelo cliente real
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') { throw 'Tag estável inválida' }
+          # No GH_TOKEN/GITHUB_TOKEN is passed to the app client. This check
+          # exercises its anonymous HTTP path, not the authenticated gh CLI.
+          dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --verify-public-release $env:RELEASE_TAG work/public-release-validation
+          if ($LASTEXITCODE -ne 0) { throw 'Verificação pública da release falhou' }
