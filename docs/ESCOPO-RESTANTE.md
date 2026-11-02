@@ -56,6 +56,8 @@ Primeira entrega do item 6 (3.0.8): núcleo separado dos serviços externos em I
 4. Validações/correções de telas e acessibilidade (3), com aprovação prévia das mudanças visuais.
 5. Publicar versões oficiais após os testes de cada entrega; o instalador continua sendo produzido pelo GitHub Actions.
 
+A segunda entrega foi publicada como [3.0.9 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.9), após sucesso da execução 41385183429 e verificação do download público e da detecção desde a 3.0.8. Próxima etapa: reduzir a coordenação ainda concentrada na janela; depois, validar telas e acessibilidade. Isso não encerra todo o escopo dos itens 2, 3, 5 e 6.
+
 ## Fora do escopo desta continuação
 
 - Item 1: campanha de validação com audiências longas reais e aceitação no Projudi/SEEU.

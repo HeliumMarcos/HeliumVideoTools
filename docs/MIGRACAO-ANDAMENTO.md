@@ -2,7 +2,7 @@
 
 Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
 
-Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.8 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.8) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções e núcleo separado da infraestrutura. As pendências de validação continuam registradas abaixo.
+Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.9 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.9) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções e duas etapas de organização interna. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -115,6 +115,14 @@ Teste de fronteira reproduziu a ausência da separação antes e passou depois. 
 A [execução 41383735979](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41383735979) passou em testes funcionais/arquitetura, instalação/reinstalação com app aberto, presença de Infrastructure.dll no pacote, preferências e interrupção do instalador isolado, publicando a 3.0.8 estável. Plano e detalhes em REFACTOR-INFRASTRUCTURE.md.
 
 Download público anônimo da 3.0.8 validado pelo cliente do app: 172903717 bytes, SHA-256 e formato MZ; versões anteriores testadas, incluindo 3.0.7, detectaram a atualização e a 3.0.8 não recebeu atualização para si mesma.
+
+## Etapa 3.0.9 — editor de operações e apresentação de resultados
+
+OperationEditor assume criação/leitura dos campos e preferências compatíveis; BatchResultPresentation assume textos, contagens e estados do resumo. MainWindow caiu de 334 para 235 linhas não vazias. Não houve mudança de XAML/estilos, parâmetros de vídeo ou formato das preferências. Sete imagens de temas tiveram SHA-256 idêntico antes/depois da extração, antes do incremento da versão.
+
+A [execução 41385183429](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41385183429) passou nos testes de mídia, arquitetura, recuperação, fechamento, temas, editor, instalação/reinstalação e interrupção do instalador, publicando a versão estável. Download anônimo pelo cliente real validou 172908312 bytes, SHA-256 e formato MZ; versões anteriores testadas, incluindo 3.0.8, detectaram atualização e a 3.0.9 não recebeu atualização para si mesma.
+
+Benchmark controlado: abertura repetida mediana 802 ms, memória média do host 133,9 MB, H.264 4,73 s, divisão 3,44 s e VP8 14,35 s. Não representa abertura fria instalada nem comprova ganho estatístico. Coordenação de atualização, estimativas e encerramento permanece como continuação do item 6; telas/DPI/acessibilidade seguem depois, com prévia para qualquer alteração visual. Evidências em REFACTOR-WINDOW.md e DESEMPENHO.md.
 
 ## Comandos
 
