@@ -37,6 +37,8 @@ Referência inicial do item 5 registrada em [DESEMPENHO.md](DESEMPENHO.md) e JSO
 
 ## 6. Organização interna
 
+Em 02/11/2026, o benchmark foi repetido a pedido do usuário, que relatou programas pesados na execução inicial. Mesmos hashes de entrada/ferramentas e parâmetros; médias de 4,89 s (H.264), 3,41 s (divisão) e 14,33 s (VP8), abertura repetida mediana 796 ms e memória média do host 133,7 MB. Usar a repetição como referência preferencial, mantendo a medição inicial. Detalhes e limitações em DESEMPENHO.md.
+
 - Separar a infraestrutura de processos, sondagem, ferramentas, atualizações, preferências e logs da lógica de domínio, conforme a direção do plano original.
 - Reduzir responsabilidades concentradas no código da janela, mantendo o comportamento aprovado.
 - Definir interfaces nos pontos em que isolamento e testes precisam delas, sem abstrações que apenas dupliquem o código.

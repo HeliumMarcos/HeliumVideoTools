@@ -1,0 +1,190 @@
+{
+  "RecordedAt": "2026-11-02T00:25:32.9868204-03:00",
+  "Version": "3.0.7.0",
+  "OS": "Microsoft Windows 10.0.26300",
+  "Architecture": "X64",
+  "Runtime": ".NET 10.0.14",
+  "LogicalProcessors": 16,
+  "Cpu": "AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD",
+  "Ffmpeg": "ffmpeg version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "Ffprobe": "ffprobe version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers",
+  "FfmpegSha256": "3256173F3F8BFFD7DF12227C68ADF68025EDB1832273A9530688A7BB1ED8EDEC",
+  "FfprobeSha256": "F0D36ECBBDD3BCFAC3EFA078C96C7271C2E68B3810595552AC3B7F17E9A65C52",
+  "Source": {
+    "Duration": 45,
+    "Bytes": 62535634,
+    "FrameRate": 25,
+    "AudioKbps": 69.222,
+    "Sha256": "95104DEAB7C19A4EB725A6532E4C0C9E10D798C4AD70176A70CA0AFA904EC858",
+    "Width": 1280,
+    "Height": 720
+  },
+  "Startup": [
+    {
+      "ManagedToIdleMs": 918.6696,
+      "ProcessToIdleMs": 1013.006,
+      "WorkingSetMb": 133.779456,
+      "PrivateMb": 146.071552,
+      "PeakWorkingSetMb": 133.779456,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 712.332,
+      "ProcessToIdleMs": 804.8457,
+      "WorkingSetMb": 133.750784,
+      "PrivateMb": 144.572416,
+      "PeakWorkingSetMb": 133.750784,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 715.2239,
+      "ProcessToIdleMs": 806.912,
+      "WorkingSetMb": 133.976064,
+      "PrivateMb": 146.092032,
+      "PeakWorkingSetMb": 133.976064,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 700.5163,
+      "ProcessToIdleMs": 793.6639,
+      "WorkingSetMb": 133.701632,
+      "PrivateMb": 145.248256,
+      "PeakWorkingSetMb": 133.701632,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 699.7625,
+      "ProcessToIdleMs": 789.9863,
+      "WorkingSetMb": 133.648384,
+      "PrivateMb": 144.044032,
+      "PeakWorkingSetMb": 133.648384,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 704.8839,
+      "ProcessToIdleMs": 796.1452,
+      "WorkingSetMb": 133.554176,
+      "PrivateMb": 143.962112,
+      "PeakWorkingSetMb": 133.554176,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    }
+  ],
+  "Media": [
+    {
+      "Scenario": "H264-copy-audio-two-pass",
+      "Repeat": 1,
+      "Options": {
+        "Operation": 1,
+        "TargetMb": 40.6481621,
+        "Codec": "h264",
+        "CopyAudio": true,
+        "TwoPass": true,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 4.9779713,
+      "RealtimeFactor": 9.039827127970787,
+      "OutputBytes": 38617107,
+      "Files": 1
+    },
+    {
+      "Scenario": "H264-copy-audio-two-pass",
+      "Repeat": 2,
+      "Options": {
+        "Operation": 1,
+        "TargetMb": 40.6481621,
+        "Codec": "h264",
+        "CopyAudio": true,
+        "TwoPass": true,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 4.7989229,
+      "RealtimeFactor": 9.377104183107422,
+      "OutputBytes": 38617107,
+      "Files": 1
+    },
+    {
+      "Scenario": "Split-3-precise",
+      "Repeat": 1,
+      "Options": {
+        "Operation": 0,
+        "TargetMb": 98,
+        "Codec": "h264",
+        "CopyAudio": true,
+        "TwoPass": false,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 3.4128407,
+      "RealtimeFactor": 13.185496762271969,
+      "OutputBytes": 20860873,
+      "Files": 3
+    },
+    {
+      "Scenario": "Split-3-precise",
+      "Repeat": 2,
+      "Options": {
+        "Operation": 0,
+        "TargetMb": 98,
+        "Codec": "h264",
+        "CopyAudio": true,
+        "TwoPass": false,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 3.4007534,
+      "RealtimeFactor": 13.232361981906715,
+      "OutputBytes": 20860873,
+      "Files": 3
+    },
+    {
+      "Scenario": "VP8-Opus-two-pass",
+      "Repeat": 1,
+      "Options": {
+        "Operation": 2,
+        "TargetMb": 299,
+        "Codec": "vp8",
+        "CopyAudio": true,
+        "TwoPass": true,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 14.3037481,
+      "RealtimeFactor": 3.146028557368121,
+      "OutputBytes": 46565381,
+      "Files": 1
+    },
+    {
+      "Scenario": "VP8-Opus-two-pass",
+      "Repeat": 2,
+      "Options": {
+        "Operation": 2,
+        "TargetMb": 299,
+        "Codec": "vp8",
+        "CopyAudio": true,
+        "TwoPass": true,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 14.3564085,
+      "RealtimeFactor": 3.1344886849660205,
+      "OutputBytes": 46565381,
+      "Files": 1
+    }
+  ],
+  "Limitations": [
+    "Startup uses a framework-dependent test host and isolated real WPF window, not the installed self-contained application.",
+    "First sample is first observed launch, not a cold-cache guarantee. Remaining samples are repeated launches.",
+    "Memory describes the test host at idle, not FFmpeg or whole-system memory.",
+    "Synthetic 45s 720p media does not represent hearing recordings or GPU encoding. CPU-only encoder presets as recorded.",
+    "Media wall time excludes fixture generation and post-run probe verification, but includes engine preflight, encoding, output validation and cleanup.",
+    "Two samples per operation provide a baseline, not a statistically robust performance guarantee."
+  ]
+}

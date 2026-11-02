@@ -39,6 +39,23 @@ Não extrapolar estes tempos para gravações extensas de audiências. Conteúdo
 
 ## Repetir antes/depois
 
+## Repetição solicitada — 02/11/2026
+
+O usuário informou que havia programas pesados abertos na primeira medição e pediu a repetição. O mesmo comando foi executado sem modificar/fechar outros aplicativos. A carga externa não foi monitorada; não se afirma que o computador estivesse ocioso. O hash da entrada e os hashes dos dois executáveis coincidem com a primeira medição, com o mesmo runtime .NET 10.0.14 e os mesmos parâmetros. Registro bruto: [performance/retest-3.0.7.json](performance/retest-3.0.7.json).
+
+| Medida | Primeira medição | Repetição |
+| --- | ---: | ---: |
+| Primeira abertura observada | 1.116 ms | 1.013 ms |
+| Mediana das cinco aberturas seguintes | 780 ms | 796 ms |
+| Memória residente média do host nas seis aberturas | 131,1 MB | 133,7 MB |
+| Compactar H.264, média de dois ensaios | 5,10 s | 4,89 s |
+| Dividir em três partes, média de dois ensaios | 3,76 s | 3,41 s |
+| VP8/Opus, média de dois ensaios | 16,30 s | 14,33 s |
+
+A repetição será a referência preferencial antes da reorganização; a primeira permanece como histórico. O processamento ficou cerca de 4,2%, 9,3% e 12,1% mais rápido, respectivamente. Isso é variação entre condições de teste, não uma otimização do código nem prova isolada de causalidade dos outros programas. A abertura repetida e memória variaram ligeiramente no sentido contrário. Mesmas limitações de cache, host isolado e amostra pequena; saídas verificadas e original preservado.
+
+## Como repetir antes/depois
+
 Com FFmpeg e ffprobe preparados e o SDK .NET 10 disponível:
 
 ```powershell
