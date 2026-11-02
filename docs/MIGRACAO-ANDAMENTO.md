@@ -2,7 +2,7 @@
 
 Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
 
-Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.10 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.10) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções e três etapas de organização interna. As pendências de validação continuam registradas abaixo.
+Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.11 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.11) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções e quatro etapas de organização interna. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -129,6 +129,14 @@ Benchmark controlado: abertura repetida mediana 802 ms, memória média do host 
 EstimateCoordinator passa a coordenar espera, cancelamento, substituição das solicitações e reutilização do serviço de metadados. A janela aplica a apresentação sem mudanças de texto/estilo. Testes controlados cobrem respostas e erros antigos, análise substituída, espera cancelada, limpeza/navegação e encerramento. Consulta real com FFprobe passou em 1280×900 e 980×700 e integra o workflow. Sete imagens de temas antes/depois foram idênticas por hash, antes do incremento da versão.
 
 A [execução 41389325642](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41389325642) passou em processamento, recuperação, fechamento, temas, editor, estimativas WPF e instalação/reinstalação/interrupção do instalador. Download público da 3.0.10 validado pelo cliente real: 172910552 bytes, SHA-256 e MZ; atualização detectada desde versões anteriores testadas, incluindo 3.0.9, e ausente para a própria 3.0.10. Atualização e encerramento ainda estão na janela; item 6 não está inteiramente concluído. Nenhuma alegação nova de desempenho nesta entrega.
+
+## Etapa 3.0.11 — atualização e encerramento
+
+Consulta inicial após recuperação/uma vez, janela de Atualizações e encerramento passam a coordenadores próprios. Callbacks de rede após fechamento não publicam resultado; repetição de fechamento não repete cancelamento/gravação; o lote termina antes do salvamento e fechamento agendado. Reabertura imediata de Atualizações passa a descartar a janela fechada. Captura de geometria e apresentação permanecem no WPF. Nenhum XAML/estilo ou comando de vídeo alterado.
+
+Suíte local e [execução 41390394652](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41390394652) passaram, incluindo oito fechamentos WPF, controle da janela Atualizações, testes de ciclo de vida, temas, processamento, recuperação e instalação/reinstalação/interrupção. Sete imagens antes/depois idênticas com teste estabilizado aguardando a transição habilitado/desabilitado. A tentativa de verificação pública local foi limitada pela cota anônima HTTP 403; a [execução independente 41390951856](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41390951856) confirmou download sem token pelo cliente real, 172917156 bytes, hash/MZ e atualização desde versões anteriores testadas, incluindo 3.0.10, sem oferta à própria 3.0.11.
+
+As extrações da janela previstas nesta sequência estão implementadas. Seguem telas/DPI/acessibilidade com prévia antes de mudanças visuais; continuam as limitações de recuperação e de desempenho descritas no escopo. Não se declara todo o plano concluído.
 
 ## Comandos
 

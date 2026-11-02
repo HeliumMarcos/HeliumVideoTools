@@ -60,6 +60,8 @@ A segunda entrega foi publicada como [3.0.9 oficial](https://github.com/HeliumMa
 
 Terceira entrega do item 6: [3.0.10 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.10), validada pela execução 41389325642. Coordenação das estimativas extraída, testes de respostas atrasadas/cancelamento e consulta WPF real integrados ao GitHub. Sete imagens antes/depois idênticas. Download público, hash e atualização desde 3.0.9 conferidos. Próximo passo do item 6: coordenação de atualizações e encerramento; depois, telas/acessibilidade. Limitações dos demais itens continuam registradas acima.
 
+Quarta entrega do item 6: [3.0.11 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.11), distribuição validada em 41390394652. Consulta inicial, janela Atualizações e encerramento extraídos; chamadas repetidas, espera/gravação, cancelamento e reabertura imediata testados. Sete imagens antes/depois idênticas com o mesmo teste estabilizado. Download anônimo e detecção desde 3.0.10 confirmados em 41390951856; a tentativa local foi limitada pela cota pública do GitHub. As extrações previstas da janela estão implementadas; próxima frente é o item 3 (telas/DPI/acessibilidade), com aprovação prévia de alterações visuais. As limitações dos itens 2 e 5 continuam explícitas, sem declarar todo o plano concluído.
+
 ## Fora do escopo desta continuação
 
 - Item 1: campanha de validação com audiências longas reais e aceitação no Projudi/SEEU.
