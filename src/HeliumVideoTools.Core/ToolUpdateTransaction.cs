@@ -48,8 +48,8 @@ internal sealed class ToolUpdateTransaction:IDisposable,IAsyncDisposable
         for(int attempt=0;;attempt++)
         {
             try{remove();return;}
-            catch(IOException ex) when(attempt<7 && (ex.HResult&0xffff) is 32 or 33)
-            {await Task.Delay(50*(attempt+1)).ConfigureAwait(false);}
+            catch(Exception ex) when(attempt<10 && (ex is IOException or UnauthorizedAccessException) && ((ex.HResult&0xffff) is 5 or 32 or 33 or 145))
+            {await Task.Delay(75*(attempt+1)).ConfigureAwait(false);}
         }
     }
     public void Dispose()
@@ -82,7 +82,7 @@ internal sealed class ToolUpdateTransaction:IDisposable,IAsyncDisposable
                 if(clean){File.Delete(journal);cleaned++;}else deferred++;
             }
             catch(JsonException){invalid++;}
-            catch(Exception ex) when(ex is IOException or UnauthorizedAccessException){deferred++;AppLog.Write("INFO","Limpeza da transação de ferramentas adiada",ex.Message);}
+            catch(Exception ex) when(ex is IOException or UnauthorizedAccessException){deferred++;AppLog.Write("INFO","Limpeza da transação de ferramentas adiada",$"{ex.HResult:x8}: {ex.Message}");}
         }
         return new(cleaned,deferred,invalid);
     }

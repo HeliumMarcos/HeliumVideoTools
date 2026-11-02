@@ -59,7 +59,17 @@ internal static class ToolInterruptionTests
                     worker.Kill();await worker.WaitForExitAsync();
                     if(test=="activated-corrupt")File.AppendAllText(store.Resolve(store.Active()!,"ffprobe"),"damaged");
                     if(test=="activated-pointer" || bundled)File.WriteAllText(Path.Combine(root,"active.json"),"{");
-                    var recovered=await store.RecoverAsync();Check(recovered.Cleaned==1,"Não recuperou transação: "+test);
+                    var recovered=await store.RecoverAsync();
+                    if(recovered.Cleaned!=1)
+                    {
+                        string log=Path.Combine(AppLog.Root,"app.jsonl");
+                        if(File.Exists(log))foreach(string line in File.ReadLines(log).TakeLast(30))
+                        {
+                            using var entry=JsonDocument.Parse(line);
+                            if(entry.RootElement.TryGetProperty("detail",out var detail) && detail.GetString()?.Contains(root,StringComparison.OrdinalIgnoreCase)==true)Console.Error.WriteLine(line);
+                        }
+                    }
+                    Check(recovered.Cleaned==1,"Não recuperou transação: "+test+" "+JsonSerializer.Serialize(recovered));
                     var active=store.Active();
                     if(bundled)Check(active is null,"Não retornou ao conjunto embutido");
                     else
