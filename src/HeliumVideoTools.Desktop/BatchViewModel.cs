@@ -60,6 +60,11 @@ public sealed class BatchViewModel : INotifyPropertyChanged
         throw new IOException("FFmpeg/ffprobe ausentes. Abra Atualizações para instalar o conjunto.");
     }
     public void Cancel() => cancellation?.Cancel();
+    internal void Restore(RecoveredBatch recovered)
+    {
+        if(Busy || LastResult is not null)return;
+        LastResult=recovered.Result;LastReportPath=recovered.ReportPath;LastOutputFolder=LastResult.OutputFolders.LastOrDefault();
+    }
     public async Task<BatchResult> RunAsync(VideoOptions options, IProgress<VideoProgress> progress)
     {
         if (Busy) throw new InvalidOperationException("Já existe um processamento em andamento.");
@@ -79,12 +84,16 @@ public sealed class BatchViewModel : INotifyPropertyChanged
                 if(tools.Set is not null) await MediaToolUpdater.DefaultStore.ValidateAsync(tools.Set,cancel.Token);
                 engine=new VideoEngine(tools.Ffmpeg,tools.Ffprobe);
             }
-            LastResult = await new BatchRunner(engine).RunAsync(sources, options, progress, cancel.Token);
+            // Synthetic/custom processors in tests use an isolated report root.
+            var recovery=processorFactory is null?BatchRecoveryStore.Default:new BatchRecoveryStore(System.IO.Path.Combine(reportDirectory,"batches"),reportDirectory);
+            using var journal=await Task.Run(()=>recovery.Begin(sources));
+            LastResult = await Task.Run(()=>new BatchRunner(engine).RunAsync(sources, options, progress, cancel.Token,journal));
             LastOutputFolder = LastResult.OutputFolders.LastOrDefault();
             try
             {
                 string report = await BatchReportStore.SaveAsync(LastResult,reportDirectory);
                 LastReportPath = System.IO.Path.ChangeExtension(report,".txt");
+                await Task.Run(journal.Complete);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             { ReportWarning = "Não foi possível salvar o relatório. As saídas concluídas foram preservadas."; AppLog.Write("WARNING","Relatório do lote",ex.Message); }

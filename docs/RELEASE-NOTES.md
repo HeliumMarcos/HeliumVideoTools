@@ -1,4 +1,14 @@
-# Helium Vídeo Tools 3.0.13 — notificações de progresso acessíveis
+# Helium Vídeo Tools 3.0.14 — histórico recuperado após interrupção
+
+- Lotes registram início, resultados individuais e saídas publicadas fora da instalação. Lote ativo é protegido por bloqueio exclusivo.
+- Ao reabrir após interrupção, gera relatório do histórico e restaura o resumo mais recente com relatório/pasta, preservando saídas concluídas. Não retoma codificação nem cria fila.
+- Saídas ausentes/alteradas são identificadas. Metadados inválidos e arquivos desconhecidos são preservados; falha ao gravar relatório permite repetir recuperação.
+- Teste encerra worker real durante o lote e verifica recuperação, estados e ausência de relatórios duplicados.
+- Verificações de teclado, eventos acessíveis, alto contraste e renderização do resumo em 100/125/150/200% reunidas nesta entrega. Interface existente preservada.
+
+Escuta do Narrador fica pendente por escolha do usuário. Renderização não equivale a teste físico de escalas/monitores mistos; esse cenário depende de ambiente adequado. Distribuição somente no GitHub. Detalhes/limites em docs/BATCH-RECOVERY.md.
+
+## Melhorias preservadas da 3.0.13
 
 - Eventos de região dinâmica no progresso: primeiro evento, atualizações com intervalo mínimo de cinco segundos e resultado/erro/cancelamento sem aguardar esse intervalo. Textos repetidos são suprimidos; o leitor decide quando falar, respeitando Polite.
 - Erro de validação com painel oculto usa o status acessível do rodapé. Visual, conteúdo e foco preservados.

@@ -35,7 +35,7 @@ internal static class ThemeTests
                 Check(Contrast(p[text],p[bg])>=4.5,$"Contraste insuficiente: {light}/{text}/{bg}");
             Check(Contrast(p["Focus"],p["InputBackground"])>=3,"Foco sem contraste");
         }
-        foreach(var colors in new[]{Black,White})
+        foreach(var colors in new[]{Black,White,new ContrastColors(Colors.Navy,Colors.White,Colors.Navy,Colors.White,Colors.Yellow,Colors.Black,Colors.Silver),new ContrastColors(Colors.Beige,Colors.Black,Colors.Beige,Colors.Black,Colors.DarkGreen,Colors.White,Colors.DimGray)})
         {
             var p=ThemeManager.Palette(false,true,colors);
             Check(p["AppBackground"]==colors.Background && p["OnAccent"]==colors.HighlightText && p["ButtonText"]==colors.ControlText && p["CheckedThumb"]==colors.HighlightText,"Tema ignorou cores pareadas do sistema");

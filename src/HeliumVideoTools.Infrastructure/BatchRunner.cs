@@ -9,7 +9,7 @@ namespace HeliumVideoTools.Infrastructure;
 // e cada saída só é registrada depois de validada e publicada pelo motor.
 public sealed class BatchRunner(IVideoProcessor processor)
 {
-    public async Task<BatchResult> RunAsync(IEnumerable<string> sources, VideoOptions options, IProgress<VideoProgress> progress, CancellationToken token)
+    public async Task<BatchResult> RunAsync(IEnumerable<string> sources, VideoOptions options, IProgress<VideoProgress> progress, CancellationToken token,BatchRecoveryStore.BatchLease? journal=null)
     {
         var inputs = sources.ToArray();
         if (inputs.Length == 0) throw new IOException("Adicione pelo menos um vídeo.");
@@ -28,6 +28,7 @@ public sealed class BatchRunner(IVideoProcessor processor)
         for (int i = 0; i < inputs.Length; i++)
         {
             if (token.IsCancellationRequested) { cancelled = true; break; }
+            journal?.Start(i);
             var outputs = new List<string>(); int index = i; bool active = true;
             var fileProgress = new DirectProgress(p =>
             {
@@ -35,7 +36,7 @@ public sealed class BatchRunner(IVideoProcessor processor)
                     if (active) Report((index + Math.Clamp(double.IsFinite(p.Percent) ? p.Percent : 0, 0, 100) / 100) / inputs.Length * 100,
                         $"{index + 1}/{inputs.Length} • {Path.GetFileName(inputs[index])} • {p.Status}");
             });
-            void Published(string path) { if (!outputs.Contains(path, StringComparer.OrdinalIgnoreCase)) outputs.Add(path); }
+            void Published(string path) { if (!outputs.Contains(path, StringComparer.OrdinalIgnoreCase)){outputs.Add(path);journal?.Published(index,path);} }
             try
             {
                 var result = await processor.ProcessAsync(inputs[i], options, fileProgress, token, Published);
@@ -61,7 +62,7 @@ public sealed class BatchRunner(IVideoProcessor processor)
                 items.Add(new(inputs[i], BatchItemState.Failed, outputs.ToArray(), message));
                 AppLog.Write("ERROR", "Falha de arquivo no lote", ex.ToString());
             }
-            finally { lock (gate) active = false; }
+            finally { lock (gate) active = false; if(items.Count>i)journal?.Finish(i,items[i]); }
             Report((i + 1d) / inputs.Length * 100, $"{i + 1}/{inputs.Length} arquivo(s) verificado(s)");
         }
         for (int i = items.Count; i < inputs.Length; i++) items.Add(new(inputs[i], BatchItemState.NotStarted, [], "Não iniciado: lote cancelado."));

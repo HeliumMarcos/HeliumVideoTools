@@ -11,6 +11,7 @@ public partial class App : Application
     internal App(bool isolated) {this.isolated=isolated;}
     private Mutex? instance;
     internal static Task StartupRecoveryTask {get;private set;}=Task.CompletedTask;
+    internal static IReadOnlyList<RecoveredBatch> RecoveredBatches {get;private set;}=[];
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)] private static extern int SetCurrentProcessExplicitAppUserModelID(string id);
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -27,6 +28,9 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e) { instance?.Dispose(); base.OnExit(e); }
     private static async Task RecoverAfterStartupAsync()
     {
+        try{RecoveredBatches=await BatchRecoveryStore.Default.RecoverAsync();}
+        catch(Exception ex) when(ex is System.IO.IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {AppLog.Write("WARNING","Recuperação do lote adiada",ex.Message);}
         try
         {
             var tools=await Task.Run(()=>MediaToolUpdater.DefaultStore.RecoverAsync());

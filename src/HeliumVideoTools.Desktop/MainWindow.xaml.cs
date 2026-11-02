@@ -66,6 +66,9 @@ public partial class MainWindow : Window
         ContentRendered += async (_, _) =>
         {
             if(preview)return;
+            await App.StartupRecoveryTask;
+            if(lifetime.IsCancellationRequested)return;
+            if(App.RecoveredBatches.LastOrDefault() is {} recovered)RestoreRecoveredBatch(recovered);
             await updateCheck.RunOnceAsync(App.StartupRecoveryTask,RefreshRecoveredTools,release=>
             {
                 UpdatesLabel.Text="Atualizações • nova";
@@ -74,6 +77,14 @@ public partial class MainWindow : Window
             },lifetime.Token);
         };
         Closed += (_, _) => lifetime.Cancel();
+    }
+    internal void RestoreRecoveredBatch(RecoveredBatch recovered)
+    {
+        if(model.Busy || model.LastResult is not null)return;
+        model.Restore(recovered);ProgressPanel.Visibility=Visibility.Visible;ShowBatchResult(recovered.Result);
+        int folders=recovered.Result.OutputFolders.Count;
+        ProgressAction.Content=folders>1?$"Pastas de saída ({folders})":"Abrir pasta";
+        ProgressAction.IsEnabled=folders>0;
     }
     private void RefreshRecoveredTools()
     {
