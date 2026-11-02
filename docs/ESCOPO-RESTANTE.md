@@ -4,6 +4,8 @@ Após a publicação da 3.0.5, o usuário limitou a continuação aos itens 2, 3
 
 ## Situação atual após a entrega conjunta 2 + 3 — 3.0.14
 
+**Decisão posterior do usuário (02/11/2026):** retirar do escopo a escuta com Narrador e os testes físicos de escalas/monitores. Não são mais pendências a executar nem devem ser solicitados novamente. Permanecem registrados como não realizados, sem transformar testes automatizados em validação física/auditiva. A entrega acordada dos itens 2 e 3 fica encerrada, com os limites técnicos documentados; o item 5 de desempenho continua no escopo restante.
+
 - **Item 2, implementação:** histórico de lote interrompido implementado com snapshot atômico/lease, recuperação em relatórios idempotentes e restauração do resumo existente; saídas concluídas preservadas, ausentes/alteradas identificadas, sem retomada automática. Soma-se às recuperações de temporários, ferramentas e instalador já entregues. Testes de morte real do worker e distribuição passaram em 41493104918.
 - **Item 3, implementação e testes automatizados:** layout/áreas menores, nomes e eventos acessíveis, teclado, alto contraste e renderização do resumo em 100/125/150/200% verificados. Escuta do Narrador deixada pendente por escolha expressa do usuário neste turno; testes físicos em outras escalas/DPI misto permanecem dependentes de ambiente adequado. Não declarar esses testes físicos concluídos.
 - **Item 5:** continuam abertura fria/instalada, memória da árvore FFmpeg e mídia sintética maior. A correção do host/medições históricas continua válida.

@@ -1,5 +1,7 @@
 # Migração .NET — primeira etapa
 
+**Escopo atualizado por decisão do usuário em 02/11/2026:** escuta com Narrador e testes físicos de escalas/monitores foram dispensados. Não continuam como tarefas pendentes e não devem ser solicitados novamente. Menções abaixo são histórico de validações não realizadas. Itens 2 e 3 encerrados no escopo acordado; segue o item 5 de desempenho. Não há alteração do aplicativo ou necessidade de nova release por esta decisão.
+
 Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
 
 Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.14 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.14) está publicada, incluindo recuperação do histórico do lote e entrega conjunta dos itens 2/3 possíveis neste ambiente. O usuário deixou a escuta do Narrador pendente; testes físicos com outras escalas/monitores mistos continuam dependentes de ambiente. Não declarar essas validações concluídas. Distribuir pelo GitHub, sem cópia nova de instalador na pasta Music.

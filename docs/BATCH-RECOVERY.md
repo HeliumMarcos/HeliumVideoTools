@@ -1,5 +1,7 @@
 # Recuperação de lote e verificação de acessibilidade — 3.0.14
 
+**Atualização de escopo em 02/11/2026:** após a publicação, o usuário dispensou a escuta com Narrador e os testes físicos de escalas/monitores. As menções a pendências abaixo são históricas; essas verificações não serão executadas nem solicitadas novamente. Itens 2 e 3 encerrados no escopo acordado, mantendo explícito que tais testes não foram realizados.
+
 O usuário pediu os itens 2 e 3 juntos e, durante a execução, escolheu deixar a escuta do Narrador pendente. Esta entrega fecha a implementação de recuperação de histórico e reúne as verificações automatizadas; não declara concluídos testes físicos indisponíveis no ambiente.
 
 ## Recuperação de histórico
