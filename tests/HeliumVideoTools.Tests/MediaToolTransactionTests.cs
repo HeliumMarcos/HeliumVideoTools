@@ -81,7 +81,8 @@ internal static class MediaToolTransactionTests
         await Reject(()=>Task.Run(()=>store.Active()));
         File.WriteAllText(pointer,saved);
         Check(Directory.GetFiles(root,"*.zip").Length==0 && Directory.GetFiles(root,"*.partial").Length==0,"Download deixou temporários");
-        Check(Directory.GetDirectories(root).Length==4,"Falha ou cancelamento deixou conjunto incompleto");
+        Check(Directory.GetDirectories(root).Count(path=>Path.GetFileName(path)!="transactions")==4,"Falha ou cancelamento deixou conjunto incompleto");
+        await ToolInterruptionTests.RunAsync(folder,zipPath,asset,ffmpeg,ffprobe);
         Directory.Delete(root,true);File.Delete(zipPath);File.Delete(incomplete);
         Console.WriteLine("PASS: transação FFmpeg/ffprobe isolada, executáveis reais, hash/versão, cancelamento, snapshot antigo, restauração embutida/anterior, controle corrompido e backup adulterado.");
     }

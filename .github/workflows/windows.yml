@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag da release (ex.: v3.0.6)'
-        default: 'v3.0.6'
+        description: 'Tag da release (ex.: v3.0.7)'
+        default: 'v3.0.7'
         required: true
       publish:
         description: Publicar instalador em Releases
@@ -63,6 +63,10 @@ jobs:
         run: |
           $setup = (Get-ChildItem artifacts/release/*-Setup.exe | Select-Object -First 1).FullName
           ./scripts/Test-InstalledPackage.ps1 -Installer $setup
+      - name: Testar interrupção do instalador em raízes isoladas
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: ./scripts/Test-InterruptedInstaller.ps1 -Nsis "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
       - uses: actions/upload-artifact@v7.0.2
         if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         with:

@@ -10,6 +10,21 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length==2 && args[0]=="--recover-tool-profile")
+        {
+            try{Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new MediaToolStore(args[1]).RecoverAsync().GetAwaiter().GetResult()));return 0;}
+            catch(Exception ex){Console.Error.WriteLine(ex);return 1;}
+        }
+        if(args.Length==6 && args[0]=="--verify-tool-interruptions")
+        {
+            try{var asset=System.Text.Json.JsonSerializer.Deserialize<ReleaseAsset>(File.ReadAllText(args[3]))!;ToolInterruptionTests.RunAsync(Path.GetFullPath(args[1]),Path.GetFullPath(args[2]),asset,Path.GetFullPath(args[4]),Path.GetFullPath(args[5])).GetAwaiter().GetResult();return 0;}
+            catch(Exception ex){Console.Error.WriteLine(ex);return 1;}
+        }
+        if(args.Length==6 && args[0]=="--tool-update-worker")
+        {
+            try{ToolInterruptionTests.WorkerAsync(args[1],args[2],args[3],args[4],args[5]).GetAwaiter().GetResult();return 0;}
+            catch(Exception ex){Console.Error.WriteLine(ex);return 1;}
+        }
         if(args.Length==3 && args[0]=="--recovery-worker")
         {
             try{RecoveryTests.WorkerAsync(args[1],args[2]).GetAwaiter().GetResult();return 0;}
@@ -153,7 +168,7 @@ internal static class Program
         using var verified = ReleaseClient.VerifyInstaller(path, asset);
         if (!tag.Contains("preview"))
         {
-            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0),new Version(3,0,3,0),new Version(3,0,4,0),new Version(3,0,5,0)})
+            foreach(var installed in new[]{new Version(3,0,0,0),new Version(3,0,1,0),new Version(3,0,2,0),new Version(3,0,3,0),new Version(3,0,4,0),new Version(3,0,5,0),new Version(3,0,6,0)})
             {
                 if(installed>=Version.Parse(tag[1..])) continue;
                 var update = await client.CheckAppAsync(installed, default);

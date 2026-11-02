@@ -6,6 +6,7 @@ namespace HeliumVideoTools.Desktop;
 public partial class App : Application
 {
     private Mutex? instance;
+    internal static Task StartupRecoveryTask {get;private set;}=Task.CompletedTask;
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)] private static extern int SetCurrentProcessExplicitAppUserModelID(string id);
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -13,13 +14,20 @@ public partial class App : Application
         instance = new Mutex(true, "Local\\Helium.HeliumVideoTools.Desktop", out bool created);
         if (!created) { Shutdown(); return; }
         SetCurrentProcessExplicitAppUserModelID("Helium.HeliumVideoTools");
-        _=RecoverAfterStartupAsync();
+        StartupRecoveryTask=RecoverAfterStartupAsync();
         DispatcherUnhandledException += (_, args) => { AppLog.Write("ERROR", "Erro inesperado", args.Exception.ToString()); MessageBox.Show("O aplicativo encontrou um problema. Os detalhes foram salvos no log.", "Helium Vídeo Tools"); args.Handled = true; };
         base.OnStartup(e);
     }
     protected override void OnExit(ExitEventArgs e) { instance?.Dispose(); base.OnExit(e); }
     private static async Task RecoverAfterStartupAsync()
     {
+        try
+        {
+            var tools=await Task.Run(()=>MediaToolUpdater.DefaultStore.RecoverAsync());
+            if(tools.Cleaned>0 || tools.Deferred>0 || tools.Invalid>0)AppLog.Write("INFO","Recuperação da atualização de ferramentas",System.Text.Json.JsonSerializer.Serialize(tools));
+        }
+        catch(Exception ex) when(ex is System.IO.IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {AppLog.Write("WARNING","Recuperação das ferramentas adiada",ex.Message);}
         try
         {
             var result=await RecoveryJournal.Default.RecoverAsync();

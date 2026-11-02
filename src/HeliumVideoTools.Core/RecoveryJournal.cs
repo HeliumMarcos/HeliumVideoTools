@@ -32,13 +32,13 @@ public sealed class RecoveryJournal(string root)
             throw new IOException("Registro de recuperação inválido.");
         CheckParents(entry.Directory);
     }
-    private static void CheckParents(string directory)
+    internal static void CheckParents(string directory)
     {
         for(DirectoryInfo? current=new(Path.GetFullPath(directory));current is not null;current=current.Parent)
             if(current.Exists && (current.Attributes&FileAttributes.ReparsePoint)!=0)
                 throw new IOException("Recuperação não acessa diretórios redirecionados.");
     }
-    private static string PhysicalDirectory(string directory)
+    internal static string PhysicalDirectory(string directory)
     {
         string full=Path.GetFullPath(directory);
         for(int hop=0;hop<16;hop++)

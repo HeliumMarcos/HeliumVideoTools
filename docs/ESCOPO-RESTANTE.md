@@ -16,6 +16,8 @@ Etapa 3.0.6: registro durável/exclusivo de temporários de vídeo e estatístic
 
 ## 3. Telas e acessibilidade
 
+Continuação 3.0.7 do item 2: transação das ferramentas registrada por ID e protegida por bloqueio; recuperação na abertura valida ativo/anterior, preserva conjuntos publicados e limpa somente staging conhecido. Oito casos encerram processos durante download, extração, gravação do backup, ativação e corrupção posterior. Instalador passa a restaurar a pasta anterior ao ser executado novamente após a troca interrompida; o workflow testa extração, intervalo de renomeação e conteúdo residual em raízes isoladas, com payload controlado. Queda física de energia e reconstrução de histórico não são declaradas validadas por esses testes.
+
 - Validar 100%, 125%, 150% e 200%, área útil pequena e movimentação entre monitores com escalas diferentes.
 - Corrigir posicionamento, dimensionamento e rolagem quando a área útil for menor que o mínimo atual de 980×700 DIPs.
 - Verificar Tab/Shift+Tab, seleção e cancelamento por teclado, leitor de tela, nomes/estados dos campos e anúncios de progresso sem excesso.

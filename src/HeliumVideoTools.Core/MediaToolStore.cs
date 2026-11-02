@@ -8,10 +8,12 @@ namespace HeliumVideoTools.Core;
 // from separate reads of active.json while another window may activate a set.
 public sealed class MediaToolStore(string root)
 {
-    public string Root { get; } = Path.GetFullPath(root);
+    public string Root { get; } = RecoveryJournal.PhysicalDirectory(root);
     private string Pointer => Path.Combine(Root, "active.json");
     private string Previous => Path.Combine(Root, "previous.json");
     private readonly SemaphoreSlim mutation = new(1, 1);
+    internal Action<string>? Checkpoint {get;init;}
+    internal bool References(string id)=>new[]{Pointer,Previous}.Where(File.Exists).Any(path=>Read(path,path==Previous)?.Id==id);
 
     public ToolSet? Active() => File.Exists(Pointer) ? Read(Pointer, false) : null;
     private static ToolSet? Read(string path, bool allowBundled)
@@ -61,9 +63,30 @@ public sealed class MediaToolStore(string root)
             // null is an explicit recovery point for the bundled tools. Write recovery
             // first: interruption before activation leaves the old active set usable.
             AtomicSave(Previous, old);
+            Checkpoint?.Invoke("backup-written");
             AtomicSave(Pointer, set);
+            Checkpoint?.Invoke("activated");
         }
         finally { mutation.Release(); }
+    }
+    public async Task<RecoveryResult> RecoverAsync(CancellationToken token=default)
+    {
+        await mutation.WaitAsync(token);
+        try
+        {
+            try{var active=Active();if(active is not null)await ValidateAsync(active,token);}
+            catch(Exception ex) when(ex is IOException or UnauthorizedAccessException)
+            {
+                if(!File.Exists(Previous))throw;
+                var previous=Read(Previous,true);
+                if(previous is not null)await ValidateAsync(previous,token);
+                token.ThrowIfCancellationRequested();
+                if(previous is null)File.Move(Pointer,Pointer+".invalid-"+Guid.NewGuid().ToString("N"));else AtomicSave(Pointer,previous);
+                AppLog.Write("WARNING","Conjunto anterior restaurado após interrupção",ex.Message);
+            }
+            return await ToolUpdateTransaction.RecoverAsync(this,token);
+        }
+        finally{mutation.Release();}
     }
     public async Task RestoreAsync(CancellationToken token)
     {

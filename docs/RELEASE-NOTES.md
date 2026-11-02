@@ -1,4 +1,14 @@
-# Helium Vídeo Tools 3.0.6 — temporários após interrupções
+# Helium Vídeo Tools 3.0.7 — recuperação das atualizações
+
+- Download e extração do FFmpeg/ffprobe agora têm registro de transação bloqueado enquanto a atualização está ativa. Na abertura, restos de tentativas interrompidas podem ser limpos sem apagar o conjunto ativo/anterior.
+- Controle ou executável ativo danificado é validado e, quando há um ponto anterior válido, restaurado automaticamente. Na primeira atualização, o retorno pode ser ao conjunto incluído no instalador.
+- Se o instalador for encerrado no intervalo entre guardar o app anterior e ativar o novo, executá-lo novamente restaura a pasta anterior antes de continuar. Pastas residuais inesperadas são preservadas, sem sobrescrever seu conteúdo.
+- Novos testes matam processos de atualização em oito pontos/condições. O instalador também recebe testes de interrupção em compilação isolada, com payload controlado e sem acesso aos atalhos/registro do produto real.
+- Sem mudanças no layout, nos temas ou nos padrões de 98 MB/VP8. Instalação por usuário, sem administrador, na mesma pasta.
+
+Os testes controlam encerramento de processos; não desligam o computador e não atestam uma queda física de energia. Quando o executável fica ausente durante a troca interrompida, é necessário executar o instalador novamente. A retomada automática de codificação/histórico não foi adicionada.
+
+## Melhorias preservadas da 3.0.6
 
 - Novos temporários de vídeo e estatísticas de codificação são registrados antes da criação, com gravação do registro em disco e bloqueio enquanto a operação está ativa.
 - Na abertura, uma recuperação em segundo plano limpa apenas temporários registrados de tarefas interrompidas. Originais, resultados publicados e conteúdos desconhecidos são preservados.

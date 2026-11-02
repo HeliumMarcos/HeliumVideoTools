@@ -56,3 +56,4 @@ $registry = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Un
 if ($registry.InstallLocation -ne (Join-Path $env:LOCALAPPDATA 'Programs\HeliumVideoTools')) { throw 'Pasta registrada divergente' }
 Write-Output 'PASS: instalar, iniciar WPF, reinstalar com app aberto, reabrir automaticamente, manter pasta, preferências úteis e bytes do atalho.'
 $null = $reopened.CloseMainWindow()
+if (-not $reopened.WaitForExit(15000)) { throw 'Aplicativo não encerrou ao finalizar o teste' }

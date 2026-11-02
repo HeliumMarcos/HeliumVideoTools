@@ -4,7 +4,11 @@ Unicode true
 !include "FileFunc.nsh"
 !include "x64.nsh"
 Name "Helium Vídeo Tools"
+!ifdef RECOVERY_TEST
+OutFile "${TEST_OUTPUT}"
+!else
 OutFile "${PROJECT_DIR}\artifacts\release\HeliumVideoTools-${APP_VERSION}-win-x64-Setup.exe"
+!endif
 InstallDir "$LOCALAPPDATA\Programs\HeliumVideoTools"
 RequestExecutionLevel user
 ; Compressão por arquivo: evita um bloco sólido grande com os dois FFmpeg.
@@ -26,6 +30,39 @@ VIAddVersionKey /LANG=1046 "LegalCopyright" "Copyright 2026 HeliumMarcos"
 !insertmacro MUI_LANGUAGE "PortugueseBR"
 Var InstallerMutex
 Var RestartApp
+!ifdef RECOVERY_TEST
+Var PauseCheckpoint
+Function TestCheckpoint
+  Exch $2
+  StrCmp $PauseCheckpoint $2 0 checkpoint_done
+  FileOpen $3 "$INSTDIR\checkpoint.txt" w
+  FileWrite $3 $2
+  FileClose $3
+  Sleep 300000
+  checkpoint_done:
+  Pop $2
+FunctionEnd
+!endif
+
+; Recover the rename gap before starting a new extraction. Never discard an
+; unexpected app directory to make room for the previous installation.
+Function RecoverInterruptedInstall
+  IfFileExists "$INSTDIR\app\HeliumVideoTools.exe" recovery_done
+  IfFileExists "$INSTDIR\app.previous\HeliumVideoTools.exe" 0 recovery_done
+  IfFileExists "$INSTDIR\app\*.*" 0 recovery_move
+  ClearErrors
+  Rename "$INSTDIR\app" "$INSTDIR\app.interrupted"
+  IfErrors recovery_failed
+  recovery_move:
+  ClearErrors
+  Rename "$INSTDIR\app.previous" "$INSTDIR\app"
+  IfErrors recovery_failed
+  Goto recovery_done
+  recovery_failed:
+  MessageBox MB_ICONSTOP "Não foi possível restaurar a instalação anterior. Nenhum arquivo foi apagado. Feche o aplicativo e execute o instalador novamente." /SD IDOK
+  Abort
+  recovery_done:
+FunctionEnd
 
 Function .onInit
   ${IfNot} ${RunningX64}
@@ -35,6 +72,10 @@ Function .onInit
   SetShellVarContext current
   ; Pasta única para este usuário; não usar /D nem pasta por versão no upgrade.
   StrCpy $INSTDIR "$LOCALAPPDATA\Programs\HeliumVideoTools"
+!ifdef RECOVERY_TEST
+  ; Test builds have a compile-time isolated root and never write user shortcuts/registry.
+  StrCpy $INSTDIR "${TEST_INSTALL_DIR}"
+!endif
   System::Call 'kernel32::CreateMutexW(p 0, i 0, w "Local\Helium.HeliumVideoTools.Installer") p.s'
   Pop $InstallerMutex
   System::Call 'kernel32::GetLastError() i.r0'
@@ -47,9 +88,14 @@ Function .onInit
   ${GetOptions} $0 "/RESTART" $1
   IfErrors +2 0
   StrCpy $RestartApp 1
+!ifdef RECOVERY_TEST
+  StrCpy $RestartApp 0
+  ${GetOptions} $0 "/CHECKPOINT=" $PauseCheckpoint
+!endif
   InitPluginsDir
   SetOutPath "$PLUGINSDIR"
   File "${PROJECT_DIR}\artifacts\update-host\HeliumVideoTools.UpdateHost.exe"
+  Call RecoverInterruptedInstall
   ExecWait '"$PLUGINSDIR\HeliumVideoTools.UpdateHost.exe" --close "$INSTDIR\app\HeliumVideoTools.exe"' $0
   StrCmp $0 0 close_ok
   MessageBox MB_ICONSTOP "Não foi possível encerrar esta instalação. Feche o aplicativo e tente novamente." /SD IDOK
@@ -63,19 +109,32 @@ Section "Helium Vídeo Tools"
   RMDir /r "$INSTDIR\app.new"
   SetOutPath "$INSTDIR\app.new"
   ClearErrors
+!ifdef RECOVERY_TEST
+  File /r "${TEST_PAYLOAD}\*.*"
+!else
   File /r "${PROJECT_DIR}\artifacts\publish\*.*"
+!endif
   IfErrors install_failed
+!ifdef RECOVERY_TEST
+  Push "extracted"
+  Call TestCheckpoint
+!endif
   ; O diretório corrente do instalador não pode ser a pasta que será renomeada.
   SetOutPath "$INSTDIR"
   IfFileExists "$INSTDIR\app\HeliumVideoTools.exe" 0 no_previous
   RMDir /r "$INSTDIR\app.previous"
   Rename "$INSTDIR\app" "$INSTDIR\app.previous"
   IfErrors install_failed
+!ifdef RECOVERY_TEST
+  Push "renamed"
+  Call TestCheckpoint
+!endif
   no_previous:
   ClearErrors
   Rename "$INSTDIR\app.new" "$INSTDIR\app"
   IfErrors restore_previous
   SetOutPath "$INSTDIR"
+!ifndef RECOVERY_TEST
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\HeliumVideoTools" "DisplayName" "Helium Vídeo Tools"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\HeliumVideoTools" "DisplayVersion" "${APP_VERSION}"
@@ -93,6 +152,7 @@ Section "Helium Vídeo Tools"
   CreateShortCut "$DESKTOP\Helium Vídeo Tools.lnk" "$INSTDIR\app\HeliumVideoTools.exe" "" "$INSTDIR\app\HeliumVideoTools.exe"
   ExecWait '"$PLUGINSDIR\HeliumVideoTools.UpdateHost.exe" --stamp-shortcut "$DESKTOP\Helium Vídeo Tools.lnk"' $0
   desktop_exists:
+!endif
   Goto done
   restore_previous:
   Rename "$INSTDIR\app.previous" "$INSTDIR\app"

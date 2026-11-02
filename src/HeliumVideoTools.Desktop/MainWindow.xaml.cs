@@ -62,6 +62,13 @@ public partial class MainWindow : Window
         ContentRendered += async (_, _) =>
         {
             if (preview || updateChecked) return; updateChecked = true;
+            await App.StartupRecoveryTask;
+            if(lifetime.IsCancellationRequested)return;
+            if(!model.Busy && Status.Text.StartsWith("Conjunto de ferramentas indisponível",StringComparison.Ordinal))
+            {
+                try{if(BatchViewModel.FindTool("ffmpeg") is not null && BatchViewModel.FindTool("ffprobe") is not null)Status.Text="Pronto • FFmpeg e ffprobe detectados";}
+                catch(Exception ex) when(ex is IOException or UnauthorizedAccessException){AppLog.Write("WARNING","Ferramentas ainda indisponíveis",ex.Message);}
+            }
             try
             {
                 using var http = ReleaseClient.CreateHttpClient();

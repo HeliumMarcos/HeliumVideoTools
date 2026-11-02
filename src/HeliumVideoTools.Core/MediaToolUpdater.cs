@@ -9,6 +9,7 @@ public sealed record ToolSet(string Version, string Id, string FfmpegSha256, str
 
 public sealed class MediaToolUpdater(ReleaseClient releases, MediaToolStore? store = null)
 {
+    internal Action<string>? Checkpoint {get;init;}
     public static MediaToolStore DefaultStore { get; } = new(Path.Combine(AppLog.Root, "tools"));
     private MediaToolStore Store => store ?? DefaultStore;
     private string Root => Store.Root;
@@ -47,12 +48,12 @@ public sealed class MediaToolUpdater(ReleaseClient releases, MediaToolStore? sto
     {
         if (asset.Url.Host != "api.github.com" || !Regex.IsMatch(asset.Url.AbsolutePath, "^/repos/GyanD/codexffmpeg/releases/assets/[0-9]+$") || !Regex.IsMatch(asset.Version, "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$") || asset.Name != $"ffmpeg-{asset.Version}-essentials_build.zip") throw new IOException("Pacote de ferramentas não reconhecido.");
         Directory.CreateDirectory(Root);
-        string id = Guid.NewGuid().ToString("N"), directory = Path.Combine(Root, id);
-        string archive = Path.Combine(Root, id + ".zip");
-        bool activated = false;
+        await using var transaction=await Task.Run(()=>ToolUpdateTransaction.Begin(Store),token);
+        string id=transaction.Id,directory=transaction.DirectoryPath,archive=transaction.ArchivePath;
         try
         {
             await releases.DownloadAsync(asset, archive, progress, token);
+            Checkpoint?.Invoke("downloaded");
             Directory.CreateDirectory(directory);
             using (var zip = ZipFile.OpenRead(archive))
             {
@@ -63,6 +64,7 @@ public sealed class MediaToolUpdater(ReleaseClient releases, MediaToolStore? sto
                     await using var input = entries[0].Open();
                     await using var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true);
                     await input.CopyToAsync(output, token);
+                    Checkpoint?.Invoke("extracted-"+name);
                 }
             }
             foreach (var name in new[] { "ffmpeg", "ffprobe" })
@@ -75,12 +77,12 @@ public sealed class MediaToolUpdater(ReleaseClient releases, MediaToolStore? sto
                 if (!Regex.IsMatch(codecs, @"\b" + codec + @"\b")) throw new IOException("O pacote não contém todos os codificadores necessários.");
             var set = new ToolSet(asset.Version, id, await HashAsync(Path.Combine(directory, "ffmpeg.exe"), token), await HashAsync(Path.Combine(directory, "ffprobe.exe"), token));
             await Store.ActivateAsync(set, token);
-            activated = true;
+            transaction.Commit();
         }
         finally
         {
-            if (File.Exists(archive)) File.Delete(archive);
-            if (!activated && Directory.Exists(directory)) Directory.Delete(directory, true);
+            // Lease cleanup preserves active/previous sets, even if interrupted
+            // immediately after the atomic activation of the new pointer.
         }
         // Diretórios são imutáveis e retidos: uma operação já iniciada pode usar o conjunto antigo.
         // Só a troca atômica do ponteiro ativa o novo conjunto; falhas deixam o anterior ativo.
