@@ -1,7 +1,9 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace HeliumVideoTools.Core;
+using HeliumVideoTools.Core;
+
+namespace HeliumVideoTools.Infrastructure;
 
 public sealed record RecoveryResult(int Cleaned,int Deferred,int Invalid);
 

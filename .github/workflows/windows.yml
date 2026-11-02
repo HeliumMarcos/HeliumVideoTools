@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag da release (ex.: v3.0.7)'
-        default: 'v3.0.7'
+        description: 'Tag da release (ex.: v3.0.8)'
+        default: 'v3.0.8'
         required: true
       publish:
         description: Publicar instalador em Releases

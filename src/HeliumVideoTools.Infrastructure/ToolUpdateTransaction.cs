@@ -1,7 +1,9 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace HeliumVideoTools.Core;
+using HeliumVideoTools.Core;
+
+namespace HeliumVideoTools.Infrastructure;
 
 // Paths are derived from a validated ID under the store, never read from a journal.
 internal sealed class ToolUpdateTransaction:IDisposable,IAsyncDisposable

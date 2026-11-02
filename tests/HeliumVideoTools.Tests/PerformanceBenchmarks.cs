@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Threading;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 using HeliumVideoTools.Desktop;
 
 internal static class PerformanceBenchmarks

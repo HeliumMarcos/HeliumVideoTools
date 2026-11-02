@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 
 internal static class RecoveryTests
 {

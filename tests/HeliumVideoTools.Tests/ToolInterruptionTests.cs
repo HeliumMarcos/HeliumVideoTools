@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 
 internal static class ToolInterruptionTests
 {

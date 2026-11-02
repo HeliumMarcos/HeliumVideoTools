@@ -46,6 +46,8 @@ Em 02/11/2026, o benchmark foi repetido a pedido do usuário, que relatou progra
 
 ## Sequência de execução
 
+Primeira entrega do item 6 (3.0.8): núcleo separado dos serviços externos em Infrastructure, execução/sondagem extraídas do motor, teste de fronteira e suíte funcional passando localmente. Benchmark comparativo registrado em DESEMPENHO.md, sem alteração material observada nesta amostra. Código da janela ainda precisa de uma etapa própria de redução de responsabilidades; a separação não declara o item 6 inteiro concluído.
+
 1. Recuperação após interrupções (2).
 2. Medições de desempenho de referência (5).
 3. Organização interna (6), comparando com a referência de desempenho.

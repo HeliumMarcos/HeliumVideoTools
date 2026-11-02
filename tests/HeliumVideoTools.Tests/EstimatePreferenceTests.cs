@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 using HeliumVideoTools.Desktop;
 
 internal static class EstimatePreferenceTests

@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 using HeliumVideoTools.Desktop;
 
 internal static class ThemeTests

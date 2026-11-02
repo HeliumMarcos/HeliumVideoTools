@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 
 internal static class ReleaseTests
 {

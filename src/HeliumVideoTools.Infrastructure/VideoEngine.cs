@@ -1,72 +1,17 @@
-using System.Diagnostics;
 using System.Globalization;
-using System.Text.Json;
 
-namespace HeliumVideoTools.Core;
+using HeliumVideoTools.Core;
 
-public enum Operation { Split, Compress, Webm }
-public enum SplitMode { Parts, Duration, Size }
-public sealed record VideoOptions(Operation Operation = Operation.Compress, double TargetMb = 98,
-    string Codec = "h264", bool CopyAudio = true, bool TwoPass = false,
-    SplitMode SplitMode = SplitMode.Parts, double SplitValue = 3, string Preset = "custom");
-public sealed record MediaInfo(double Duration, long Bytes, double AudioKbps, double FrameRate = 25);
-public sealed record VideoProgress(double Percent, string Status);
+namespace HeliumVideoTools.Infrastructure;
 
 public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? recovery=null) : IVideoProcessor
 {
     private RecoveryJournal Recovery=>recovery??RecoveryJournal.Default;
     public static bool Supported(string path) => new[] { ".mp4", ".mkv", ".avi", ".mov", ".m4v", ".webm" }.Contains(Path.GetExtension(path).ToLowerInvariant());
     private static string N(double value) => value.ToString("0.#########", CultureInfo.InvariantCulture);
-    public static int Bitrate(double duration, double targetMb, double audioKbps)
-    {
-        if (duration <= 0 || !double.IsFinite(duration) || targetMb <= 0 || !double.IsFinite(targetMb) || audioKbps < 0 || !double.IsFinite(audioKbps)) throw new IOException("Informe um tamanho e metadados válidos.");
-        double rate = targetMb * 8000 * .94 / duration - audioKbps;
-        if (rate < 80 || rate > int.MaxValue / 4) throw new IOException("O tamanho escolhido é incompatível com a duração e o áudio do vídeo.");
-        return (int)rate;
-    }
-    public static async Task<string> ExecuteAsync(string binary, IEnumerable<string> args, Action<string>? line, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        var start = new ProcessStartInfo(binary) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
-        foreach (var arg in args) start.ArgumentList.Add(arg);
-        using var group=new OwnedProcessGroup();
-        using var process = new Process { StartInfo = start };
-        process.Start();
-        group.Attach(process);
-        using var registration = token.Register(() => { try { if (!process.HasExited) process.Kill(true); } catch (Exception ex) when(ex is InvalidOperationException or System.ComponentModel.Win32Exception) { } });
-        var error = process.StandardError.ReadToEndAsync();
-        var output = new System.Text.StringBuilder();
-        while (await process.StandardOutput.ReadLineAsync() is { } text) { output.AppendLine(text); line?.Invoke(text); }
-        await process.WaitForExitAsync();
-        var details = await error;
-        token.ThrowIfCancellationRequested();
-        if (process.ExitCode != 0)
-        {
-            AppLog.Write("ERROR", "FFmpeg", details);
-            throw new IOException(details.Contains("No space left", StringComparison.OrdinalIgnoreCase) ? "O disco ficou sem espaço." : "Não foi possível processar o vídeo. Verifique o formato, áudio e permissões da pasta. Os detalhes estão no log.");
-        }
-        return output.ToString();
-    }
-    public async Task<MediaInfo> ProbeAsync(string source, CancellationToken token)
-    {
-        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
-        timeout.CancelAfter(TimeSpan.FromSeconds(30));
-        var json = await ExecuteAsync(ffprobe, ["-v", "error", "-show_format", "-show_streams", "-of", "json", source], null, timeout.Token);
-        using var doc = JsonDocument.Parse(json);
-        var root = doc.RootElement;
-        if (!root.GetProperty("streams").EnumerateArray().Any(s => s.GetProperty("codec_type").GetString() == "video")) throw new IOException("Este arquivo não possui vídeo.");
-        var duration = double.Parse(root.GetProperty("format").GetProperty("duration").GetString()!, CultureInfo.InvariantCulture);
-        if (duration <= 0 || !double.IsFinite(duration)) throw new IOException("Duração de vídeo inválida.");
-        var audio = root.GetProperty("streams").EnumerateArray().Where(s => s.GetProperty("codec_type").GetString() == "audio").Take(1).Sum(s => s.TryGetProperty("bit_rate", out var b) && double.TryParse(b.GetString(), out var rate) ? rate / 1000 : 128);
-        var video = root.GetProperty("streams").EnumerateArray().First(s => s.GetProperty("codec_type").GetString() == "video");
-        double fps = 25;
-        if (video.TryGetProperty("avg_frame_rate", out var frameRate))
-        {
-            var ratio = (frameRate.GetString() ?? "").Split('/');
-            if (ratio.Length == 2 && double.TryParse(ratio[0], CultureInfo.InvariantCulture, out var numerator) && double.TryParse(ratio[1], CultureInfo.InvariantCulture, out var denominator) && denominator > 0 && numerator > 0) fps = numerator / denominator;
-        }
-        return new(duration, new FileInfo(source).Length, audio, fps);
-    }
+    public static int Bitrate(double duration,double targetMb,double audioKbps)=>VideoBitrate.Calculate(duration,targetMb,audioKbps);
+    public static Task<string> ExecuteAsync(string binary,IEnumerable<string> args,Action<string>? line,CancellationToken token)=>MediaProcess.ExecuteAsync(binary,args,line,token);
+    public Task<MediaInfo> ProbeAsync(string source,CancellationToken token)=>new MediaProbe(ffprobe).ProbeAsync(source,token);
     public async Task<IReadOnlyList<string>> ProcessAsync(string source, VideoOptions options, IProgress<VideoProgress> progress, CancellationToken token, Action<string>? outputPublished = null)
     {
         if (!File.Exists(source) || !Supported(source)) throw new IOException("Selecione um vídeo existente em formato suportado.");
@@ -231,12 +176,3 @@ public sealed class OutputTooLargeException(long limit, long actual) : IOExcepti
     public long Actual { get; } = actual;
 }
 
-public static class AppLog
-{
-    private static readonly object Gate = new();
-    public static string Root => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HeliumVideoTools");
-    public static void Write(string level, string message, string? detail = null)
-    {
-        try { lock (Gate) { Directory.CreateDirectory(Root); var path = Path.Combine(Root, "app.jsonl"); if (File.Exists(path) && new FileInfo(path).Length > 2097152) File.Move(path, path + ".1", true); File.AppendAllText(path, JsonSerializer.Serialize(new { timestamp = DateTimeOffset.Now, level, message, detail }) + Environment.NewLine); } } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException) { }
-    }
-}

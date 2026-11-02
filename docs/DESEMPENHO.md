@@ -56,6 +56,22 @@ A repetição será a referência preferencial antes da reorganização; a prime
 
 ## Como repetir antes/depois
 
+## Após separar Core/Infrastructure — 3.0.8
+
+Executado em 02/11/2026 com a mesma máquina, runtime .NET 10.0.14, mesmos parâmetros e hashes de entrada/FFmpeg/ffprobe. Registro bruto: [performance/after-refactor-3.0.8.json](performance/after-refactor-3.0.8.json). A alteração de produção foi estrutural; não houve ajuste dos codecs ou comandos.
+
+| Medida | Referência repetida 3.0.7 | Após separação 3.0.8 |
+| --- | ---: | ---: |
+| Mediana das cinco aberturas seguintes | 796 ms | 778 ms |
+| Memória residente média do host nas seis aberturas | 133,7 MB | 133,7 MB |
+| H.264, média de dois ensaios | 4,89 s | 4,78 s |
+| Divisão, média de dois ensaios | 3,41 s | 3,51 s |
+| VP8, média de dois ensaios | 14,33 s | 14,70 s |
+
+Diferenças pequenas, em sentidos variados (~−2,2% a +2,9% no processamento), sem evidência de alteração material neste ensaio. Não são prova estatística de equivalência, ganho ou regressão; carga externa/cache continuam sem controle e há apenas duas amostras por operação. Não há motivo observado para otimização de codec nesta etapa. Saídas verificadas e original preservado.
+
+## Reproduzir medições
+
 Com FFmpeg e ffprobe preparados e o SDK .NET 10 disponível:
 
 ```powershell

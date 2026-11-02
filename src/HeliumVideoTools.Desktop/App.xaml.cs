@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Runtime.InteropServices;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 
 namespace HeliumVideoTools.Desktop;
 public partial class App : Application

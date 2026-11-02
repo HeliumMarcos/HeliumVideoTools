@@ -3,7 +3,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace HeliumVideoTools.Core;
+using HeliumVideoTools.Core;
+
+namespace HeliumVideoTools.Infrastructure;
 
 // Unnamed, non-inheritable job: only this operation's children are members.
 // Windows closes the handle even when this host is terminated forcibly.

@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><ProjectReference Include="../HeliumVideoTools.Core/HeliumVideoTools.Core.csproj"/></ItemGroup>
+</Project>

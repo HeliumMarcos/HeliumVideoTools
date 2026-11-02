@@ -1,4 +1,14 @@
-# Helium Vídeo Tools 3.0.7 — recuperação das atualizações
+# Helium Vídeo Tools 3.0.8 — organização interna
+
+- Modelos, contratos, preferências tipadas e regras de orçamento ficam no núcleo Core, sem dependência do WPF ou da infraestrutura.
+- Execução de FFmpeg/ffprobe, recuperação, atualizações, registro de preferências, relatórios e logs ficam no projeto Infrastructure, que referencia o núcleo.
+- Execução de processos e sondagem de metadados foram extraídas do motor, preservando comandos, timeouts, mensagens e métodos de entrada.
+- Novo teste impede reunir novamente os serviços externos e as regras na mesma assembly ou criar dependência inversa do núcleo.
+- Sem mudanças visuais, de formato das preferências/relatórios ou dos padrões de 98 MB/VP8. Instalador por usuário, mesma pasta e atualização via canal estável preservados.
+
+Testes de mídia, interrupções de processos/atualizações, cancelamento, preferências, temas e fechamento verificam o comportamento após a separação. Benchmark repetido com a mesma amostra sintética e parâmetros; esta entrega não promete aceleração de codificação. A redução das responsabilidades do código da janela continua em etapa posterior.
+
+## Melhorias preservadas da 3.0.7
 
 - Download e extração do FFmpeg/ffprobe agora têm registro de transação bloqueado enquanto a atualização está ativa. Na abertura, restos de tentativas interrompidas podem ser limpos sem apagar o conjunto ativo/anterior.
 - Controle ou executável ativo danificado é validado e, quando há um ponto anterior válido, restaurado automaticamente. Na primeira atualização, o retorno pode ser ao conjunto incluído no instalador.

@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 
 namespace HeliumVideoTools.Desktop;
 public partial class MainWindow : Window

@@ -1,0 +1,190 @@
+{
+  "RecordedAt": "2026-11-02T00:32:15.2546725-03:00",
+  "Version": "3.0.8.0",
+  "OS": "Microsoft Windows 10.0.26300",
+  "Architecture": "X64",
+  "Runtime": ".NET 10.0.14",
+  "LogicalProcessors": 16,
+  "Cpu": "AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD",
+  "Ffmpeg": "ffmpeg version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "Ffprobe": "ffprobe version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers",
+  "FfmpegSha256": "3256173F3F8BFFD7DF12227C68ADF68025EDB1832273A9530688A7BB1ED8EDEC",
+  "FfprobeSha256": "F0D36ECBBDD3BCFAC3EFA078C96C7271C2E68B3810595552AC3B7F17E9A65C52",
+  "Source": {
+    "Duration": 45,
+    "Bytes": 62535634,
+    "FrameRate": 25,
+    "AudioKbps": 69.222,
+    "Sha256": "95104DEAB7C19A4EB725A6532E4C0C9E10D798C4AD70176A70CA0AFA904EC858",
+    "Width": 1280,
+    "Height": 720
+  },
+  "Startup": [
+    {
+      "ManagedToIdleMs": 732.3487,
+      "ProcessToIdleMs": 821.6886,
+      "WorkingSetMb": 133.709824,
+      "PrivateMb": 145.711104,
+      "PeakWorkingSetMb": 133.709824,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 694.8051,
+      "ProcessToIdleMs": 795.0622,
+      "WorkingSetMb": 133.718016,
+      "PrivateMb": 143.970304,
+      "PeakWorkingSetMb": 133.718016,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 684.4181,
+      "ProcessToIdleMs": 773.292,
+      "WorkingSetMb": 133.619712,
+      "PrivateMb": 145.48992,
+      "PeakWorkingSetMb": 133.619712,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 688.0886,
+      "ProcessToIdleMs": 777.64,
+      "WorkingSetMb": 133.603328,
+      "PrivateMb": 143.675392,
+      "PeakWorkingSetMb": 133.603328,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 676.1868,
+      "ProcessToIdleMs": 764.2229,
+      "WorkingSetMb": 133.77536,
+      "PrivateMb": 145.760256,
+      "PeakWorkingSetMb": 133.77536,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    },
+    {
+      "ManagedToIdleMs": 697.9962,
+      "ProcessToIdleMs": 786.9836,
+      "WorkingSetMb": 133.701632,
+      "PrivateMb": 143.368192,
+      "PeakWorkingSetMb": 133.701632,
+      "Scenario": "MainWindow(preview:true): no preferences, automatic network check or startup recovery"
+    }
+  ],
+  "Media": [
+    {
+      "Scenario": "H264-copy-audio-two-pass",
+      "Repeat": 1,
+      "Options": {
+        "Operation": 1,
+        "TargetMb": 40.6481621,
+        "Codec": "h264",
+        "CopyAudio": true,
+        "TwoPass": true,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 4.8140389,
+      "RealtimeFactor": 9.347660235981891,
+      "OutputBytes": 38617107,
+      "Files": 1
+    },
+    {
+      "Scenario": "H264-copy-audio-two-pass",
+      "Repeat": 2,
+      "Options": {
+        "Operation": 1,
+        "TargetMb": 40.6481621,
+        "Codec": "h264",
+        "CopyAudio": true,
+        "TwoPass": true,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 4.7494458,
+      "RealtimeFactor": 9.474789669144135,
+      "OutputBytes": 38617107,
+      "Files": 1
+    },
+    {
+      "Scenario": "Split-3-precise",
+      "Repeat": 1,
+      "Options": {
+        "Operation": 0,
+        "TargetMb": 98,
+        "Codec": "h264",
+        "CopyAudio": true,
+        "TwoPass": false,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 3.5432553,
+      "RealtimeFactor": 12.700185617446193,
+      "OutputBytes": 20860873,
+      "Files": 3
+    },
+    {
+      "Scenario": "Split-3-precise",
+      "Repeat": 2,
+      "Options": {
+        "Operation": 0,
+        "TargetMb": 98,
+        "Codec": "h264",
+        "CopyAudio": true,
+        "TwoPass": false,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 3.4677398,
+      "RealtimeFactor": 12.976752177311573,
+      "OutputBytes": 20860873,
+      "Files": 3
+    },
+    {
+      "Scenario": "VP8-Opus-two-pass",
+      "Repeat": 1,
+      "Options": {
+        "Operation": 2,
+        "TargetMb": 299,
+        "Codec": "vp8",
+        "CopyAudio": true,
+        "TwoPass": true,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 15.0382611,
+      "RealtimeFactor": 2.9923672491628706,
+      "OutputBytes": 46565381,
+      "Files": 1
+    },
+    {
+      "Scenario": "VP8-Opus-two-pass",
+      "Repeat": 2,
+      "Options": {
+        "Operation": 2,
+        "TargetMb": 299,
+        "Codec": "vp8",
+        "CopyAudio": true,
+        "TwoPass": true,
+        "SplitMode": 0,
+        "SplitValue": 3,
+        "Preset": "custom"
+      },
+      "Seconds": 14.3674051,
+      "RealtimeFactor": 3.1320895935481072,
+      "OutputBytes": 46565381,
+      "Files": 1
+    }
+  ],
+  "Limitations": [
+    "Startup uses a framework-dependent test host and isolated real WPF window, not the installed self-contained application.",
+    "First sample is first observed launch, not a cold-cache guarantee. Remaining samples are repeated launches.",
+    "Memory describes the test host at idle, not FFmpeg or whole-system memory.",
+    "Synthetic 45s 720p media does not represent hearing recordings or GPU encoding. CPU-only encoder presets as recorded.",
+    "Media wall time excludes fixture generation and post-run probe verification, but includes engine preflight, encoding, output validation and cleanup.",
+    "Two samples per operation provide a baseline, not a statistically robust performance guarantee."
+  ]
+}

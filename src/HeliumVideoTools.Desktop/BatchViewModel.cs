@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 
 namespace HeliumVideoTools.Desktop;
 public sealed record InputVideo(string Path)

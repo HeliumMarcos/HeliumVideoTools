@@ -11,6 +11,7 @@ if (-not (Test-Path -LiteralPath $link)) {
     Get-ChildItem -LiteralPath ([Environment]::GetFolderPath('Programs')) -Filter '*Helium*' -Recurse | Select-Object FullName
     throw "Atalho esperado ausente: $link"
 }
+if (-not (Test-Path -LiteralPath (Join-Path (Split-Path -Parent $expected) 'HeliumVideoTools.Infrastructure.dll'))) { throw 'Infraestrutura não foi incluída no pacote instalado' }
 $before = (Get-FileHash -LiteralPath $link -Algorithm SHA256).Hash
 # Perfil sintético do runner: o instalador não pode apagar preferências, e
 # valores antigos não suportados não devem substituir os padrões do produto.

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using HeliumVideoTools.Core;
+using HeliumVideoTools.Infrastructure;
 
 namespace HeliumVideoTools.Desktop;
 

@@ -4,7 +4,9 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace HeliumVideoTools.Core;
+using HeliumVideoTools.Core;
+
+namespace HeliumVideoTools.Infrastructure;
 
 public sealed record ReleaseAsset(string Version, string Name, Uri Url, long Size, string Sha256);
 public sealed record AppRelease(Version Version, string Notes, ReleaseAsset Installer);

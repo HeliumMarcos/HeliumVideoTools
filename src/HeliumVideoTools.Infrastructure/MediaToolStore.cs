@@ -2,7 +2,9 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace HeliumVideoTools.Core;
+using HeliumVideoTools.Core;
+
+namespace HeliumVideoTools.Infrastructure;
 
 // Each snapshot refers to an immutable directory. Never resolve the two binaries
 // from separate reads of active.json while another window may activate a set.
