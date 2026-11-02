@@ -47,6 +47,7 @@ public partial class MainWindow : Window
         if(!preview)
         {
             var work=SystemParameters.WorkArea;
+            if(adaptive){MinWidth=Math.Min(675,work.Width);MinHeight=Math.Min(329,work.Height);}
             if(work.Width>=MinWidth && work.Height>=MinHeight) { Width=Math.Clamp(preferences.Width,MinWidth,work.Width); Height=Math.Clamp(preferences.Height,MinHeight,work.Height); }
             if(preferences.Maximized) WindowState=WindowState.Maximized;
         }

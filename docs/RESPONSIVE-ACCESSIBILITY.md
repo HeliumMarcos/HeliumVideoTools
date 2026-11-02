@@ -24,6 +24,7 @@ Campos em área estreita e ação após rolagem numa área extremamente baixa:
 - WindowWorkArea usa limites nativos do monitor em pixels e o DPI da janela, ajustando dimensões/posição sem ativar ou trocar a ordem das janelas. Reage à criação, carga, DPI, mudança de monitor, restauração e notificações de área de trabalho. Também é usado em Atualizações; o tamanho padrão continua igual, mas janelas pequenas podem precisar de rolagem.
 - Manifesto asInvoker mantém execução por usuário normal e declara PerMonitorV2. O host WPF de testes usa o mesmo manifesto e confirma o contexto real.
 - Nomes acessíveis explícitos adicionados aos botões de arquivos e à barra geral; textos e parâmetros de vídeo preservados.
+- Preferências aceitam dimensões a partir de 675×329, para lembrar uma janela reduzida. A restauração inicial usa esses limites e a área útil; números não finitos/fora da faixa continuam voltando aos padrões de 1280×900.
 
 ## Verificação e limites
 

@@ -50,6 +50,10 @@ internal static class EstimatePreferenceTests
         Check(StartupDefaults.For(Operation.Webm,prefs) is { TargetMb:299,Codec:"vp8" },"Preferências alteraram o padrão VP8");
         await store.SaveAsync(prefs with { LastDirectory=inputs,Width=1400,Height=950 });
         var loaded=store.Load(); Check(imports==1 && loaded.Width==1400 && loaded.LastDirectory==inputs,"Preferências não persistiram ou foram reimportadas");
+        await store.SaveAsync(loaded with {Width=675,Height=329});
+        var compact=store.Load();Check(compact.Width==675 && compact.Height==329,"Tamanho de janela reduzida não persistiu");
+        var invalidSize=new UserPreferences(Width:double.NaN,Height:100).Normalize();
+        Check(invalidSize.Width==1280 && invalidSize.Height==900,"Dimensões inválidas deixaram de usar padrões");
         await File.WriteAllTextAsync(Path.Combine(preferences,"preferences.json"),"JSON inválido");
         var fallback=store.Load(); Check(fallback.Width==1280 && fallback.CompressionTwoPass,"Preferências corrompidas impediram os padrões");
         await store.SaveAsync(fallback); Check(Directory.GetFiles(preferences,"*.invalid-*").Length==1,"Configuração inválida não foi preservada");
