@@ -36,6 +36,19 @@ internal static class WindowCloseTests
             timer.Start();Dispatcher.PushFrame(frame);timer.Stop();
             if(!closed || File.ReadAllText(path).Contains("TargetMb") || store.Load().SplitParts!=4)throw new Exception("Fechamento não salvou preferências isoladas");
         }
+        var owner=new Window();owner.Show();bool busy=false;int created=0;
+        Func<bool>? suppliedBusy=null;
+        var release=new AppRelease(new Version(9,0,0),"teste",new("9.0.0","Setup.exe",new Uri("https://github.com/HeliumMarcos/HeliumVideoTools/releases/download/v9.0.0/Setup.exe"),100,new string('a',64)));
+        var controller=new UpdateWindowController(owner,()=>busy,()=>release,(guard,available)=>
+        {created++;suppliedBusy=guard;return new UpdatesWindow(guard,preview:true,available:available);});
+        controller.Show();controller.Show();
+        var dialog=owner.OwnedWindows.OfType<UpdatesWindow>().Single();
+        if(created!=1 || dialog.Owner!=owner || controller.Installing || !((System.Windows.Controls.TextBlock)dialog.FindName("AppUpdateStatus")).Text.Contains("9.0.0"))throw new Exception("Atualizações duplicadas ou versão/owner perdidos");
+        busy=true;if(suppliedBusy?.Invoke()!=true)throw new Exception("Janela de atualização perdeu bloqueio durante processamento/encerramento");
+        dialog.Close();controller.Show();
+        if(created!=2 || owner.OwnedWindows.OfType<UpdatesWindow>().Count()!=1)throw new Exception("Atualizações não reabriu após fechar");
+        owner.Close();
         Console.WriteLine("PASS: 8 fechamentos WPF normais/solicitados pelo instalador, preferências isoladas salvas e eventos sem reentrância.");
+        Console.WriteLine("PASS: Atualizações reutiliza janela aberta, preserva versão/owner/bloqueio e permite reabrir após fechar.");
     }
 }

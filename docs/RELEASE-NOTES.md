@@ -1,4 +1,14 @@
-# Helium Vídeo Tools 3.0.10 — controle das estimativas separado da janela
+# Helium Vídeo Tools 3.0.11 — atualização e encerramento organizados
+
+- Consulta inicial de atualização em coordenador próprio: ocorre uma vez, após a recuperação, e descarta respostas recebidas depois de fechar.
+- Janela de Atualizações reutilizada enquanto aberta e liberada ao fechar, permitindo reabertura imediata.
+- Encerramento separado dos controles: confirmação durante processamento, cancelamento, espera e salvamento das preferências antes do fechamento agendado.
+- Testes cobrem chamadas repetidas, falhas de rede/gravação e fechamento normal ou solicitado pelo instalador.
+- Visual preservado: sete imagens idênticas antes/depois, comparadas antes de alterar a versão. Teste de temas aguarda o estado habilitado/desabilitado se estabilizar, sem mudar estilos.
+
+Instalador por usuário, mesma pasta, ferramentas e parâmetros de vídeo preservados. Esta entrega conclui as extrações de atualização/encerramento previstas para a janela principal; validação de telas, DPI e acessibilidade segue no plano.
+
+## Melhorias preservadas da 3.0.10
 
 - Coordenação das análises em componente próprio, mantendo a espera de 250 ms, cache de metadados e uso do conjunto capturado de ferramentas.
 - Testes verificam que respostas ou erros atrasados não substituem a análise atual ao mudar parâmetros, limpar arquivos, navegar ou fechar.

@@ -21,13 +21,11 @@ public partial class MainWindow : Window
     private readonly UserPreferenceStore? preferenceStore;
     private UserPreferences preferences;
     private bool preferredMaximized;
-    private bool savingClose;
+    private readonly WindowCloseCoordinator shutdown=new();
     private bool buildingOptions=>Editor.IsBuilding;
-    private bool closing;
-    private UpdatesWindow? updates;
-    private AppRelease? availableRelease;
+    private readonly UpdateWindowController updates;
+    private readonly StartupUpdateCheck updateCheck=new();
     private readonly CancellationTokenSource lifetime = new();
-    private bool updateChecked;
     public MainWindow() : this(false) { }
     public MainWindow(bool preview)
     {
@@ -36,6 +34,7 @@ public partial class MainWindow : Window
         ThemeManager.EnsureInitialized();
         if(!preview)ThemeManager.SetPreference(preferences.Theme);
         InitializeComponent(); NativeWindowTheme.Attach(this); DataContext = model;
+        updates=new UpdateWindowController(this,()=>model.Busy || shutdown.Saving,()=>updateCheck.Available);
         Editor=new OperationEditor(OptionsPanel,UpdateEstimate);
         ThemeChoice.ItemsSource=new[]{"Sistema (Windows)","Claro","Escuro"};
         ThemeChoice.SelectedIndex=ThemeManager.Preference switch {"light"=>1,"dark"=>2,_=>0};
@@ -57,29 +56,21 @@ public partial class MainWindow : Window
         catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException or UnauthorizedAccessException) { Status.Text = "Conjunto de ferramentas indisponível. Abra Atualizações para restaurar o anterior."; AppLog.Write("WARNING", "Ferramentas na abertura", ex.Message); }
         ContentRendered += async (_, _) =>
         {
-            if (preview || updateChecked) return; updateChecked = true;
-            await App.StartupRecoveryTask;
-            if(lifetime.IsCancellationRequested)return;
-            if(!model.Busy && Status.Text.StartsWith("Conjunto de ferramentas indisponível",StringComparison.Ordinal))
+            if(preview)return;
+            await updateCheck.RunOnceAsync(App.StartupRecoveryTask,RefreshRecoveredTools,release=>
             {
-                try{if(BatchViewModel.FindTool("ffmpeg") is not null && BatchViewModel.FindTool("ffprobe") is not null)Status.Text="Pronto • FFmpeg e ffprobe detectados";}
-                catch(Exception ex) when(ex is IOException or UnauthorizedAccessException){AppLog.Write("WARNING","Ferramentas ainda indisponíveis",ex.Message);}
-            }
-            try
-            {
-                using var http = ReleaseClient.CreateHttpClient();
-                availableRelease = await new ReleaseClient(http).CheckAppAsync(typeof(MainWindow).Assembly.GetName().Version!, lifetime.Token);
-                if (availableRelease is not null)
-                {
-                    UpdatesLabel.Text = "Atualizações • nova";
-                    UpdatesButton.ToolTip = "Versão " + availableRelease.Version.ToString(3) + " disponível para baixar e instalar";
-                    if (!model.Busy) Status.Text = "Nova versão disponível. Abra Atualizações para baixar e instalar.";
-                }
-            }
-            catch (OperationCanceledException) { }
-            catch (Exception ex) { AppLog.Write("INFO", "Consulta de atualização indisponível", ex.Message); }
+                UpdatesLabel.Text="Atualizações • nova";
+                UpdatesButton.ToolTip="Versão "+release.Version.ToString(3)+" disponível para baixar e instalar";
+                if(!model.Busy)Status.Text="Nova versão disponível. Abra Atualizações para baixar e instalar.";
+            },lifetime.Token);
         };
         Closed += (_, _) => lifetime.Cancel();
+    }
+    private void RefreshRecoveredTools()
+    {
+        if(model.Busy || !Status.Text.StartsWith("Conjunto de ferramentas indisponível",StringComparison.Ordinal))return;
+        try{if(BatchViewModel.FindTool("ffmpeg") is not null && BatchViewModel.FindTool("ffprobe") is not null)Status.Text="Pronto • FFmpeg e ffprobe detectados";}
+        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException){AppLog.Write("WARNING","Ferramentas ainda indisponíveis",ex.Message);}
     }
     private void ThemeChanged(object sender,SelectionChangedEventArgs e)
     {
@@ -88,11 +79,7 @@ public partial class MainWindow : Window
         preferences=preferences with {Theme=theme};ThemeManager.SetPreference(theme);
     }
     private void ShowUpdates(object sender, RoutedEventArgs e)
-    {
-        if (updates is { IsLoaded: true }) { updates.Activate(); return; }
-        updates = new UpdatesWindow(() => model.Busy || savingClose, available: availableRelease) { Owner = this };
-        updates.Show();
-    }
+        =>updates.Show();
     private void Navigate(object sender, RoutedEventArgs e)
     {
         RememberToolPreferences();
@@ -142,8 +129,8 @@ public partial class MainWindow : Window
     private void FilesDragOver(object sender, DragEventArgs e) { e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None; e.Handled = true; }
     private async void Run(object sender, RoutedEventArgs e)
     {
-        if (model.Busy || savingClose) return;
-        if (updates?.Installing == true) { Status.Text = "Instalação da atualização iniciada. Aguarde a reabertura do aplicativo."; return; }
+        if (model.Busy || shutdown.Saving) return;
+        if (updates.Installing) { Status.Text = "Instalação da atualização iniciada. Aguarde a reabertura do aplicativo."; return; }
         try
         {
             var options = CurrentOptions();
@@ -195,24 +182,13 @@ public partial class MainWindow : Window
     }
     private async void WindowClosing(object? sender, CancelEventArgs e)
     {
-        if (closing || (preferenceStore is null && !model.Busy)) return;
-        e.Cancel = true;
-        if(savingClose)return;
-        if (model.Busy && MessageBox.Show(this, "Cancelar o processamento e fechar?", "Helium Vídeo Tools", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
-        savingClose=true; RunButton.IsEnabled=false;
-        AppLog.Write("INFO","Encerramento solicitado; salvando preferências");
-        try
-        {
-            model.Cancel(); while(model.Busy)await Task.Delay(50);
+        await shutdown.HandleAsync(e,preferenceStore is null,()=>model.Busy,
+            ()=>MessageBox.Show(this,"Cancelar o processamento e fechar?","Helium Vídeo Tools",MessageBoxButton.YesNo,MessageBoxImage.Question)==MessageBoxResult.Yes,
+            ()=>RunButton.IsEnabled=false,model.Cancel,async ()=>{
             RememberToolPreferences();
             var bounds=RestoreBounds;
             preferences=preferences with { Width=bounds.IsEmpty?Width:bounds.Width,Height=bounds.IsEmpty?Height:bounds.Height,Maximized=preferredMaximized };
             if(preferenceStore is not null)await preferenceStore.SaveAsync(preferences);
-            AppLog.Write("INFO","Preferências salvas no encerramento");
-        }
-        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) {AppLog.Write("WARNING","Não foi possível salvar preferências",ex.Message);}
-        // SaveAsync may finish before its await yields on a fast disk. Calling
-        // Close inside the original Closing event is illegal in WPF; always defer.
-        finally {closing=true;_ = Dispatcher.BeginInvoke(new Action(Close));}
+            },()=>{_ = Dispatcher.BeginInvoke(new Action(Close));});
     }
 }

@@ -67,9 +67,9 @@ internal static class ThemeTests
             Check(selected is not null,"Menu não criou item selecionado");
             Check(ColorOf(selected!.Foreground)==ColorOf(app.Resources["OnAccent"]),"Seleção do menu sem cores pareadas");
             combo.IsDropDownOpen=false;
-            combo.IsEnabled=false;window.UpdateLayout();
-            Check(ColorOf(combo.Foreground)==ColorOf(app.Resources["DisabledText"]),"Campo desabilitado não acompanha o tema");
-            combo.IsEnabled=true;
+            combo.IsEnabled=false;Pump();window.UpdateLayout();
+            Check(ColorOf(combo.Foreground)==ColorOf(app.Resources["DisabledText"]),$"Campo desabilitado não acompanha o tema: {theme}/{operation}/{size}");
+            combo.IsEnabled=true;Pump();window.UpdateLayout();
             if(size.Item1==1280 && operation=="Compress")Save(window,Path.Combine(folder,theme+".png"));
             window.Close();
         }
