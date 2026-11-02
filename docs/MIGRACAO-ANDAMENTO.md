@@ -2,7 +2,7 @@
 
 Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
 
-Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.11 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.11) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções e quatro etapas de organização interna. As pendências de validação continuam registradas abaixo.
+Estado em 02/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.12 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.12) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas, recuperação após interrupções, organização interna e adaptação aprovada para áreas menores. As pendências de validação continuam registradas abaixo. O usuário dispensou novas cópias de instaladores na pasta Music; distribuir as próximas versões pelo GitHub.
 
 Implementado:
 
@@ -139,6 +139,10 @@ Suíte local e [execução 41390394652](https://github.com/HeliumMarcos/HeliumVi
 As extrações da janela previstas nesta sequência estão implementadas. Seguem telas/DPI/acessibilidade com prévia antes de mudanças visuais; continuam as limitações de recuperação e de desempenho descritas no escopo. Não se declara todo o plano concluído.
 
 ## Comandos
+
+Etapa 3.0.12: adaptação de janela/lateral/formulário/ação aprovada após comparação antes/depois. ResponsiveLayout preserva campos/valores, restaura layout amplo e permite rolagem da ação em áreas muito baixas. WindowWorkArea ajusta a janela ao monitor sem ativá-la; manifesto PerMonitorV2 mantém asInvoker. Botões de arquivos/barra geral recebem nomes acessíveis. Preferências aceitam dimensões compactas de 675×329 e rejeitam números inválidos. [Execução 41466735914](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41466735914) passou na suíte de processamento, recuperação, preferências, temas, responsividade, fechamento e distribuição.
+
+[Verificação 41468872516](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41468872516) confirmou download público anônimo real (172935077 bytes, SHA-256/MZ), atualização desde versões anteriores testadas incluindo 3.0.11 e ausência de atualização para a própria versão. Não houve nova cópia na pasta Music. Permanecem pendentes DPI físico/monitores mistos/Narrador; documentação e prévias em RESPONSIVE-ACCESSIBILITY.md.
 
 Download anônimo real da 3.0.7 validado pelo cliente do aplicativo: 172888414 bytes, SHA-256 e formato MZ. Versões anteriores testadas, incluindo 3.0.6, detectaram a atualização; a 3.0.7 não recebeu atualização para si mesma.
 

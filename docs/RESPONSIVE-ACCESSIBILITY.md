@@ -33,3 +33,9 @@ Campos em área estreita e ação após rolagem numa área extremamente baixa:
 As áreas lógicas são 1280×860, 1092×545, 900×449, 952×485 e 675×329. Esses testes modelam pressão de espaço, não alteram a escala real do Windows. Ainda faltam os testes físicos em 100/125/150/200%, movimentação entre monitores com DPI diferente, Narrador e anúncios de progresso sem excesso. LiveSetting existente, por si só, não comprova anúncio pelo leitor. Não houve garantia nova de conformidade/aceitação no Projudi/SEEU.
 
 Referências técnicas: [manifestos e DPI](https://learn.microsoft.com/windows/win32/hidpi/setting-the-default-dpi-awareness-for-a-process), [exemplo WPF oficial](https://github.com/microsoft/WPF-Samples/blob/main/PerMonitorDPI/readme.md), [eventos de região dinâmica no WPF](https://learn.microsoft.com/accessibility-tools-docs/items/wpf/text_livesetting). A skill UI/UX Pro Max forneceu recomendações de foco não encoberto e layout/DPI WPF; os resultados sobre WCAG Web orientaram a revisão, sem declarar certificação do aplicativo desktop.
+
+## Distribuição validada
+
+A [execução 41466735914](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41466735914) passou na suíte e na instalação/reinstalação/interrupção do instalador, publicando a [3.0.12 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.12). A primeira tentativa de build (41465949776) foi cancelada antes da publicação para incluir a persistência das dimensões reduzidas; não foi distribuída como release.
+
+A [verificação independente 41468872516](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41468872516) passou com cliente HTTP real sem login/token: download de 172935077 bytes, SHA-256/MZ e detecção desde versões anteriores testadas, incluindo 3.0.11, sem oferta para a própria 3.0.12. Nenhuma cópia nova foi colocada na pasta Music.

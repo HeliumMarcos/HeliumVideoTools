@@ -2,6 +2,8 @@
 
 Após a publicação da 3.0.5, o usuário limitou a continuação aos itens 2, 3, 5 e 6 da lista apresentada. Este documento define o escopo ativo; listas históricas não ampliam esse escopo.
 
+Distribuição atualizada em 02/11/2026: o usuário dispensou novas cópias de instaladores na pasta Music. Continuar gerando e publicando os instaladores oficiais pelo GitHub, sem nova cópia local nessa pasta.
+
 ## 2. Recuperação após interrupções
 
 - Processamento: registrar temporários próprios e resultados publicados; no próximo início, recuperar o estado de uma operação interrompida sem apagar originais ou saídas concluídas.
@@ -27,6 +29,8 @@ Publicada e validada na execução 41379179432: os testes de interrupção do in
 - Preservar os temas e o layout aprovados. Apresentar antes/depois e obter aprovação antes de integrar qualquer mudança visual.
 
 ## 5. Desempenho
+
+Etapa aprovada/publicada do item 3: [3.0.12](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.12), com adaptação a áreas menores, reflow reversível, limites nativos de monitor, manifesto PerMonitorV2 e nomes acessíveis dos botões de arquivos/progresso. Suíte de 30 áreas/operações antes/depois, 36 combinações de estados/tamanhos e ajuste de janela real passou em 41466735914, junto com distribuição; atualização/download anônimo confirmado em 41468872516. Tamanho padrão preservado e dimensões compactas lembradas nas preferências. Simulação não substitui DPI físico, múltiplos monitores ou Narrador; esses continuam pendentes. Detalhes em RESPONSIVE-ACCESSIBILITY.md.
 
 - Registrar uma base reproduzível de abertura fria/quente, tempo até a janela utilizável e memória.
 - Medir compactação, divisão e WebM com mídia controlada maior e parâmetros fixos, registrando versão do FFmpeg, hardware e configuração.
