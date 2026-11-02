@@ -100,7 +100,13 @@ Instalador restaura app.previous quando app está ausente ao ser executado novam
 
 A [execução 41379179432](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41379179432) passou em processamento, ferramentas interrompidas, fechamento, temas, instalação/reinstalação e interrupção do instalador em raízes isoladas, publicando a 3.0.7 estável. A preparação do NSIS agora confere a existência do compilador e repete instalação até três vezes após falhas transitórias do provedor. Sem alterações visuais. Não houve teste de desligamento físico/queda de energia; reconstrução do histórico do lote e janela curta entre iniciar/associar processos ao Job Object continuam como limitações registradas.
 
-## Compilar e testar
+## Item 5 — referência antes do refactor
+
+Medições iniciais de 02/11/2026 registradas em [DESEMPENHO.md](DESEMPENHO.md), incluindo método, limitações, ambiente, entrada e parâmetros. Janela real em host isolado: primeira amostra 1.116 ms; cinco seguintes 773–827 ms, mediana 780 ms; memória residente do host ~131 MB. Mídia sintética de 45 s/720p: média de dois ensaios de 5,10 s para H.264 em duas etapas, 3,76 s para três partes precisas e 16,30 s para VP8 em duas etapas. Saídas sondadas, teto aplicável e hash original conferidos.
+
+O host não carrega preferências, consulta de atualização ou recuperação inicial e não representa a distribuição self-contained. Não foi medido cache frio controlado nem memória de toda a árvore FFmpeg. A referência não é alegação de ganho ou promessa para audiências. Próxima etapa: organização interna (item 6), mantendo comportamento e comparando o mesmo benchmark. Apenas testes/documentação foram adicionados; nenhuma release nova é necessária para esta medição.
+
+## Comandos
 
 Download anônimo real da 3.0.7 validado pelo cliente do aplicativo: 172888414 bytes, SHA-256 e formato MZ. Versões anteriores testadas, incluindo 3.0.6, detectaram a atualização; a 3.0.7 não recebeu atualização para si mesma.
 

@@ -33,6 +33,8 @@ Publicada e validada na execução 41379179432: os testes de interrupção do in
 - Comparar antes/depois das otimizações e da reorganização interna. Não atribuir à linguagem ganhos determinados pelos codecs.
 - Corrigir gargalos comprovados; evitar repetir grandes testes sem uma hipótese ou mudança a verificar.
 
+Referência inicial do item 5 registrada em [DESEMPENHO.md](DESEMPENHO.md) e JSON associado: seis aberturas isoladas da janela real, memória do host no ponto ocioso e duas execuções por operação com mídia sintética de 45 s/720p. Ainda não mede abertura fria controlada, instalação self-contained ou memória completa com FFmpeg. Não houve otimização de produção; a referência permite começar o item 6 e comparar o mesmo cenário depois.
+
 ## 6. Organização interna
 
 - Separar a infraestrutura de processos, sondagem, ferramentas, atualizações, preferências e logs da lógica de domínio, conforme a direção do plano original.

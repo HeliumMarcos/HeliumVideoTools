@@ -10,6 +10,16 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length==2 && args[0]=="--benchmark-startup")
+        {
+            try{PerformanceBenchmarks.Startup(args[1]);return 0;}
+            catch(Exception ex){Console.Error.WriteLine(ex);return 1;}
+        }
+        if(args.Length==4 && args[0]=="--benchmark")
+        {
+            try{PerformanceBenchmarks.RunAsync(args[1],Path.GetFullPath(args[2]),Path.GetFullPath(args[3])).GetAwaiter().GetResult();return 0;}
+            catch(Exception ex){Console.Error.WriteLine(ex);return 1;}
+        }
         if(args.Length==2 && args[0]=="--recover-tool-profile")
         {
             try{Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new MediaToolStore(args[1]).RecoverAsync().GetAwaiter().GetResult()));return 0;}
