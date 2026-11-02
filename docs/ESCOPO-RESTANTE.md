@@ -14,9 +14,11 @@ Auditoria inicial: `VideoEngine.RunOutput` e a pasta de estatísticas de duas et
 
 Etapa 3.0.6: registro durável/exclusivo de temporários de vídeo e estatísticas, limpeza em segundo plano ao abrir e Job Objects para os processos próprios implementados. Teste mata apenas o hospedeiro enquanto FFmpeg grava um MP4; confirma encerramento do filho, preservação de FFmpeg independente, saídas e arquivos desconhecidos. A etapa não retoma codificação nem conclui o item 2 inteiro: interrupções reais do atualizador de ferramentas e do instalador, recuperação de histórico do lote e queda de energia permanecem pendentes. Referência do mecanismo de processos: https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects.
 
-## 3. Telas e acessibilidade
-
 Continuação 3.0.7 do item 2: transação das ferramentas registrada por ID e protegida por bloqueio; recuperação na abertura valida ativo/anterior, preserva conjuntos publicados e limpa somente staging conhecido. Oito casos encerram processos durante download, extração, gravação do backup, ativação e corrupção posterior. Instalador passa a restaurar a pasta anterior ao ser executado novamente após a troca interrompida; o workflow testa extração, intervalo de renomeação e conteúdo residual em raízes isoladas, com payload controlado. Queda física de energia e reconstrução de histórico não são declaradas validadas por esses testes.
+
+Publicada e validada na execução 41379179432: os testes de interrupção do instalador passaram junto com os de ferramentas, processamento e interface. Próxima etapa planejada: medições de desempenho de referência (item 5), antes da reorganização interna (item 6); o item 2 ainda tem as limitações descritas acima.
+
+## 3. Telas e acessibilidade
 
 - Validar 100%, 125%, 150% e 200%, área útil pequena e movimentação entre monitores com escalas diferentes.
 - Corrigir posicionamento, dimensionamento e rolagem quando a área útil for menor que o mínimo atual de 980×700 DIPs.

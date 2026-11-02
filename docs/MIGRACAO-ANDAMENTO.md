@@ -2,7 +2,7 @@
 
 Escopo atual: por decisão do usuário em 01/11/2026, a continuação fica restrita aos itens **2 (recuperação), 3 (telas/acessibilidade), 5 (desempenho) e 6 (organização interna)**. O [escopo restante](ESCOPO-RESTANTE.md) define a sequência e os critérios. Audiências reais/aceitação nos sistemas, teste manual de pins e assinatura digital não fazem parte desta continuação; menções históricas abaixo não os recolocam no escopo ativo.
 
-Estado em 01/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.6 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.6) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas e primeira etapa de recuperação após interrupções. As pendências de validação continuam registradas abaixo.
+Estado em 01/11/2026: implementação C#/.NET 10 WPF incorporada à main; repositório público por decisão do usuário. A [3.0.7 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.7) está publicada com instalador, runtime, ferramentas, lotes tolerantes a falhas, estimativas aprovadas, preferências úteis, temas e recuperação após interrupções de processamento e atualização. As pendências de validação continuam registradas abaixo.
 
 Implementado:
 
@@ -92,7 +92,17 @@ Teste isolado força somente o fechamento do hospedeiro enquanto o FFmpeg grava 
 
 A [execução 41371554496](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41371554496) passou pelos testes de mídia, recuperação real do processo, fechamento, temas e instalação/reinstalação com reabertura e publicou a 3.0.6 estável. Download anônimo real conferido pelo cliente do próprio app: 172872698 bytes, SHA-256 e MZ; versões anteriores testadas, incluindo 3.0.5, detectaram a atualização, e a 3.0.6 não recebeu atualização para si mesma.
 
-## Comandos de desenvolvimento
+## Etapa 3.0.7 — interrupções das atualizações
+
+Transações do conjunto de ferramentas têm registro exclusivo por ID, recuperação na abertura, validação do ativo e retorno ao anterior/embutido quando necessário. Limpeza respeita conjuntos referenciados, conteúdos conhecidos e bloqueios. Testes encerram o worker durante download, após download, extração, backup e ativação, além de danificar ativo/ponteiro após ativação. O teste aguarda a liberação observável do registro após encerrar o processo; um registro ainda bloqueado permanece adiado. Limpeza de arquivos possui repetição limitada para bloqueios transitórios do Windows, sem alterar permissões.
+
+Instalador restaura app.previous quando app está ausente ao ser executado novamente; conteúdo residual de app é preservado em app.interrupted. A compilação isolada de teste usa raiz e payload definidos na compilação e não escreve atalhos/registro do produto. Casos encerram o instalador após extração e renomeação, incluindo diretório residual, e verificam a reinstalação posterior.
+
+A [execução 41379179432](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41379179432) passou em processamento, ferramentas interrompidas, fechamento, temas, instalação/reinstalação e interrupção do instalador em raízes isoladas, publicando a 3.0.7 estável. A preparação do NSIS agora confere a existência do compilador e repete instalação até três vezes após falhas transitórias do provedor. Sem alterações visuais. Não houve teste de desligamento físico/queda de energia; reconstrução do histórico do lote e janela curta entre iniciar/associar processos ao Job Object continuam como limitações registradas.
+
+## Compilar e testar
+
+Download anônimo real da 3.0.7 validado pelo cliente do aplicativo: 172888414 bytes, SHA-256 e formato MZ. Versões anteriores testadas, incluindo 3.0.6, detectaram a atualização; a 3.0.7 não recebeu atualização para si mesma.
 
 Com SDK .NET 10:
 
