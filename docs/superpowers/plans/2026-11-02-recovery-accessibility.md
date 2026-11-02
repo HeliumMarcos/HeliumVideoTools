@@ -20,8 +20,12 @@
 
 ## Tasks
 
-- [ ] Add failing recovery tests: lease, interrupted publication, completed/not-started state, missing output, corrupt metadata, repeated recovery.
-- [ ] Implement Infrastructure/BatchRecoveryStore and optional BatchRunner checkpoint integration, then test forced worker death.
-- [ ] Integrate production ViewModel journal and startup restoration through existing summary/report/pasta controls. Test WPF restoration without changing layout.
-- [ ] Extend keyboard/UIA and available display checks; add scale-render checks clearly distinguished from physical display tests. Do not enable Narrator or change display settings blindly.
-- [ ] Run recovery/media, WPF, keyboard/UIA, display and installer suites; publish one stable release only after checks. Update remaining environmental limits honestly.
+- [x] Add failing recovery tests: lease, interrupted publication, completed/not-started state, missing output, corrupt metadata, repeated recovery.
+- [x] Implement Infrastructure/BatchRecoveryStore and optional BatchRunner checkpoint integration, then test forced worker death.
+- [x] Integrate production ViewModel journal and startup restoration through existing summary/report/pasta controls. Test WPF restoration without changing layout.
+- [x] Extend keyboard/UIA and available display checks; add scale-render checks clearly distinguished from physical display tests. Do not enable Narrator or change display settings blindly.
+- [x] Run recovery/media, WPF, keyboard/UIA, display and installer suites; publish one stable release only after checks. Update remaining environmental limits honestly.
+
+## Execution record
+
+Implementation and automated validation completed inline. Missing API produced the initial failing build; forced-worker tests passed after implementation. User explicitly deferred Narrator audio. Physical mixed-DPI monitors are unavailable; this is an environmental limit, not a passed test. No delegation or new UI layout. Stable 3.0.14 passed distribution run 41493104918 and anonymous release verification 41493942250. See docs/BATCH-RECOVERY.md for remaining guarantees/limits.

@@ -2,6 +2,15 @@
 
 Após a publicação da 3.0.5, o usuário limitou a continuação aos itens 2, 3, 5 e 6 da lista apresentada. Este documento define o escopo ativo; listas históricas não ampliam esse escopo.
 
+## Situação atual após a entrega conjunta 2 + 3 — 3.0.14
+
+- **Item 2, implementação:** histórico de lote interrompido implementado com snapshot atômico/lease, recuperação em relatórios idempotentes e restauração do resumo existente; saídas concluídas preservadas, ausentes/alteradas identificadas, sem retomada automática. Soma-se às recuperações de temporários, ferramentas e instalador já entregues. Testes de morte real do worker e distribuição passaram em 41493104918.
+- **Item 3, implementação e testes automatizados:** layout/áreas menores, nomes e eventos acessíveis, teclado, alto contraste e renderização do resumo em 100/125/150/200% verificados. Escuta do Narrador deixada pendente por escolha expressa do usuário neste turno; testes físicos em outras escalas/DPI misto permanecem dependentes de ambiente adequado. Não declarar esses testes físicos concluídos.
+- **Item 5:** continuam abertura fria/instalada, memória da árvore FFmpeg e mídia sintética maior. A correção do host/medições históricas continua válida.
+- **Item 6:** extrações planejadas implementadas e testadas.
+
+[BATCH-RECOVERY.md](BATCH-RECOVERY.md) registra evidências e limites (inclusive janela publicação/registro e falha física de energia não simulada). A [3.0.14 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.14) teve download/atualização anônima conferidos em 41493942250. O histórico abaixo preserva a evolução; referências a tarefas futuras em entregas anteriores não substituem este estado atual.
+
 Distribuição atualizada em 02/11/2026: o usuário dispensou novas cópias de instaladores na pasta Music. Continuar gerando e publicando os instaladores oficiais pelo GitHub, sem nova cópia local nessa pasta.
 
 ## 2. Recuperação após interrupções

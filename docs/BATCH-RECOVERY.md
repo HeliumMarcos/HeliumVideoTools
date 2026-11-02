@@ -27,3 +27,9 @@ Há um intervalo entre publicar uma saída no motor e registrar seu caminho; se 
 Flush/troca atômica e testes de morte de processo não garantem persistência após falha física de energia/armazenamento. Não se desliga o computador para simular esse cenário. A proteção de processos próprios já existente continua com a janela curta entre Start/Job Object registrada como limitação.
 
 Escuta do Narrador foi adiada expressamente pelo usuário. Testes de renderização e UIA não substituem essa escuta nem a troca física entre monitores com escalas diferentes. O ambiente tem um monitor em 150%; 100/125/200% físicos e DPI misto seguem dependentes de ambiente adequado. Nenhuma cópia de instalador na pasta Music.
+
+## Publicação e verificação
+
+A [execução 41493104918](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41493104918) passou na suíte e na instalação/reinstalação/interrupção do instalador, publicando a [3.0.14 oficial](https://github.com/HeliumMarcos/HeliumVideoTools/releases/tag/v3.0.14). Inclui a morte real do worker BatchRunner, WPF de resumo recuperado, teclado/UIA, áreas menores, temas, processamento e recuperações anteriores.
+
+A [verificação independente 41493942250](https://github.com/HeliumMarcos/HeliumVideoTools/actions/runs/41493942250) confirmou download público anônimo pelo cliente real (172961238 bytes, SHA-256/MZ) e detecção de atualização desde versões anteriores testadas, incluindo 3.0.13, sem oferta para a própria 3.0.14. Sem cópia de instalador na pasta Music.
