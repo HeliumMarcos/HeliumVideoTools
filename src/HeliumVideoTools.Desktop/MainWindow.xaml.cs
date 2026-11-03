@@ -134,6 +134,8 @@ public partial class MainWindow : Window
     private async void UpdateEstimate()
     {
         if (estimate is null || buildingOptions) return;
+        if(!model.Busy && model.LastResult is not null)
+        {model.ResetResult();ProgressPanel.Visibility=Visibility.Collapsed;ActionBar.Visibility=Visibility.Visible;ResetButton.Visibility=Visibility.Collapsed;Status.Text="Configuração atualizada • pronto para processar.";}
         estimates.Cancel();
         estimate.ToolTip=null; System.Windows.Automation.AutomationProperties.SetHelpText(estimate,"");
         if(model.Files.Count==0) {estimate.Text="Adicione vídeos para estimar o tamanho final";estimate.ToolTip=null;estimateNote!.Visibility=Visibility.Collapsed;return;}

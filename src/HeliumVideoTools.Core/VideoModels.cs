@@ -4,7 +4,8 @@ public enum Operation { Split, Compress, Webm }
 public enum SplitMode { Parts, Duration, Size }
 public sealed record VideoOptions(Operation Operation = Operation.Compress, double TargetMb = 98,
     string Codec = "h264", bool CopyAudio = true, bool TwoPass = false,
-    SplitMode SplitMode = SplitMode.Parts, double SplitValue = 3, string Preset = "custom");
+    SplitMode SplitMode = SplitMode.Parts, double SplitValue = 3, string Preset = "custom",
+    int AudioBitrateKbps = 128, int AudioChannels = 0);
 public sealed record MediaInfo(double Duration, long Bytes, double AudioKbps, double FrameRate = 25);
 public sealed record VideoProgress(double Percent, string Status);
 

@@ -12,6 +12,7 @@ internal sealed class ResponsiveLayout
     private readonly StackPanel options,progressBody,progressButtons,progressTitle;
     private readonly StackPanel stackedProgress=new();
     private readonly Button run;
+    private readonly TextBlock subtitle;
     private readonly ScrollViewer page,sideScroll=new(){VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled},workspace=new(){VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};
     private bool applying,pending,sideWrapped,actionStacked,headerStacked,workspaceWrapped;
     internal ResponsiveLayout(MainWindow window)
@@ -20,9 +21,10 @@ internal sealed class ResponsiveLayout
         work=(Grid)window.FindName("WorkPanels");files=(Border)window.FindName("FilesCard");output=(Border)window.FindName("OutputCard");
         options=(StackPanel)window.FindName("OptionsPanel");page=(ScrollViewer)window.FindName("PageScroll");
         action=(Grid)((Border)window.FindName("ActionBar")).Child;run=(Button)window.FindName("RunButton");
+        subtitle=(TextBlock)window.FindName("Subtitle");
         progress=(Border)window.FindName("ProgressPanel");progressBody=(StackPanel)progress.Child;progressHeader=(DockPanel)progressBody.Children[0];
         progressButtons=(StackPanel)progressHeader.Children[0];progressTitle=(StackPanel)progressHeader.Children[1];
-        root.SizeChanged+=(_,_)=>ScheduleRefresh();progress.IsVisibleChanged+=(_,_)=>ScheduleRefresh();
+        root.SizeChanged+=(_,_)=>ScheduleRefresh();options.SizeChanged+=(_,_)=>ScheduleRefresh();progress.IsVisibleChanged+=(_,_)=>ScheduleRefresh();
     }
     private void ScheduleRefresh()
     {
@@ -40,6 +42,22 @@ internal sealed class ResponsiveLayout
             root.ColumnDefinitions[0].Width=new GridLength(narrow?156:194);
             sidebar.Padding=narrow?new Thickness(8,12,8,10):new Thickness(12,20,12,12);
             main.Margin=narrow?new Thickness(12,12,12,8):new Thickness(20,18,20,10);
+            var audioSettings=options.Children.OfType<Border>().FirstOrDefault(b=>b.Tag as string=="AudioSettings");
+            bool audioExpanded=audioSettings?.Visibility==Visibility.Visible;
+            subtitle.Visibility=audioExpanded && height<700?Visibility.Collapsed:Visibility.Visible;
+            foreach(var hint in options.Children.OfType<TextBlock>().Where(t=>t.Tag as string=="OperationHint"))hint.Visibility=audioExpanded && height<700?Visibility.Collapsed:Visibility.Visible;
+            if(audioExpanded && height<700 && !narrow)main.Margin=new Thickness(20,12,20,8);
+            if(audioSettings is not null)
+            {
+                bool compactAudio=height<760,inlineAudio=compactAudio && width>=1100;
+                audioSettings.Padding=new Thickness(compactAudio?6:10);
+                foreach(var text in Walk(audioSettings).OfType<TextBlock>().Where(t=>t.Tag as string is "AudioHeading" or "AudioHint"))text.Visibility=compactAudio?Visibility.Collapsed:Visibility.Visible;
+                foreach(var stack in Walk(audioSettings).OfType<StackPanel>().Where(s=>s.Tag as string=="AudioField"))
+                {
+                    stack.Orientation=inlineAudio?Orientation.Horizontal:Orientation.Vertical;
+                    var label=(TextBlock)stack.Children[0];label.VerticalAlignment=VerticalAlignment.Center;label.Margin=inlineAudio?new Thickness(0,0,6,0):new Thickness(0,0,0,4);
+                }
+            }
             bool wrapSide=height<650;
             if(wrapSide!=sideWrapped)
             {

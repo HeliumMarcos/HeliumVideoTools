@@ -33,7 +33,7 @@ public static class VideoEstimates
         if (!double.IsFinite(target) || target <= 0) throw new IOException("Informe um tamanho válido.");
         if (options.Operation == Operation.Compress && target >= original)
             return new(CapMb: target, Warning: "O original já está abaixo do alvo; escolha um tamanho menor para compactá-lo.");
-        double audio = info.AudioKbps == 0 ? 0 : options.Operation == Operation.Webm ? 128 : options.CopyAudio ? info.AudioKbps : 128;
+        double audio = VideoAudio.BudgetKbps(info,options);
         int rate = VideoBitrate.Calculate(info.Duration,target,audio);
         return new(CapMb: target, BudgetMb: (rate + audio) * info.Duration / 8000);
     }

@@ -49,7 +49,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? r
         {
             bool webm = options.Operation == Operation.Webm;
             var encoder = webm ? options.Codec == "vp9" ? "libvpx-vp9" : "libvpx" : options.Codec == "h265" ? "libx265" : "libx264";
-            var audio = info.AudioKbps == 0 ? 0 : webm ? 128 : options.CopyAudio ? info.AudioKbps : 128;
+            var audio = VideoAudio.BudgetKbps(info,options);
             var rate = Bitrate(info.Duration, target, audio);
             var output = Unique(Path.Combine(folder, Path.GetFileNameWithoutExtension(source) + (webm ? $"_{options.Codec}.webm" : "_compactado.mp4")));
             var passRoot=Path.Combine(Path.GetTempPath(),"HeliumVideoTools");Directory.CreateDirectory(passRoot);
@@ -82,7 +82,11 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? r
                     }
                     else
                     {
-                        if (audio > 0) args.AddRange(webm ? ["-map", "0:a:0?", "-c:a", "libopus", "-b:a", "128k"] : options.CopyAudio ? ["-map", "0:a:0?", "-c:a", "copy"] : ["-map", "0:a:0?", "-c:a", "aac", "-b:a", "128k"]);
+                        if (audio > 0)
+                        {
+                            args.AddRange(webm ? ["-map", "0:a:0?", "-c:a", "libopus", "-b:a", "128k"] : options.CopyAudio ? ["-map", "0:a:0?", "-c:a", "copy"] : ["-map", "0:a:0?", "-c:a", "aac", "-b:a", options.AudioBitrateKbps.ToString(CultureInfo.InvariantCulture)+"k"]);
+                            if(!webm && !options.CopyAudio && options.AudioChannels>0)args.AddRange(["-ac",options.AudioChannels.ToString(CultureInfo.InvariantCulture)]);
+                        }
                         else args.Add("-an");
                         if (!webm) args.AddRange(["-movflags", "+faststart"]);
                         await RunOutput(args, output, info.Duration, report, token, (long)(target * 1000000), outputPublished);

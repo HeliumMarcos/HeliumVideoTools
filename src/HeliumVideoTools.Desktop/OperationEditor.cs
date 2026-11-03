@@ -11,7 +11,8 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
 {
     private Operation operation;
     private UserPreferences preferences=new();
-    private ComboBox? mode,preset,codec,unit,parts;
+    private ComboBox? mode,preset,codec,unit,parts,audioRate,audioChannels;
+    private Border? audioSettings;
     private TextBox? target;
     private CheckBox? copyAudio,precise;
     private TextBlock? estimate,estimateNote;
@@ -45,7 +46,7 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
     internal void Build(Operation operation,UserPreferences preferences)
     {
         this.operation=operation;this.preferences=preferences;buildingOptions=true;
-        estimate = estimateNote = null; panel.Children.Clear(); mode = preset = codec = unit = null; target = null; parts = null; copyAudio = precise = null;
+        estimate = estimateNote = null; panel.Children.Clear(); mode = preset = codec = unit = audioRate = audioChannels = null;audioSettings=null; target = null; parts = null; copyAudio = precise = null;
         var defaults=StartupDefaults.For(operation,preferences);
         Grid? quantityRow = null;
         if (operation == Operation.Split)
@@ -88,7 +89,7 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
         {
             codec = operation == Operation.Webm ? Choice("VP8 • mais rápido", "VP9 • melhor compressão") : Choice("H.264 • compatível", "H.265 • arquivo menor"); Row("Codec", codec);
             Grid? audioRow=null;
-            if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Áudio original", IsChecked = true,ToolTip="Manter áudio original, sem recodificar" }; copyAudio.Checked+=(_,_)=>UpdateEstimate(); copyAudio.Unchecked+=(_,_)=>UpdateEstimate();audioRow=Row("Áudio", copyAudio);System.Windows.Automation.AutomationProperties.SetName(copyAudio,"Áudio: Manter áudio original"); }
+            if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Áudio original", IsChecked = true,ToolTip="Manter áudio original, sem recodificar" };audioRow=Row("Áudio", copyAudio);System.Windows.Automation.AutomationProperties.SetName(copyAudio,"Áudio: Manter áudio original"); }
             precise = new CheckBox { Content = "2 etapas", IsChecked = defaults.TwoPass,ToolTip="Modo preciso em 2 etapas" }; precise.Checked+=(_,_)=>UpdateEstimate(); precise.Unchecked+=(_,_)=>UpdateEstimate();var precisionRow=Row("Precisão", precise);System.Windows.Automation.AutomationProperties.SetName(precise,"Precisão: Modo preciso em 2 etapas");
             if(audioRow is not null)
             {
@@ -97,14 +98,34 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
                 ((FrameworkElement)audioRow.Children[0]).Visibility=((FrameworkElement)precisionRow.Children[0]).Visibility=Visibility.Visible;
                 audioRow.Margin=new Thickness(0,0,8,8);precisionRow.Margin=new Thickness(8,0,0,8);Grid.SetColumn(precisionRow,1);
                 pair.Children.Add(audioRow);pair.Children.Add(precisionRow);panel.Children.Add(pair);
+                BuildAudioSettings();
             }
         }
         estimate = new TextBlock { FontSize = 12 };estimate.SetResourceReference(TextBlock.ForegroundProperty,"InfoText");
         estimateNote=new TextBlock {FontSize=11,Margin=new Thickness(0,6,0,0),Visibility=Visibility.Collapsed };estimateNote.SetResourceReference(TextBlock.ForegroundProperty,"TextSecondary");
         var estimateContent=new StackPanel { Margin=new Thickness(10,8,10,8) }; estimateContent.Children.Add(estimate); estimateContent.Children.Add(estimateNote);
         var estimateBox=new Border {CornerRadius=new CornerRadius(6),Child=estimateContent};estimateBox.SetResourceReference(Border.BackgroundProperty,"InfoBackground");Row("Estimativa",estimateBox);
-        var note = new TextBlock { Text = operation == Operation.Webm ? "O arquivo final respeita o teto escolhido e um orçamento menor que o original." : operation == Operation.Split ? "Divisão precisa em MP4 (H.264/AAC), com recodificação. Os originais são preservados." : "O tamanho é conferido em MB decimais antes de salvar o resultado.", FontSize = 11 };note.SetResourceReference(TextBlock.ForegroundProperty,"TextSecondary");panel.Children.Add(note);
+        var note = new TextBlock { Tag="OperationHint",Text = operation == Operation.Webm ? "O arquivo final respeita o teto escolhido e um orçamento menor que o original." : operation == Operation.Split ? "Divisão precisa em MP4 (H.264/AAC), com recodificação. Os originais são preservados." : "O tamanho é conferido em MB decimais antes de salvar o resultado.", FontSize = 11 };note.SetResourceReference(TextBlock.ForegroundProperty,"TextSecondary");panel.Children.Add(note);
         buildingOptions=false; UpdateEstimate();
+    }
+    private void BuildAudioSettings()
+    {
+        audioRate=Choice(VideoAudio.Bitrates.Select(rate=>$"{rate} kbps").ToArray());audioRate.SelectedIndex=2;
+        audioChannels=Choice("Manter canais","Mono","Estéreo");
+        System.Windows.Automation.AutomationProperties.SetName(audioRate,"Taxa de áudio em kbps");
+        System.Windows.Automation.AutomationProperties.SetName(audioChannels,"Canais de áudio");
+        var fields=new Grid();fields.ColumnDefinitions.Add(new());fields.ColumnDefinitions.Add(new());
+        foreach(var (field,label,column) in new[]{(audioRate,"Taxa de áudio",0),(audioChannels,"Canais",1)})
+        {
+            var stack=new StackPanel {Tag="AudioField",Margin=column==0?new Thickness(0,0,8,0):new Thickness(8,0,0,0)};
+            stack.Children.Add(new TextBlock {Text=label,FontSize=12,Margin=new Thickness(0,0,0,4)});stack.Children.Add(field);Grid.SetColumn(stack,column);fields.Children.Add(stack);
+        }
+        var body=new StackPanel();body.Children.Add(new TextBlock {Tag="AudioHeading",Text="Recodificar áudio · AAC",FontSize=12,FontWeight=FontWeights.SemiBold,Margin=new Thickness(0,0,0,8)});body.Children.Add(fields);
+        var hint=new TextBlock {Tag="AudioHint",Text="A taxa escolhida entra no cálculo do tamanho final.",FontSize=11,Margin=new Thickness(0,8,0,0)};hint.SetResourceReference(TextBlock.ForegroundProperty,"TextSecondary");body.Children.Add(hint);
+        audioSettings=new Border {Tag="AudioSettings",ToolTip="Recodificar em AAC. A taxa escolhida entra no cálculo do tamanho final.",Child=body,Padding=new Thickness(10),Margin=new Thickness(0,0,0,6),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(6),Visibility=Visibility.Collapsed};
+        audioSettings.SetResourceReference(Border.BackgroundProperty,"InputBackground");audioSettings.SetResourceReference(Border.BorderBrushProperty,"ControlBorder");panel.Children.Add(audioSettings);
+        copyAudio!.Checked+=(_,_)=>{audioSettings.Visibility=Visibility.Collapsed;UpdateEstimate();};
+        copyAudio.Unchecked+=(_,_)=>{audioSettings.Visibility=Visibility.Visible;UpdateEstimate();};
     }
     private double SizeMb()
     {
@@ -114,8 +135,14 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
     internal VideoOptions Read()
     {
         double size=operation==Operation.Compress && preset?.SelectedIndex>0?98:SizeMb();
+        int rate=128,channels=0;
+        if(copyAudio?.IsChecked==false)
+        {
+            if(audioRate is null || audioRate.SelectedIndex<0 || audioRate.SelectedIndex>=VideoAudio.Bitrates.Count || audioChannels?.SelectedIndex is not (>=0 and <=2))throw new IOException("Escolha a taxa e os canais do áudio.");
+            rate=VideoAudio.Bitrates[audioRate.SelectedIndex];channels=audioChannels.SelectedIndex;
+        }
         return new(operation,size,operation==Operation.Webm ? codec?.SelectedIndex==1?"vp9":"vp8" : codec?.SelectedIndex==1?"h265":"h264",copyAudio?.IsChecked!=false,precise?.IsChecked==true,
-            mode?.SelectedIndex switch {1=>SplitMode.Parts,2=>SplitMode.Duration,_=>SplitMode.Size},mode?.SelectedIndex==1?parts!.SelectedIndex+2:mode?.SelectedIndex==2?double.Parse(target!.Text,CultureInfo.InvariantCulture):size,preset?.SelectedIndex switch {1=>"low",2=>"medium",3=>"high",_=>"custom"});
+            mode?.SelectedIndex switch {1=>SplitMode.Parts,2=>SplitMode.Duration,_=>SplitMode.Size},mode?.SelectedIndex==1?parts!.SelectedIndex+2:mode?.SelectedIndex==2?double.Parse(target!.Text,CultureInfo.InvariantCulture):size,preset?.SelectedIndex switch {1=>"low",2=>"medium",3=>"high",_=>"custom"},rate,channels);
     }
     internal UserPreferences Remember(UserPreferences preferences)
     {

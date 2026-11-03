@@ -1,3 +1,16 @@
+# Helium Vídeo Tools 3.0.16 — ajustes de áudio na compactação
+
+- Ao desligar Áudio original, aparecem Taxa de áudio e Canais, lado a lado.
+- Recodificação AAC com 64 a 320 kbps e canais originais, mono ou estéreo; padrão 128 kbps/manter canais.
+- Motor e estimativa consideram a taxa selecionada no orçamento de vídeo, respeitando o teto final.
+- Áudio original ligado continua copiando o som sem alteração; vídeos sem áudio continuam sem som.
+- Ajustes capturados por lote, campos protegidos durante o processamento e retorno à edição ao mudar parâmetros depois do resultado.
+- Adaptação para manter os controles visíveis nos tamanhos verificados, inclusive com progresso/resultado e estimativa completa.
+
+Testes com FFmpeg/ffprobe reais conferem taxa, canais, uma/duas etapas, limite, decodificação e cópia AAC idêntica. Detalhes em docs/AUDIO-SETTINGS.md.
+
+## Histórico da versão anterior
+
 # Helium Vídeo Tools 3.0.15 — interface compacta e arrastar em toda a janela
 
 - Novo layout aprovado em dois painéis para Dividir, Compactar e Converter, adaptável ao tamanho da janela e sem rolagem geral nos tamanhos usuais verificados.
