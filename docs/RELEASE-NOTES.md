@@ -1,3 +1,16 @@
+# Helium Vídeo Tools 3.0.15 — interface compacta e arrastar em toda a janela
+
+- Novo layout aprovado em dois painéis para Dividir, Compactar e Converter, adaptável ao tamanho da janela e sem rolagem geral nos tamanhos usuais verificados.
+- Área de soltar ampliada, botões iguais e alinhados; Áudio e Precisão lado a lado.
+- Solte vídeos sobre a lateral, campos e demais áreas internas da janela. Durante o processamento, a seleção fica protegida.
+- Progresso e resultado mais compactos; botão Voltar ao início limpa a sessão e retorna a Compactar/98 MB sem apagar vídeos ou resultados.
+- Selecionar novos arquivos após concluir volta à edição e permite novo processamento.
+- Mantidos temas, teclado, nomes acessíveis, limites de tamanho, instalação por usuário e atualizações pelo app.
+
+Em janelas extremamente pequenas, a adaptação preserva acesso por rolagem em vez de cortar campos. Evidências e limites em docs/COMPACT-WORKSPACE.md.
+
+## Histórico da versão anterior
+
 # Helium Vídeo Tools 3.0.14 — histórico recuperado após interrupção
 
 - Lotes registram início, resultados individuais e saídas publicadas fora da instalação. Lote ativo é protegido por bloqueio exclusivo.

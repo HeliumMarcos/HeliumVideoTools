@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag da release (ex.: v3.0.14)'
-        default: 'v3.0.14'
+        description: 'Tag da release (ex.: v3.0.15)'
+        default: 'v3.0.15'
         required: true
       publish:
         description: Publicar instalador em Releases
@@ -47,6 +47,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Teste de temas WPF falhou' }
           dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --verify-operation-editor
           if ($LASTEXITCODE -ne 0) { throw 'Teste de configuração/resultados WPF falhou' }
+          dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --verify-compact-workspace work/compact-workspace-validation
+          if ($LASTEXITCODE -ne 0) { throw 'Teste do layout compacto/drop global/reset falhou' }
           dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --audit-responsive work/responsive-validation
           if ($LASTEXITCODE -ne 0) { throw 'Teste de layout adaptável/DPI falhou' }
           dotnet run --project tests/HeliumVideoTools.Tests -c Release -- --verify-keyboard

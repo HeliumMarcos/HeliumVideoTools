@@ -11,6 +11,8 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length==2 && args[0]=="--verify-compact-workspace")
+        {try{CompactWorkspaceTests.Run(args[1]);return 0;}catch(Exception ex){Console.Error.WriteLine(ex);return 1;}}
         if(args.Length==1 && args[0]=="--benchmark-memory-child")
         {Console.WriteLine("ready");Thread.Sleep(30000);return 0;}
         if(args.Length==1 && args[0]=="--verify-installed-metrics")

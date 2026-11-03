@@ -30,7 +30,8 @@ public sealed class Symbol : Control
         ["parts"] = "M3,3 L10,3 L10,10 L3,10 Z M14,3 L21,3 L21,10 L14,10 Z M3,14 L10,14 L10,21 L3,21 Z M14,14 L21,14 L21,21 L14,21 Z",
         ["clock"] = "M22,12 A10,10 0 1 1 2,12 A10,10 0 1 1 22,12 M12,6 L12,12 L16,14",
         ["cancel"] = "M6,6 L18,18 M18,6 L6,18",
-        ["arrow"] = "M4,12 L20,12 M14,6 L20,12 L14,18"
+        ["arrow"] = "M4,12 L20,12 M14,6 L20,12 L14,18",
+        ["home"] = "M2,11 L12,2 L22,11 M5,9 L5,22 L19,22 L19,9 M10,22 L10,15 L14,15 L14,22"
     }.ToDictionary(pair => pair.Key, pair => Geometry.Parse(pair.Value));
     public Symbol() { Width = Height = 20; Focusable = false; IsHitTestVisible = false; }
     protected override void OnRender(DrawingContext dc)

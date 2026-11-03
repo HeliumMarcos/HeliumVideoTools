@@ -60,6 +60,16 @@ public sealed class BatchViewModel : INotifyPropertyChanged
         throw new IOException("FFmpeg/ffprobe ausentes. Abra Atualizações para instalar o conjunto.");
     }
     public void Cancel() => cancellation?.Cancel();
+    internal void ResetSession()
+    {
+        if(Busy)throw new InvalidOperationException("Aguarde o fim do processamento antes de limpar a sessão.");
+        ResetResult();Files.Clear();
+    }
+    internal void ResetResult()
+    {
+        if(Busy)throw new InvalidOperationException("Aguarde o fim do processamento antes de limpar o resultado.");
+        LastResult=null;LastReportPath=null;LastOutputFolder=null;ReportWarning=null;
+    }
     internal void Restore(RecoveredBatch recovered)
     {
         if(Busy || LastResult is not null)return;

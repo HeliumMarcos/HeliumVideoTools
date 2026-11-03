@@ -42,8 +42,9 @@ public partial class MainWindow : Window
         System.Windows.Automation.AutomationProperties.SetLiveSetting(Status,System.Windows.Automation.AutomationLiveSetting.Polite);
         statusAnnouncements=new ProgressAnnouncer(Status);
         updates=new UpdateWindowController(this,()=>model.Busy || shutdown.Saving,()=>updateCheck.Available);
+        _=new WindowFileDrop(this,()=>!model.Busy && !shutdown.Saving && !updates.Installing,paths=>model.Add(paths));
         Editor=new OperationEditor(OptionsPanel,UpdateEstimate);
-        ThemeChoice.ItemsSource=new[]{"Sistema (Windows)","Claro","Escuro"};
+        ThemeChoice.ItemsSource=new[]{"Sistema","Claro","Escuro"};
         ThemeChoice.SelectedIndex=ThemeManager.Preference switch {"light"=>1,"dark"=>2,_=>0};
         void RefreshThemeHelp()=>ThemeHelp.Text=ThemeManager.HighContrast?"Contraste do Windows ativo":"Tab navega · Espaço alterna";
         EventHandler themeChanged=(_,_)=>RefreshThemeHelp();ThemeManager.Changed+=themeChanged;RefreshThemeHelp();
@@ -58,7 +59,10 @@ public partial class MainWindow : Window
         }
         StateChanged+=(_,_)=>{if(WindowState!=WindowState.Minimized) preferredMaximized=WindowState==WindowState.Maximized;};
         ProductVersion.Text = typeof(MainWindow).Assembly.GetName().Version!.ToString(3) + " • .NET";
-        model.Files.CollectionChanged += (_, _) => { DropHint.Visibility = model.Files.Count == 0 ? Visibility.Visible : Visibility.Collapsed; FileCount.Text = model.Files.Count == 0 ? "Nenhum arquivo" : $"{model.Files.Count} arquivo(s)"; UpdateEstimate(); };
+        model.Files.CollectionChanged += (_, _) => {
+            if(!model.Busy && model.LastResult is not null)
+            {model.ResetResult();ProgressPanel.Visibility=Visibility.Collapsed;ActionBar.Visibility=Visibility.Visible;ResetButton.Visibility=Visibility.Collapsed;Status.Text="Seleção atualizada • pronto para processar.";}
+            DropHint.Visibility = model.Files.Count == 0 ? Visibility.Visible : Visibility.Collapsed; FileCount.Text = model.Files.Count == 0 ? "Nenhum arquivo" : $"{model.Files.Count} arquivo(s)"; UpdateEstimate(); };
         BuildOptions();
         if(adaptive){AdaptiveLayout=new ResponsiveLayout(this);if(!preview)WindowWorkArea.Attach(this);}
         try { Status.Text = BatchViewModel.FindTool("ffmpeg") is not null && BatchViewModel.FindTool("ffprobe") is not null ? "Pronto • FFmpeg e ffprobe detectados" : "Ferramentas não encontradas • abra Atualizações para instalar o conjunto"; }
@@ -145,8 +149,20 @@ public partial class MainWindow : Window
     private void Browse(object sender, RoutedEventArgs e) { var dialog = new Microsoft.Win32.OpenFileDialog { Multiselect = true, Filter = "Vídeos|*.mp4;*.mkv;*.mov;*.avi;*.m4v;*.webm",InitialDirectory=preferences.LastDirectory??"" }; if (dialog.ShowDialog() == true) {preferences=preferences with {LastDirectory=Path.GetDirectoryName(dialog.FileNames[0])};model.Add(dialog.FileNames);} }
     private void Remove(object sender, RoutedEventArgs e) { foreach (var item in FilesList.SelectedItems.Cast<InputVideo>().ToArray()) model.Files.Remove(item); }
     private void Clear(object sender, RoutedEventArgs e) => model.Files.Clear();
-    private void FilesDropped(object sender, DragEventArgs e) { if (e.Data.GetData(DataFormats.FileDrop) is string[] paths) model.Add(paths); e.Handled = true; }
-    private void FilesDragOver(object sender, DragEventArgs e) { e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None; e.Handled = true; }
+    private void ResetSession(object sender,RoutedEventArgs e)
+    {
+        if(model.Busy || shutdown.Saving || updates.Installing)return;
+        estimates.Cancel();model.ResetSession();
+        Navigate(CompressNav,new RoutedEventArgs());
+        var defaults=new UserPreferences();
+        preferences=preferences with {CompressionTwoPass=defaults.CompressionTwoPass,WebmTwoPass=defaults.WebmTwoPass,SplitParts=defaults.SplitParts,SplitMinutes=defaults.SplitMinutes};BuildOptions();
+        ProgressPanel.Visibility=Visibility.Collapsed;ActionBar.Visibility=Visibility.Visible;
+        ReportButton.Visibility=ResultDetails.Visibility=ResetButton.Visibility=Visibility.Collapsed;
+        ProgressStatus.Text=ResultDetails.Text="";OverallBar.Value=0;ProgressAction.ContextMenu=null;
+        progressAnnouncements.Reset();statusAnnouncements.Reset();
+        Status.Text="Pronto • adicione ou solte vídeos em qualquer lugar da janela.";
+        RunButton.Focus();
+    }
     private async void Run(object sender, RoutedEventArgs e)
     {
         if (model.Busy || shutdown.Saving) return;
@@ -160,12 +176,13 @@ public partial class MainWindow : Window
             ReportButton.Visibility = ResultDetails.Visibility = Visibility.Collapsed; ProgressAction.ContextMenu = null;
             ProgressHeading.Text = "Progresso geral"; SetProgressColor("Focus");
             RunButton.IsEnabled = false; OptionsPanel.IsEnabled = false;
+            FilesPanel.IsEnabled=false;ResetButton.Visibility=Visibility.Collapsed;ActionBar.Visibility=Visibility.Collapsed;
             var result = await model.RunAsync(options, new Progress<VideoProgress>(p => { if (model.Busy && model.LastResult is null) { OverallBar.Value = p.Percent; ProgressStatus.Text = p.Status; progressAnnouncements.Notify(); } }));
             ShowBatchResult(result);
         }
         catch (OperationCanceledException) { ProgressPanel.Visibility = Visibility.Collapsed; Status.Text = "Processamento cancelado. Os originais foram preservados."; statusAnnouncements.Notify(final:true); }
         catch (Exception ex) { AppLog.Write("ERROR", "Processamento", ex.ToString()); Status.Text = ex is IOException ? ex.Message : "Não foi possível concluir. Consulte o log para detalhes."; ProgressStatus.Text = Status.Text; if(ProgressStatus.IsVisible)progressAnnouncements.Notify(final:true);else statusAnnouncements.Notify(final:true); }
-        finally { RunButton.IsEnabled = true; OptionsPanel.IsEnabled = true; int folders = model.LastResult?.OutputFolders.Count ?? 0; ProgressAction.Content = folders > 1 ? $"Pastas de saída ({folders})" : "Abrir pasta"; ProgressAction.IsEnabled = model.LastOutputFolder is not null; }
+        finally { RunButton.IsEnabled = true; OptionsPanel.IsEnabled = true;FilesPanel.IsEnabled=true;ResetButton.Visibility=Visibility.Visible;ActionBar.Visibility=ProgressPanel.Visibility==Visibility.Visible?Visibility.Collapsed:Visibility.Visible; int folders = model.LastResult?.OutputFolders.Count ?? 0; ProgressAction.Content = folders > 1 ? $"Pastas de saída ({folders})" : "Abrir pasta"; ProgressAction.IsEnabled = model.LastOutputFolder is not null; }
     }
     private void SetProgressColor(string resource)
     {OverallBar.SetResourceReference(Control.ForegroundProperty,resource);ProgressIcon.SetResourceReference(Control.ForegroundProperty,resource);ProgressPanel.SetResourceReference(Border.BorderBrushProperty,resource);ProgressStatus.SetResourceReference(TextBlock.ForegroundProperty,resource);}
@@ -178,6 +195,7 @@ public partial class MainWindow : Window
         ResultDetails.Text=presentation.Details;
         ResultDetails.Visibility = Visibility.Visible; ReportButton.Visibility = model.LastReportPath is null ? Visibility.Collapsed : Visibility.Visible;
         Status.Text=presentation.Status;
+        ActionBar.Visibility=Visibility.Collapsed;ResetButton.Visibility=Visibility.Visible;
         progressAnnouncements.Notify(final:true);
     }
     private void OpenReport(object sender,RoutedEventArgs e)

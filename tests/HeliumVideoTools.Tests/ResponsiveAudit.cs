@@ -117,7 +117,7 @@ internal static class ResponsiveAudit
                 if(bounds.Left<0 || bounds.Right>size.Item1 || bounds.Top<0 || bounds.Bottom>size.Item2)throw new Exception($"Ação cortada após reflow: {operation}/{state}/{size}");
                 if(field.Text!="97" || window.Editor.Unit.SelectedIndex!=2 || !ReferenceEquals(field,window.Editor.Target))throw new Exception("Reflow recriou campos ou perdeu valores");
             }
-            if(Grid.GetColumn(field.Parent as UIElement ?? field)!=1)throw new Exception("Layout amplo não restaurou as colunas");
+            if(Grid.GetRow(field.Parent as UIElement ?? field)!=1)throw new Exception("Layout amplo não restaurou os rótulos acima dos campos");
             window.Close();
         }
         Console.WriteLine("PASS: reflow reversível nas 3 operações, idle/progresso/resultado, valores e instâncias preservados.");

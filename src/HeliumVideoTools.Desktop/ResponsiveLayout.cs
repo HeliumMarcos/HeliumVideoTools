@@ -1,35 +1,25 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace HeliumVideoTools.Desktop;
 
-// Reflows existing controls. No editor rebuild, value reset or extra tab stops.
+// Reflows the same controls without rebuilding editors or losing their values.
 internal sealed class ResponsiveLayout
 {
-    private readonly Grid root,main,action;
-    private readonly Border sidebar,progress;
-    private readonly DockPanel dock;
-    private readonly StackPanel options,buttons,progressBody;
-    private readonly DockPanel progressHeader;
-    private readonly StackPanel progressButtons,progressTitle;
+    private readonly Grid root,main,work,action;
+    private readonly Border sidebar,files,output,progress;
+    private readonly DockPanel dock,progressHeader;
+    private readonly StackPanel options,progressBody,progressButtons,progressTitle;
+    private readonly StackPanel stackedProgress=new();
     private readonly Button run;
     private readonly ScrollViewer page,sideScroll=new(){VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled},workspace=new(){VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};
-    private readonly WrapPanel wrappedButtons=new();
-    private readonly StackPanel stackedProgress=new();
-    private readonly Panel fileCard;
-    private readonly int buttonIndex;
-    private readonly Dictionary<TextBlock,TextWrapping> wrapping=new();
-    private readonly Dictionary<Grid,(Thickness Row,Thickness Label)> rows=new();
-    private bool applying,pending,sideWrapped,buttonsWrapped,actionStacked,headerStacked,workspaceWrapped;
-
+    private bool applying,pending,sideWrapped,actionStacked,headerStacked,workspaceWrapped;
     internal ResponsiveLayout(MainWindow window)
     {
         root=(Grid)window.Content;sidebar=(Border)root.Children[0];dock=(DockPanel)sidebar.Child;main=(Grid)root.Children[1];
+        work=(Grid)window.FindName("WorkPanels");files=(Border)window.FindName("FilesCard");output=(Border)window.FindName("OutputCard");
         options=(StackPanel)window.FindName("OptionsPanel");page=(ScrollViewer)window.FindName("PageScroll");
         action=(Grid)((Border)window.FindName("ActionBar")).Child;run=(Button)window.FindName("RunButton");
-        buttons=Walk(page).OfType<StackPanel>().Single(p=>p.Orientation==Orientation.Horizontal && p.Children.OfType<Button>().Count()==3);
-        fileCard=(Panel)buttons.Parent;buttonIndex=fileCard.Children.IndexOf(buttons);
         progress=(Border)window.FindName("ProgressPanel");progressBody=(StackPanel)progress.Child;progressHeader=(DockPanel)progressBody.Children[0];
         progressButtons=(StackPanel)progressHeader.Children[0];progressTitle=(StackPanel)progressHeader.Children[1];
         root.SizeChanged+=(_,_)=>ScheduleRefresh();progress.IsVisibleChanged+=(_,_)=>ScheduleRefresh();
@@ -42,50 +32,43 @@ internal sealed class ResponsiveLayout
     internal void Refresh()=>Refresh(root.ActualWidth,root.ActualHeight);
     internal void Refresh(double width,double height)
     {
-        if(applying || width<=0 || height<=0)return;
-        applying=true;
+        if(applying || width<=0 || height<=0)return;applying=true;
         try
         {
-            bool compact=width<1100 || height<700,narrow=width<1000;
+            bool narrow=width<850,small=height<760;
             bool entire=height<420 || (height<600 && progress.Visibility==Visibility.Visible);
-            root.ColumnDefinitions[0].Width=new GridLength(width<980?184:232);
-            sidebar.Padding=width<980?new Thickness(12,16,12,12):new Thickness(16,24,16,16);
-            main.Margin=width<1100?new Thickness(16,16,16,8):new Thickness(28,24,28,12);
-            if(compact!=sideWrapped)
+            root.ColumnDefinitions[0].Width=new GridLength(narrow?156:194);
+            sidebar.Padding=narrow?new Thickness(8,12,8,10):new Thickness(12,20,12,12);
+            main.Margin=narrow?new Thickness(12,12,12,8):new Thickness(20,18,20,10);
+            bool wrapSide=height<650;
+            if(wrapSide!=sideWrapped)
             {
-                if(compact){sidebar.Child=null;sideScroll.Content=dock;sidebar.Child=sideScroll;}
+                if(wrapSide){sidebar.Child=null;sideScroll.Content=dock;sidebar.Child=sideScroll;}
                 else{sideScroll.Content=null;sideScroll.UpdateLayout();sidebar.Child=dock;}
-                sideWrapped=compact;
+                sideWrapped=wrapSide;
             }
-            foreach(var image in Walk(dock).OfType<Image>())image.Width=width<980?156:200;
-            var texts=Walk(main).OfType<TextBlock>().Concat(Walk(dock).OfType<TextBlock>()).ToHashSet();
-            foreach(var text in texts)
-            {
-                if(!wrapping.ContainsKey(text))wrapping[text]=text.TextWrapping;
-                text.TextWrapping=compact?TextWrapping.Wrap:wrapping[text];
-            }
-            foreach(var old in wrapping.Keys.Where(k=>!texts.Contains(k)).ToArray())wrapping.Remove(old);
-            if(compact!=buttonsWrapped)
-            {
-                Panel from=compact?buttons:wrappedButtons,to=compact?wrappedButtons:buttons;
-                while(from.Children.Count>0){var child=from.Children[0];from.Children.RemoveAt(0);to.Children.Add(child);}
-                fileCard.Children.RemoveAt(buttonIndex);fileCard.Children.Insert(buttonIndex,(UIElement)to);buttonsWrapped=compact;
-            }
-            var currentRows=options.Children.OfType<Grid>().ToHashSet();
-            foreach(var old in rows.Keys.Where(k=>!currentRows.Contains(k)).ToArray())rows.Remove(old);
-            foreach(var row in currentRows)
+            foreach(var image in Walk(dock).OfType<Image>())image.Width=narrow?132:162;
+            work.ColumnDefinitions[0].Width=new GridLength(narrow?1:.9,GridUnitType.Star);
+            work.ColumnDefinitions[1].Width=narrow?new GridLength(0):new GridLength(1.1,GridUnitType.Star);
+            if(narrow && work.RowDefinitions.Count==1)work.RowDefinitions.Add(new(){Height=GridLength.Auto});
+            if(!narrow && work.RowDefinitions.Count>1)work.RowDefinitions.RemoveAt(1);
+            Grid.SetColumn(output,narrow?0:1);Grid.SetRow(output,narrow?1:0);
+            files.Margin=narrow?new Thickness(0,0,0,10):new Thickness(0,0,12,0);
+            bool inline=small && !narrow;
+            foreach(var row in options.Children.OfType<Grid>().Where(g=>g.Tag as string=="OptionRow"))
             {
                 if(row.Children.Count!=2)continue;
                 var label=(FrameworkElement)row.Children[0];var field=row.Children[1];
-                if(narrow && !rows.ContainsKey(row))
+                row.ColumnDefinitions.Clear();row.RowDefinitions.Clear();
+                if(inline && field is not Border)
                 {
-                    rows[row]=(row.Margin,label.Margin);row.ColumnDefinitions.Clear();row.RowDefinitions.Add(new(){Height=GridLength.Auto});row.RowDefinitions.Add(new(){Height=GridLength.Auto});
-                    label.Margin=new Thickness(0,0,0,6);row.Margin=new Thickness(0,0,0,14);Grid.SetColumn(field,0);Grid.SetRow(field,1);
+                    row.ColumnDefinitions.Add(new(){Width=new GridLength(104)});row.ColumnDefinitions.Add(new());
+                    Grid.SetColumn(field,1);Grid.SetRow(field,0);label.Margin=new Thickness(0,0,8,0);
                 }
-                else if(!narrow && rows.Remove(row,out var original))
+                else
                 {
-                    row.RowDefinitions.Clear();row.ColumnDefinitions.Add(new(){Width=new GridLength(164)});row.ColumnDefinitions.Add(new());
-                    label.Margin=original.Label;row.Margin=original.Row;Grid.SetColumn(field,1);Grid.SetRow(field,0);
+                    row.RowDefinitions.Add(new(){Height=GridLength.Auto});row.RowDefinitions.Add(new(){Height=GridLength.Auto});
+                    Grid.SetColumn(field,0);Grid.SetRow(field,1);label.Margin=new Thickness(0,0,0,4);
                 }
             }
             if(narrow!=actionStacked)
@@ -94,7 +77,7 @@ internal sealed class ResponsiveLayout
                 if(narrow)
                 {
                     action.RowDefinitions.Add(new(){Height=GridLength.Auto});action.RowDefinitions.Add(new(){Height=GridLength.Auto});
-                    Grid.SetColumn(run,0);Grid.SetRow(run,1);run.Margin=new Thickness(0,10,0,0);
+                    Grid.SetColumn(run,0);Grid.SetRow(run,1);run.Margin=new Thickness(0,8,0,0);
                 }
                 else
                 {
@@ -103,12 +86,13 @@ internal sealed class ResponsiveLayout
                 }
                 actionStacked=narrow;
             }
-            if(narrow!=headerStacked)
+            bool stackHeader=width<900;
+            if(stackHeader!=headerStacked)
             {
                 progressHeader.Children.Clear();stackedProgress.Children.Clear();
-                if(narrow){stackedProgress.Children.Add(progressTitle);stackedProgress.Children.Add(progressButtons);progressButtons.Margin=new Thickness(0,8,0,0);}
+                if(stackHeader){stackedProgress.Children.Add(progressTitle);stackedProgress.Children.Add(progressButtons);progressButtons.Margin=new Thickness(0,8,0,0);}
                 else{progressHeader.Children.Add(progressButtons);progressHeader.Children.Add(progressTitle);progressButtons.Margin=new Thickness(0);}
-                progressBody.Children.RemoveAt(0);progressBody.Children.Insert(0,narrow?stackedProgress:progressHeader);headerStacked=narrow;
+                progressBody.Children.RemoveAt(0);progressBody.Children.Insert(0,stackHeader?stackedProgress:progressHeader);headerStacked=stackHeader;
             }
             if(entire!=workspaceWrapped)
             {
@@ -127,8 +111,7 @@ internal sealed class ResponsiveLayout
         }
         finally{applying=false;}
     }
-    internal void RevealAction()
-    {if(workspaceWrapped)workspace.ScrollToEnd();}
+    internal void RevealAction(){if(workspaceWrapped)workspace.ScrollToEnd();}
     private static IEnumerable<DependencyObject> Walk(DependencyObject node)
     {yield return node;foreach(var item in LogicalTreeHelper.GetChildren(node).OfType<DependencyObject>())foreach(var child in Walk(item))yield return child;}
 }

@@ -29,14 +29,16 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
     }
     private Grid Row(string label, UIElement field)
     {
-        var grid = new Grid { Margin = new Thickness(0, 0, 0, 9) };
-        grid.ColumnDefinitions.Add(new() { Width = new GridLength(164) }); grid.ColumnDefinitions.Add(new());
+        var grid = new Grid { Margin = new Thickness(0, 0, 0, 8),Tag="OptionRow" };
+        grid.RowDefinitions.Add(new(){Height=GridLength.Auto});grid.RowDefinitions.Add(new(){Height=GridLength.Auto});
         var labelPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         string symbol = label switch { "Preset" => "preset", "Codec" => "codec", "Áudio" => "audio", "Precisão" => "shield", "Estimativa" => "estimate", "Dividir por" => "split", "Quantidade" => "parts", _ => "size" };
         var rowIcon=new Symbol {Kind=symbol,Width=17,Height=17,Margin=new Thickness(0,0,9,0)};rowIcon.SetResourceReference(Control.ForegroundProperty,"TextSecondary");labelPanel.Children.Add(rowIcon);
-        labelPanel.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center, FontSize = 13 });
+        labelPanel.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center, FontSize = 12 });
+        labelPanel.Margin=new Thickness(0,0,0,4);
+        if(field is CheckBox)labelPanel.Visibility=Visibility.Collapsed;
         grid.Children.Add(labelPanel);
-        Grid.SetColumn(field, 1); grid.Children.Add(field); panel.Children.Add(grid);
+        Grid.SetRow(field, 1); grid.Children.Add(field); panel.Children.Add(grid);
         if (field is FrameworkElement element) System.Windows.Automation.AutomationProperties.SetName(element,field is CheckBox check?label+": "+check.Content:label);
         return grid;
     }
@@ -54,7 +56,7 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
             parts.SelectedIndex=preferences.SplitParts-2;
             quantityRow = Row("Quantidade", parts);
         }
-        if (operation == Operation.Compress) { preset = Choice("Personalizada • tamanho definido por você", "Baixa compressão • mais qualidade", "Média • equilibrada", "Alta compressão • menor arquivo"); Row("Preset", preset); }
+        if (operation == Operation.Compress) { preset = Choice("Personalizada", "Baixa compressão • mais qualidade", "Média • equilibrada", "Alta compressão • menor arquivo"); Row("Preset", preset); }
         target = new TextBox { Text = defaults.TargetMb.ToString("0",CultureInfo.InvariantCulture) };
         System.Windows.Automation.AutomationProperties.SetName(target, operation == Operation.Split ? "Tamanho por parte ou duração em minutos" : "Tamanho de saída por arquivo");
         target.PreviewTextInput += (_, e) => e.Handled = !e.Text.All(char.IsAsciiDigit);
@@ -84,13 +86,22 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
         if (preset is not null) preset.SelectionChanged += (_, _) => { sizeRow.Visibility = preset.SelectedIndex == 0 ? Visibility.Visible : Visibility.Collapsed; };
         if (operation != Operation.Split)
         {
-            codec = operation == Operation.Webm ? Choice("VP8 • conversão mais rápida", "VP9 • melhor compressão") : Choice("H.264 • maior compatibilidade", "H.265 • arquivo menor"); Row("Codec", codec);
-            if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Manter áudio original", IsChecked = true }; copyAudio.Checked+=(_,_)=>UpdateEstimate(); copyAudio.Unchecked+=(_,_)=>UpdateEstimate(); Row("Áudio", copyAudio); }
-            precise = new CheckBox { Content = "Modo preciso em 2 etapas", IsChecked = defaults.TwoPass }; precise.Checked+=(_,_)=>UpdateEstimate(); precise.Unchecked+=(_,_)=>UpdateEstimate(); Row("Precisão", precise);
+            codec = operation == Operation.Webm ? Choice("VP8 • mais rápido", "VP9 • melhor compressão") : Choice("H.264 • compatível", "H.265 • arquivo menor"); Row("Codec", codec);
+            Grid? audioRow=null;
+            if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Áudio original", IsChecked = true,ToolTip="Manter áudio original, sem recodificar" }; copyAudio.Checked+=(_,_)=>UpdateEstimate(); copyAudio.Unchecked+=(_,_)=>UpdateEstimate();audioRow=Row("Áudio", copyAudio);System.Windows.Automation.AutomationProperties.SetName(copyAudio,"Áudio: Manter áudio original"); }
+            precise = new CheckBox { Content = "2 etapas", IsChecked = defaults.TwoPass,ToolTip="Modo preciso em 2 etapas" }; precise.Checked+=(_,_)=>UpdateEstimate(); precise.Unchecked+=(_,_)=>UpdateEstimate();var precisionRow=Row("Precisão", precise);System.Windows.Automation.AutomationProperties.SetName(precise,"Precisão: Modo preciso em 2 etapas");
+            if(audioRow is not null)
+            {
+                var pair=new Grid {Tag="TogglePair"};pair.ColumnDefinitions.Add(new());pair.ColumnDefinitions.Add(new());
+                panel.Children.Remove(audioRow);panel.Children.Remove(precisionRow);
+                ((FrameworkElement)audioRow.Children[0]).Visibility=((FrameworkElement)precisionRow.Children[0]).Visibility=Visibility.Visible;
+                audioRow.Margin=new Thickness(0,0,8,8);precisionRow.Margin=new Thickness(8,0,0,8);Grid.SetColumn(precisionRow,1);
+                pair.Children.Add(audioRow);pair.Children.Add(precisionRow);panel.Children.Add(pair);
+            }
         }
         estimate = new TextBlock { FontSize = 12 };estimate.SetResourceReference(TextBlock.ForegroundProperty,"InfoText");
         estimateNote=new TextBlock {FontSize=11,Margin=new Thickness(0,6,0,0),Visibility=Visibility.Collapsed };estimateNote.SetResourceReference(TextBlock.ForegroundProperty,"TextSecondary");
-        var estimateContent=new StackPanel { Margin=new Thickness(12,9,12,9),MinHeight=34 }; estimateContent.Children.Add(estimate); estimateContent.Children.Add(estimateNote);
+        var estimateContent=new StackPanel { Margin=new Thickness(10,8,10,8) }; estimateContent.Children.Add(estimate); estimateContent.Children.Add(estimateNote);
         var estimateBox=new Border {CornerRadius=new CornerRadius(6),Child=estimateContent};estimateBox.SetResourceReference(Border.BackgroundProperty,"InfoBackground");Row("Estimativa",estimateBox);
         var note = new TextBlock { Text = operation == Operation.Webm ? "O arquivo final respeita o teto escolhido e um orçamento menor que o original." : operation == Operation.Split ? "Divisão precisa em MP4 (H.264/AAC), com recodificação. Os originais são preservados." : "O tamanho é conferido em MB decimais antes de salvar o resultado.", FontSize = 11 };note.SetResourceReference(TextBlock.ForegroundProperty,"TextSecondary");panel.Children.Add(note);
         buildingOptions=false; UpdateEstimate();

@@ -1,5 +1,7 @@
 # Helium Vídeo Tools — C# / .NET 10 / WPF
 
+Na **3.0.15**, o layout aprovado em dois painéis se adapta à janela nas três ferramentas, com drop em toda a área interna, seleção protegida durante processamento, progresso/resultado compactos e **Voltar ao início**. Área de soltar ampliada, botões iguais e Áudio/Precisão lado a lado. [Comportamento, testes e limites](docs/COMPACT-WORKSPACE.md).
+
 [Desempenho medido da instalação 3.0.14](docs/DESEMPENHO-INSTALADO.md): abertura repetida mediana 727 ms; processamento real pela interface e memória simultânea com FFmpeg registrados, sem alterar o aplicativo. Primeira amostra não é garantia de cache frio.
 
 Aplicativo Windows para preparar mídias de audiências: compactação e divisão para o Projudi, conversão para WebM para o SEEU. A implementação ativa está em **C#/.NET 10 com interface WPF**, na pasta `src`. O código Python anterior permanece como referência histórica da migração.

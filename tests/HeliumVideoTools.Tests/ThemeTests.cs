@@ -53,7 +53,7 @@ internal static class ThemeTests
             var run=(Button)window.FindName("RunButton");var choice=(ComboBox)window.FindName("ThemeChoice");
             var bounds=run.TransformToAncestor((Visual)window.Content).TransformBounds(new Rect(run.RenderSize));
             Check(bounds.Bottom<=((FrameworkElement)window.Content).ActualHeight && bounds.Right<=((FrameworkElement)window.Content).ActualWidth,"Ação principal cortada");
-            Check(choice.IsVisible && choice.ActualHeight>=40,"Seletor de aparência oculto");
+            Check(choice.IsVisible && choice.ActualHeight>=34,"Seletor de aparência oculto ou menor que o padrão compacto");
             Check(new ButtonAutomationPeer(run).GetName().Contains(operation=="Compress"?"Compactar":operation=="Split"?"Dividir":"Converter"),"Nome acessível da ação incorreto");
             var target=window.Editor.Target;
             target.Focus();window.UpdateLayout();
