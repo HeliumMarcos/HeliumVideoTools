@@ -52,6 +52,11 @@ internal static class CompactWorkspaceTests
             typeof(BatchViewModel).GetProperty(nameof(model.LastResult))!.SetValue(model,result);
             typeof(MainWindow).GetMethod("ShowBatchResult",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(w,[result]);
             Find<Border>(w,"ProgressPanel").Visibility=Visibility.Visible;
+            Click(w,"WebmNav");
+            Check(model.Files.Count==count && model.LastResult is null && Find<Border>(w,"ActionBar").Visibility==Visibility.Visible,"Trocar ferramenta após resultado não permitiu reutilizar os arquivos");
+            typeof(BatchViewModel).GetProperty(nameof(model.LastResult))!.SetValue(model,result);
+            typeof(MainWindow).GetMethod("ShowBatchResult",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(w,[result]);
+            Find<Border>(w,"ProgressPanel").Visibility=Visibility.Visible;
             Click(w,"ResetButton");
             Check(model.Files.Count==0 && model.LastResult is null && model.LastReportPath is null && model.LastOutputFolder is null,"Reset deixou estado da sessão anterior");
             Check(w.Editor.Read() is {Operation:Operation.Compress,TargetMb:98,CopyAudio:true},"Reset não voltou a Compactar/98 MB/áudio original");

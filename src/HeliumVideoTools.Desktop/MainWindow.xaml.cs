@@ -106,6 +106,8 @@ public partial class MainWindow : Window
         =>updates.Show();
     private void Navigate(object sender, RoutedEventArgs e)
     {
+        if(!model.Busy && model.LastResult is not null)
+        {model.ResetResult();ProgressPanel.Visibility=Visibility.Collapsed;ActionBar.Visibility=Visibility.Visible;ResetButton.Visibility=Visibility.Collapsed;Status.Text="Pronto • use os arquivos selecionados nesta ferramenta.";}
         RememberToolPreferences();
         operation = Enum.Parse<Operation>((string)((Button)sender).Tag);
         Heading.Text = operation switch { Operation.Split => "Dividir vídeo", Operation.Webm => "Converter para WebM", _ => "Compactar vídeos" };
