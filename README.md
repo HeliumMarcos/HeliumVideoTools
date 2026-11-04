@@ -8,7 +8,7 @@
   <a href="https://github.com/HeliumMarcos/HeliumVideoTools/releases/latest"><strong>Baixar para Windows</strong></a>
   · <a href="#como-usar">Como usar</a>
   · <a href="#documentação">Documentação</a>
-  · <a href="CONTRIBUTING.md">Contribuir</a>
+  · <a href=".github/CONTRIBUTING.md">Contribuir</a>
 </p>
 
 Aplicativo para **compactar, dividir e converter vídeos de audiências** no próprio computador. Solte os arquivos na janela, escolha a operação e acompanhe o progresso. Os resultados ficam ao lado dos originais.
@@ -52,9 +52,9 @@ O processamento de vídeo é local. O aplicativo acessa a internet para consulta
 | Novidades por versão | [Notas de versão](docs/RELEASE-NOTES.md) |
 | Interface e ajustes de áudio | [Interface compacta](docs/COMPACT-WORKSPACE.md) · [Configuração de áudio](docs/AUDIO-SETTINGS.md) |
 | Recuperação após interrupções | [Recuperação de lotes](docs/BATCH-RECOVERY.md) |
-| Código, compilação e testes | [Guia de contribuição](CONTRIBUTING.md) |
-| Migração e desempenho | [Histórico da migração](docs/MIGRACAO-ANDAMENTO.md) · [Medições](docs/DESEMPENHO-INSTALADO.md) |
-| Segurança e convivência | [Política de segurança](SECURITY.md) · [Código de conduta](CODE_OF_CONDUCT.md) |
-| Licenças distribuídas | [Guia em português](installer/LICENCAS.pt-BR.txt) · [Texto original do FFmpeg](FFmpeg-LICENSE.txt) |
+| Código, compilação e testes | [Guia de contribuição](.github/CONTRIBUTING.md) |
+| Migração e desempenho | [Histórico da migração](docs/MIGRACAO-ANDAMENTO.md) · [Medições](docs/DESEMPENHO-INSTALADO.md) · [Versão anterior em Python](docs/historico/README.md) |
+| Segurança e convivência | [Política de segurança](.github/SECURITY.md) · [Código de conduta](.github/CODE_OF_CONDUCT.md) |
+| Licenças distribuídas | [Guia em português](installer/LICENCAS.pt-BR.txt) · [Texto original do FFmpeg](tools/licencas/FFmpeg-LICENSE.txt) |
 
 Dúvidas e sugestões podem ser registradas nos [Issues do projeto](https://github.com/HeliumMarcos/HeliumVideoTools/issues).

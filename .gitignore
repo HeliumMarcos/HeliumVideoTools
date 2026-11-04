@@ -19,3 +19,6 @@ obj/
 .env*
 !*.env.example
 installer/output/
+
+# Cópia de licença extraída na preparação local das ferramentas
+/FFmpeg-LICENSE.txt
