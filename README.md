@@ -13,6 +13,14 @@
 
 Aplicativo para **compactar, dividir e converter vídeos de audiências** no próprio computador. Solte os arquivos na janela, escolha a operação e acompanhe o progresso. Os resultados ficam ao lado dos originais.
 
+<details>
+  <summary>Ver a interface do aplicativo</summary>
+
+  <img src="docs/media/interface.png" width="860" alt="Helium Vídeo Tools na tela Compactar, com área para adicionar vídeos e configurações de tamanho, codec e áudio.">
+
+  Captura da versão 3.0.17, na tela Compactar.
+</details>
+
 ## Instalação e atualização
 
 1. Na [versão estável mais recente](https://github.com/HeliumMarcos/HeliumVideoTools/releases/latest), baixe o arquivo terminado em **-win-x64-Setup.exe**.
