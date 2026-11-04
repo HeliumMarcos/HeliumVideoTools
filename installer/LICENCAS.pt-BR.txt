@@ -1,0 +1,33 @@
+LICENÇAS E AVISOS DO HELIUM VÍDEO TOOLS
+
+Este guia em português brasileiro identifica os componentes do instalador
+e indica onde consultar seus termos. Os textos originais acompanham os
+componentes e prevalecem para os fins da licença.
+
+FFmpeg e ffprobe
+----------------
+O pacote inclui ferramentas da distribuição Essentials do Gyan. A versão,
+o endereço do pacote e seu SHA-256 constam em tools\manifest.json.
+O texto original da GNU GPL versão 3 fornecido com as ferramentas está em
+tools\FFmpeg-LICENSE.txt. A licença estabelece condições para uso, estudo,
+modificação e redistribuição, incluindo a disponibilização do código-fonte
+correspondente nas situações previstas em seus termos.
+
+Pacote, versões e referências de código-fonte:
+https://github.com/GyanD/codexffmpeg
+https://ffmpeg.org/download.html
+https://www.gnu.org/licenses/gpl-3.0.html
+Tradução brasileira não oficial, indicada pelo Projeto GNU:
+https://www.gnu.org/licenses/translations.html
+
+.NET e WPF
+----------
+O aplicativo inclui o runtime do .NET para Windows. Consulte os termos originais da Microsoft nos repositórios abaixo.
+https://github.com/dotnet/runtime/blob/main/LICENSE.TXT
+https://github.com/dotnet/wpf/blob/main/LICENSE.TXT
+
+Código do Helium Vídeo Tools
+----------------------------
+O código do aplicativo está no repositório oficial. Os termos das
+dependências se aplicam a seus respectivos componentes.
+https://github.com/HeliumMarcos/HeliumVideoTools

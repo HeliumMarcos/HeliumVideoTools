@@ -1,3 +1,10 @@
+# Helium Vídeo Tools 3.0.17
+
+- Página do projeto reorganizada, com download da versão estável mais recente, guia de uso e documentação em português brasileiro.
+- Guia de licenças e avisos em português incluído na pasta do aplicativo instalado, junto aos termos originais das dependências.
+- A licença do FFmpeg distribuída no pacote vem do mesmo arquivo compactado que fornece os executáveis.
+
+
 # Helium Vídeo Tools 3.0.16 — ajustes de áudio na compactação
 
 - Ao desligar Áudio original, aparecem Taxa de áudio e Canais, lado a lado.

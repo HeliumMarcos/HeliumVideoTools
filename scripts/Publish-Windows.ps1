@@ -10,7 +10,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Publicação WPF falhou' }
 if ($LASTEXITCODE -ne 0) { throw 'Publicação auxiliar falhou' }
 & "$PSScriptRoot\Prepare-MediaTools.ps1" -Destination (Join-Path $projectRoot 'artifacts\publish\tools')
 Copy-Item 'tools\manifest.json' 'artifacts\publish\tools\manifest.json' -Force
-Copy-Item 'FFmpeg-LICENSE.txt' 'artifacts\publish\FFmpeg-LICENSE.txt' -Force
+Copy-Item 'artifacts\publish\tools\FFmpeg-LICENSE.txt' 'artifacts\publish\FFmpeg-LICENSE.txt' -Force
+Copy-Item 'installer\LICENCAS.pt-BR.txt' 'artifacts\publish\LICENCAS.pt-BR.txt' -Force
 if ($Installer) {
   $nsis = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
   if (-not (Test-Path -LiteralPath $nsis)) { throw 'NSIS ausente. Instale no runner de build.' }

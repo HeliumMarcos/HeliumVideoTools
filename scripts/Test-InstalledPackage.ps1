@@ -12,6 +12,12 @@ if (-not (Test-Path -LiteralPath $link)) {
     throw "Atalho esperado ausente: $link"
 }
 if (-not (Test-Path -LiteralPath (Join-Path (Split-Path -Parent $expected) 'HeliumVideoTools.Infrastructure.dll'))) { throw 'Infraestrutura não foi incluída no pacote instalado' }
+$appDirectory = Split-Path -Parent $expected
+$licenseGuide = Join-Path $appDirectory 'LICENCAS.pt-BR.txt'
+$originalLicense = Join-Path $appDirectory 'tools\FFmpeg-LICENSE.txt'
+if (-not (Test-Path -LiteralPath $licenseGuide)) { throw 'Guia de licenças em português ausente' }
+if (-not (Test-Path -LiteralPath $originalLicense)) { throw 'Licença original do FFmpeg ausente' }
+if ((Get-Content -LiteralPath $licenseGuide -Raw) -notmatch 'LICENÇAS E AVISOS') { throw 'Guia de licenças ilegível ou inválido' }
 $before = (Get-FileHash -LiteralPath $link -Algorithm SHA256).Hash
 # Perfil sintético do runner: o instalador não pode apagar preferências, e
 # valores antigos não suportados não devem substituir os padrões do produto.

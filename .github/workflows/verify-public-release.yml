@@ -5,7 +5,7 @@ on:
       tag:
         description: 'Versão estável mais recente para validar'
         required: true
-        default: 'v3.0.16'
+        default: 'v3.0.17'
 permissions:
   contents: read
 jobs:
