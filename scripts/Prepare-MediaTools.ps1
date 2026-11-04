@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 if (-not $Destination) { $Destination = $projectRoot }
 $Destination = [IO.Path]::GetFullPath($Destination)
-$manifest = Get-Content -Raw (Join-Path $projectRoot 'tools\manifest.json') | ConvertFrom-Json
+$manifest = Get-Content -Raw (Join-Path $projectRoot 'scripts\media-tools\manifest.json') | ConvertFrom-Json
 $workRoot = Join-Path $projectRoot 'work\media-tools'
 New-Item -ItemType Directory -Force $workRoot | Out-Null
 $archive = Join-Path $workRoot ('ffmpeg-' + $manifest.version + '.zip')

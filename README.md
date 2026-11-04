@@ -55,6 +55,6 @@ O processamento de vídeo é local. O aplicativo acessa a internet para consulta
 | Código, compilação e testes | [Guia de contribuição](.github/CONTRIBUTING.md) |
 | Migração e desempenho | [Histórico da migração](docs/MIGRACAO-ANDAMENTO.md) · [Medições](docs/DESEMPENHO-INSTALADO.md) · [Versão anterior em Python](docs/historico/README.md) |
 | Segurança e convivência | [Política de segurança](.github/SECURITY.md) · [Código de conduta](.github/CODE_OF_CONDUCT.md) |
-| Licenças distribuídas | [Guia em português](installer/LICENCAS.pt-BR.txt) · [Texto original do FFmpeg](tools/licencas/FFmpeg-LICENSE.txt) |
+| Licenças distribuídas | [Guia em português](installer/LICENCAS.pt-BR.txt) · [Texto original do FFmpeg](scripts/media-tools/licencas/FFmpeg-LICENSE.txt) |
 
 Dúvidas e sugestões podem ser registradas nos [Issues do projeto](https://github.com/HeliumMarcos/HeliumVideoTools/issues).

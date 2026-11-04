@@ -9,7 +9,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Publicação WPF falhou' }
 & $Dotnet publish src/HeliumVideoTools.UpdateHost -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o artifacts/update-host
 if ($LASTEXITCODE -ne 0) { throw 'Publicação auxiliar falhou' }
 & "$PSScriptRoot\Prepare-MediaTools.ps1" -Destination (Join-Path $projectRoot 'artifacts\publish\tools')
-Copy-Item 'tools\manifest.json' 'artifacts\publish\tools\manifest.json' -Force
+Copy-Item 'scripts\media-tools\manifest.json' 'artifacts\publish\tools\manifest.json' -Force
 Copy-Item 'artifacts\publish\tools\FFmpeg-LICENSE.txt' 'artifacts\publish\FFmpeg-LICENSE.txt' -Force
 Copy-Item 'installer\LICENCAS.pt-BR.txt' 'artifacts\publish\LICENCAS.pt-BR.txt' -Force
 if ($Installer) {
