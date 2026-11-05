@@ -4,16 +4,16 @@ A versão atual é um aplicativo Windows em C#/.NET 10 com WPF. A versão anteri
 
 | Pasta | Conteúdo |
 | --- | --- |
-| [src/HeliumVideoTools.Core](../src/HeliumVideoTools.Core) | Modelos, contratos e regras de vídeo |
-| [src/HeliumVideoTools.Infrastructure](../src/HeliumVideoTools.Infrastructure) | Processamento, atualizações, armazenamento e recuperação |
-| [src/HeliumVideoTools.Desktop](../src/HeliumVideoTools.Desktop) | Interface WPF |
-| [src/HeliumVideoTools.UpdateHost](../src/HeliumVideoTools.UpdateHost) | Auxiliar de atualização |
-| [tests](../tests) | Testes de processamento e interface |
-| [installer](../installer) e [scripts](../scripts) | Empacotamento e distribuição |
+| [src/HeliumVideoTools.Core](../app/src/HeliumVideoTools.Core) | Modelos, contratos e regras de vídeo |
+| [src/HeliumVideoTools.Infrastructure](../app/src/HeliumVideoTools.Infrastructure) | Processamento, atualizações, armazenamento e recuperação |
+| [src/HeliumVideoTools.Desktop](../app/src/HeliumVideoTools.Desktop) | Interface WPF |
+| [src/HeliumVideoTools.UpdateHost](../app/src/HeliumVideoTools.UpdateHost) | Auxiliar de atualização |
+| [tests](../app/tests) | Testes de processamento e interface |
+| [installer](../app/installer) e [scripts](../app/scripts) | Empacotamento e distribuição |
 
 ## Executar no Windows
 
-Instale o SDK do .NET 10 e use o PowerShell na raiz do repositório.
+Instale o SDK do .NET 10 e use o PowerShell na pasta app do repositório.
 
 ```powershell
 .\scripts\Prepare-MediaTools.ps1

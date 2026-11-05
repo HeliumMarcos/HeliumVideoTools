@@ -8,6 +8,9 @@ on:
         default: 'v3.0.17'
 permissions:
   contents: read
+defaults:
+  run:
+    working-directory: app
 jobs:
   verify:
     runs-on: windows-2025

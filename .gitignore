@@ -22,3 +22,4 @@ installer/output/
 
 # Cópia de licença extraída na preparação local das ferramentas
 /FFmpeg-LICENSE.txt
+/app/FFmpeg-LICENSE.txt
