@@ -108,7 +108,7 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
                 panel.Children.Insert(index, videoSettings);
             }
             Grid? audioRow=null;
-            if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Áudio original", IsChecked = true,ToolTip="Manter áudio original, sem recodificar" };audioRow=Row("Áudio", copyAudio);System.Windows.Automation.AutomationProperties.SetName(copyAudio,"Áudio: Manter áudio original"); }
+            if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Áudio original", IsChecked = true,ToolTip="Copia áudio mono ou estéreo. Faixas com mais canais são convertidas para estéreo em AAC a 128 kbps." };audioRow=Row("Áudio", copyAudio);System.Windows.Automation.AutomationProperties.SetName(copyAudio,"Áudio: Manter áudio original"); }
             precise = new CheckBox { Content = "2 etapas", IsChecked = defaults.TwoPass,ToolTip="Modo preciso em 2 etapas" }; precise.Checked+=(_,_)=>UpdateEstimate(); precise.Unchecked+=(_,_)=>UpdateEstimate();var precisionRow=Row("Precisão", precise);System.Windows.Automation.AutomationProperties.SetName(precise,"Precisão: Modo preciso em 2 etapas");
             if(audioRow is not null)
             {
@@ -130,7 +130,7 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
     private void BuildAudioSettings()
     {
         audioRate=Choice(VideoAudio.Bitrates.Select(rate=>$"{rate} kbps").ToArray());audioRate.SelectedIndex=2;
-        audioChannels=Choice("Manter canais","Mono","Estéreo");
+        audioChannels=Choice("Estéreo","Mono");
         System.Windows.Automation.AutomationProperties.SetName(audioRate,"Taxa de áudio em kbps");
         System.Windows.Automation.AutomationProperties.SetName(audioChannels,"Canais de áudio");
         var fields=new Grid();fields.ColumnDefinitions.Add(new());fields.ColumnDefinitions.Add(new());
@@ -157,8 +157,8 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
         int rate=128,channels=0;
         if(copyAudio?.IsChecked==false)
         {
-            if(audioRate is null || audioRate.SelectedIndex<0 || audioRate.SelectedIndex>=VideoAudio.Bitrates.Count || audioChannels?.SelectedIndex is not (>=0 and <=2))throw new IOException("Escolha a taxa e os canais do áudio.");
-            rate=VideoAudio.Bitrates[audioRate.SelectedIndex];channels=audioChannels.SelectedIndex;
+            if(audioRate is null || audioRate.SelectedIndex<0 || audioRate.SelectedIndex>=VideoAudio.Bitrates.Count || audioChannels?.SelectedIndex is not (0 or 1))throw new IOException("Escolha a taxa e os canais do áudio.");
+            rate=VideoAudio.Bitrates[audioRate.SelectedIndex];channels=audioChannels.SelectedIndex==1?1:2;
         }
         return new(operation,size,operation==Operation.Webm ? codec?.SelectedIndex==1?"vp9":"vp8" : codec?.SelectedIndex==1?"h265":"h264",copyAudio?.IsChecked!=false,precise?.IsChecked==true,
             mode?.SelectedIndex switch {1=>SplitMode.Parts,2=>SplitMode.Duration,_=>SplitMode.Size},mode?.SelectedIndex==1?parts!.SelectedIndex+2:mode?.SelectedIndex==2?double.Parse(target!.Text,CultureInfo.InvariantCulture):size,preset?.SelectedIndex switch {1=>"low",2=>"medium",3=>"high",_=>"custom"},rate,channels,resolution?.SelectedIndex switch { 1 => 1080, 2 => 720, 3 => 480, _ => 0 });

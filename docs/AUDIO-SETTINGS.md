@@ -3,12 +3,12 @@
 Prévia aprovada pelo usuário em 03/11/2026. Em Compactar, desligar **Áudio original** revela **Taxa de áudio** e **Canais** lado a lado. O codec de recodificação é AAC.
 
 - Taxas disponíveis: 64, 96, 128, 160, 192, 256 e 320 kbps. Padrão: 128 kbps.
-- Canais: manter os canais do arquivo, mono ou estéreo. Padrão: manter canais. Esse modo não envia `-ac`; conversão explícita usa 1 ou 2 canais.
-- Ao ligar Áudio original, os campos desaparecem e a cópia ignora os ajustes ocultos. Ao desligar novamente, preserva as escolhas enquanto o editor atual existir. Ao voltar ao início/reabrir, mantém o padrão protegido de áudio original ligado e campos 128 kbps/manter canais.
+- Desde a 3.0.19, o padrão de recodificação é estéreo. Selecione Mono para produzir um canal.
+- Ao ligar Áudio original, os campos desaparecem e faixas mono ou estéreo são copiadas. Faixas com mais canais são convertidas para AAC estéreo a 128 kbps. Ao desligar novamente, preserva as escolhas enquanto o editor atual existir. Ao voltar ao início/reabrir, mantém o padrão protegido de áudio original ligado e campos 128 kbps/estéreo.
 - Desligar a opção não remove o som. Fontes sem áudio continuam sem áudio.
 - O orçamento de vídeo desconta a taxa AAC selecionada, tanto no motor quanto na estimativa. Com um teto de tamanho, reduzir a taxa de áudio disponibiliza mais orçamento ao vídeo; não obriga a saída a ficar proporcionalmente menor. O tamanho real continua conferido e o vídeo é ajustado se necessário.
 - Ajustes são capturados no início do lote e bloqueados durante processamento. Mudar parâmetros após um resultado retorna à edição para permitir novo processamento.
-- WebM permanece com Opus a 128 kbps; a divisão conserva sua configuração anterior. Os novos controles se aplicam à compactação MP4.
+- WebM usa Opus a 128 kbps e Dividir usa AAC a 128 kbps. Todas as operações limitam o áudio a dois canais.
 - Em áreas mais baixas, o painel usa rótulos laterais e oculta explicações redundantes; campos, valores e estimativa de teto permanecem acessíveis. O tooltip identifica AAC. Não se corta conteúdo em janelas extremas: mantém o fallback de acesso por rolagem já existente.
 
 ## Verificações

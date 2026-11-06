@@ -1,3 +1,10 @@
+# Helium Vídeo Tools 3.0.19
+
+- Compactar, Dividir e Converter limitam a saída a dois canais de áudio.
+- Em Compactar, Áudio original copia faixas mono ou estéreo. Faixas multicanal são convertidas para AAC estéreo a 128 kbps, e a estimativa usa essa taxa.
+- Com Áudio original desligado, Estéreo é o padrão e Mono é uma escolha explícita.
+
+
 # Helium Vídeo Tools 3.0.18
 
 - Compactar ganhou o seletor Resolução ao lado de Codec.

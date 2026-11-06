@@ -16,7 +16,18 @@ public sealed class MediaProbe(string ffprobe)
         if (!root.GetProperty("streams").EnumerateArray().Any(s => s.GetProperty("codec_type").GetString() == "video")) throw new IOException("Este arquivo não possui vídeo.");
         var duration = double.Parse(root.GetProperty("format").GetProperty("duration").GetString()!, CultureInfo.InvariantCulture);
         if (duration <= 0 || !double.IsFinite(duration)) throw new IOException("Duração de vídeo inválida.");
-        var audio = root.GetProperty("streams").EnumerateArray().Where(s => s.GetProperty("codec_type").GetString() == "audio").Take(1).Sum(s => s.TryGetProperty("bit_rate", out var b) && double.TryParse(b.GetString(), out var rate) ? rate / 1000 : 128);
+        var audioStream = root.GetProperty("streams").EnumerateArray()
+            .FirstOrDefault(stream => stream.GetProperty("codec_type").GetString() == "audio");
+        int channels = 0;
+        double audio = 0;
+        if (audioStream.ValueKind != JsonValueKind.Undefined)
+        {
+            if (audioStream.TryGetProperty("channels", out var count))
+                count.TryGetInt32(out channels);
+            audio = audioStream.TryGetProperty("bit_rate", out var bitrate)
+                && double.TryParse(bitrate.GetString(), CultureInfo.InvariantCulture, out var rate) && rate > 0
+                ? rate / 1000 : 128;
+        }
         var video = root.GetProperty("streams").EnumerateArray().First(s => s.GetProperty("codec_type").GetString() == "video");
         double fps = 25;
         if (video.TryGetProperty("avg_frame_rate", out var frameRate))
@@ -24,6 +35,6 @@ public sealed class MediaProbe(string ffprobe)
             var ratio = (frameRate.GetString() ?? "").Split('/');
             if (ratio.Length == 2 && double.TryParse(ratio[0], CultureInfo.InvariantCulture, out var numerator) && double.TryParse(ratio[1], CultureInfo.InvariantCulture, out var denominator) && denominator > 0 && numerator > 0) fps = numerator / denominator;
         }
-        return new(duration, new FileInfo(source).Length, audio, fps);
+        return new(duration, new FileInfo(source).Length, audio, fps, channels);
     }
 }

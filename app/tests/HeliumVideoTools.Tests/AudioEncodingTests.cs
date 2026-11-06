@@ -9,7 +9,7 @@ internal static class AudioEncodingTests
     internal static async Task RunAsync(string folder,string ffmpeg,string ffprobe)
     {
         Directory.CreateDirectory(folder);
-        var info=new MediaInfo(60,20_000_000,192);
+        var info=new MediaInfo(60,20_000_000,192,AudioChannels:2);
         var low=new VideoOptions(TargetMb:2,CopyAudio:false,AudioBitrateKbps:64,AudioChannels:1);
         Check(VideoAudio.BudgetKbps(info,low)==64,"Orçamento ignora a taxa selecionada");
         Check(VideoEstimates.Calculate(info,low).BudgetMb is >1.8 and <=2,"Estimativa de AAC fora do orçamento");
@@ -46,6 +46,35 @@ internal static class AudioEncodingTests
         Check((await Audio(silentOutput)).Length==0,"Configuração criou áudio em vídeo sem som");
         Check(VideoAudio.BudgetKbps(new(8,2_000_000,0),low)==0,"Vídeo sem áudio consumiu orçamento de som");
         Check(hash==Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(await File.ReadAllBytesAsync(source))),"Fonte de áudio alterada");
+        var longSurround = new MediaInfo(503.552, 121_254_421, 448, AudioChannels: 6);
+        Check(VideoEstimates.Calculate(longSurround, new(TargetMb: 28)).BudgetMb is > 0,
+            "Estimativa cobrou o áudio multicanal original em vez do AAC estéreo.");
+
+        string surround = Path.Combine(folder, "audio-5.1.mp4");
+        await VideoEngine.ExecuteAsync(ffmpeg, ["-y", "-v", "error", "-i", source, "-c:v", "copy",
+            "-c:a", "eac3", "-ac", "6", "-b:a", "448k", surround], null, default);
+        Check((await Audio(surround)).Single().GetProperty("channels").GetInt32() == 6, "Amostra 5.1 inválida.");
+        foreach (var (options, expectedCodec, expectedChannels) in new[]
+        {
+            (new VideoOptions(TargetMb: .8), "aac", 2),
+            (new VideoOptions(TargetMb: .8, CopyAudio: false), "aac", 2),
+            (new VideoOptions(TargetMb: .8, CopyAudio: false, AudioChannels: 1), "aac", 1),
+            (new VideoOptions(Operation.Webm, TargetMb: .8, Codec: "vp8"), "opus", 2),
+            (new VideoOptions(Operation.Split, SplitMode: SplitMode.Parts, SplitValue: 2), "aac", 2),
+            (new VideoOptions(Operation.Split, SplitMode: SplitMode.Size, SplitValue: 2), "aac", 2)
+        })
+        {
+            var results = await engine.ProcessAsync(surround, options, progress, default);
+            foreach (string output in results)
+            {
+                var stream = (await Audio(output)).Single();
+                Check(stream.GetProperty("channels").GetInt32() == expectedChannels
+                    && stream.GetProperty("codec_name").GetString() == expectedCodec,
+                    $"Saída de {options.Operation} não respeitou os canais de áudio esperados.");
+            }
+        }
+        Console.WriteLine("PASS: entrada 5.1 limitada a estéreo em Compactar, Dividir e Converter, com estimativa coerente.");
+
         string highResolution = Path.Combine(folder, "resolucao-1920x1200.mp4");
         await VideoEngine.ExecuteAsync(ffmpeg, ["-y", "-f", "lavfi", "-i", "testsrc2=size=1920x1200:rate=12:duration=2",
             "-c:v", "libx264", "-preset", "ultrafast", "-crf", "0", highResolution], null, default);

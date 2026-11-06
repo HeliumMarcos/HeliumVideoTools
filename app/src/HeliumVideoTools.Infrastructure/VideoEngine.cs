@@ -40,7 +40,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? r
                 var output = Unique(Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(source)}_parte_{i + 1:000}.mp4"));
                 // Busca precisa com recodificação: não transporta o pré-roll do
                 // quadro-chave anterior para a parte seguinte, como stream copy.
-                var args = CutArgs(source, i * length, segment);
+                var args = CutArgs(source, i * length, segment, VideoAudio.OutputChannels(info));
                 await RunOutput(args, output, segment, p => progress.Report(new((index + p / 100) / count * 100, $"Parte {index + 1}/{count}")), token, outputPublished: outputPublished);
                 outputs.Add(output);
             }
@@ -90,8 +90,18 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? r
                     {
                         if (audio > 0)
                         {
-                            args.AddRange(webm ? ["-map", "0:a:0?", "-c:a", "libopus", "-b:a", "128k"] : options.CopyAudio ? ["-map", "0:a:0?", "-c:a", "copy"] : ["-map", "0:a:0?", "-c:a", "aac", "-b:a", options.AudioBitrateKbps.ToString(CultureInfo.InvariantCulture)+"k"]);
-                            if(!webm && !options.CopyAudio && options.AudioChannels>0)args.AddRange(["-ac",options.AudioChannels.ToString(CultureInfo.InvariantCulture)]);
+                            args.AddRange(["-map", "0:a:0?"]);
+                            if (VideoAudio.CanCopy(info, options))
+                            {
+                                args.AddRange(["-c:a", "copy"]);
+                            }
+                            else
+                            {
+                                int channels = !webm && !options.CopyAudio
+                                    ? (options.AudioChannels == 1 ? 1 : 2)
+                                    : VideoAudio.OutputChannels(info);
+                                args.AddRange(["-c:a", webm ? "libopus" : "aac", "-b:a", N(audio) + "k", "-ac", N(channels)]);
+                            }
                         }
                         else args.Add("-an");
                         if (!webm) args.AddRange(["-movflags", "+faststart"]);
@@ -122,7 +132,9 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? r
         token.ThrowIfCancellationRequested();
         if (maxBytes is { } limit && new FileInfo(temp).Length > limit)
             throw new OutputTooLargeException(limit, new FileInfo(temp).Length);
-        await ProbeAsync(temp, token); // Não publicar um arquivo vazio ou sem vídeo.
+        var outputInfo = await ProbeAsync(temp, token);
+        if (outputInfo.AudioKbps > 0 && outputInfo.AudioChannels is not (1 or 2))
+            throw new IOException("Não foi possível confirmar o limite de dois canais de áudio na saída.");
         File.Move(temp, output, false);
         outputPublished?.Invoke(output);
     }
@@ -145,7 +157,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? r
             var output = Unique(Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(source)}_parte_{outputs.Count + 1:000}.mp4"));
             for (int attempt = 0; ; attempt++)
             {
-                var args = CutArgs(source, start, length);
+                var args = CutArgs(source, start, length, VideoAudio.OutputChannels(info));
                 try
                 {
                     await RunOutput(args, output, length, p => progress.Report(new((start + length * p / 100) / info.Duration * 100, $"Criando parte {outputs.Count + 1} • conferindo limite de {targetMb:0.###} MB")), token, limit, outputPublished);
@@ -166,7 +178,7 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? r
         progress.Report(new(100, $"{outputs.Count} partes criadas, todas dentro do limite"));
         return outputs;
     }
-    private static List<string> CutArgs(string source,double start,double length) => ["-y", "-hide_banner", "-ss", N(start), "-accurate_seek", "-i", source, "-t", N(length), "-map", "0:v:0", "-map", "0:a:0?", "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p", "-fps_mode", "passthrough", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart"];
+    private static List<string> CutArgs(string source,double start,double length,int channels) => ["-y", "-hide_banner", "-ss", N(start), "-accurate_seek", "-i", source, "-t", N(length), "-map", "0:v:0", "-map", "0:a:0?", "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p", "-fps_mode", "passthrough", "-c:a", "aac", "-b:a", "128k", "-ac", N(channels), "-movflags", "+faststart"];
     private Task Run(List<string> args, double duration, Action<double> report, CancellationToken token) => ExecuteAsync(ffmpeg, args, line =>
     {
         if (line.StartsWith("out_time_us=") && double.TryParse(line[12..], CultureInfo.InvariantCulture, out var micro)) report(Math.Clamp(micro / 1000000 / duration * 100, 0, 99.9));

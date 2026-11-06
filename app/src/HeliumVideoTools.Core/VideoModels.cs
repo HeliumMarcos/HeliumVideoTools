@@ -6,7 +6,7 @@ public sealed record VideoOptions(Operation Operation = Operation.Compress, doub
     string Codec = "h264", bool CopyAudio = true, bool TwoPass = false,
     SplitMode SplitMode = SplitMode.Parts, double SplitValue = 3, string Preset = "custom",
     int AudioBitrateKbps = 128, int AudioChannels = 0, int MaxHeight = 0);
-public sealed record MediaInfo(double Duration, long Bytes, double AudioKbps, double FrameRate = 25);
+public sealed record MediaInfo(double Duration, long Bytes, double AudioKbps, double FrameRate = 25, int AudioChannels = 0);
 public sealed record VideoProgress(double Percent, string Status);
 
 public static class VideoBitrate

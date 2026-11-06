@@ -18,6 +18,7 @@ internal static class AudioSettingsTests
         var copy=Field<CheckBox>("Áudio: Manter áudio original");var rate=Field<ComboBox>("Taxa de áudio em kbps");var channels=Field<ComboBox>("Canais de áudio");
         Check(!rate.IsVisible && w.Editor.Read() is {CopyAudio:true,AudioBitrateKbps:128,AudioChannels:0},"Padrões/ocultação de áudio incorretos");
         copy.IsChecked=false;w.UpdateLayout();Check(rate.IsVisible && channels.IsVisible,"Desmarcar não revelou configuração");
+        Check(w.Editor.Read().AudioChannels==2,"A recodificação deve começar em estéreo.");
         rate.SelectedIndex=5;channels.SelectedIndex=1;
         Check(w.Editor.Read() is {CopyAudio:false,AudioBitrateKbps:256,AudioChannels:1},"Campos não mapearam taxa/mono");
         copy.IsChecked=true;Check(w.Editor.Read() is {CopyAudio:true,AudioBitrateKbps:128,AudioChannels:0},"Campos ocultos contaminaram cópia");
@@ -45,7 +46,7 @@ internal static class AudioSettingsTests
                 var scroll=(ScrollViewer)w.FindName("PageScroll");Check(scroll.ComputedVerticalScrollBarVisibility!=Visibility.Visible,$"Áudio expandido exigiu rolagem: {state}/{size}, conteúdo {scroll.ExtentHeight:0}, área {scroll.ViewportHeight:0}");
                 foreach(var field in new[]{rate,channels}){var b=field.TransformToAncestor(root).TransformBounds(new Rect(field.RenderSize));Check(b.Right<=size.Item1+1 && b.Bottom<=size.Item2+1,"Campo de áudio cortado");}
             }
-            Check(w.Editor.Read() is {AudioBitrateKbps:128,AudioChannels:0},"Reflow alterou áudio");
+            Check(w.Editor.Read() is {AudioBitrateKbps:128,AudioChannels:2},"Reflow alterou áudio");
             if(size==(1120,700)){var bmp=new RenderTargetBitmap(1120,700,96,96,PixelFormats.Pbgra32);bmp.Render(root);var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bmp));using var f=File.Create(Path.Combine(folder,$"audio-{state}.png"));encoder.Save(f);}
         }
         ((Button)w.FindName("ResetButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
