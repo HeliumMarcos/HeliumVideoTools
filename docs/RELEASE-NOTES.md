@@ -1,3 +1,10 @@
+# Helium Vídeo Tools 3.0.18
+
+- Compactar ganhou o seletor Resolução ao lado de Codec.
+- Automática (original) é o padrão. Os limites 1080p, 720p e 480p preservam a proporção e evitam ampliar vídeos menores.
+- A resolução escolhida se aplica também à compactação em duas etapas. O app continua conferindo o tamanho final.
+
+
 # Helium Vídeo Tools 3.0.17
 
 - Página do projeto reorganizada, com download da versão estável mais recente, guia de uso e documentação em português brasileiro.

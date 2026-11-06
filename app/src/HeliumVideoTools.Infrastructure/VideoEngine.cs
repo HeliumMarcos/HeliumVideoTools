@@ -49,6 +49,10 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? r
         {
             bool webm = options.Operation == Operation.Webm;
             var encoder = webm ? options.Codec == "vp9" ? "libvpx-vp9" : "libvpx" : options.Codec == "h265" ? "libx265" : "libx264";
+            int maxHeight = webm ? 0 : options.MaxHeight;
+            if (maxHeight is not (0 or 1080 or 720 or 480))
+                throw new IOException("Escolha a resolução original, 1080p, 720p ou 480p.");
+
             var audio = VideoAudio.BudgetKbps(info,options);
             var rate = Bitrate(info.Duration, target, audio);
             var output = Unique(Path.Combine(folder, Path.GetFileNameWithoutExtension(source) + (webm ? $"_{options.Codec}.webm" : "_compactado.mp4")));
@@ -66,6 +70,8 @@ public sealed class VideoEngine(string ffmpeg, string ffprobe,RecoveryJournal? r
                 {
                     int stage = pass;
                     var args = new List<string> { "-y", "-hide_banner", "-i", source, "-map", "0:v:0", "-c:v", encoder, "-b:v", $"{rate}k", "-pix_fmt", "yuv420p" };
+                    if (maxHeight > 0)
+                        args.AddRange(["-vf", FormattableString.Invariant($"scale=-2:trunc(min(ih\\,{maxHeight})/2)*2")]);
                     if (webm) args.AddRange(["-deadline", "good", "-cpu-used", options.Codec == "vp9" ? "3" : "4"]);
                     else args.AddRange(["-preset", "medium"]);
                     var log = Path.Combine(passFolder, "pass");

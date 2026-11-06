@@ -44,6 +44,13 @@ internal sealed class ResponsiveLayout
             main.Margin=narrow?new Thickness(12,12,12,8):new Thickness(20,18,20,10);
             var audioSettings=options.Children.OfType<Border>().FirstOrDefault(b=>b.Tag as string=="AudioSettings");
             bool audioExpanded=audioSettings?.Visibility==Visibility.Visible;
+            bool compactProgress = audioExpanded && height < 700;
+            progress.Padding = compactProgress ? new Thickness(12, 6, 12, 6) : new Thickness(12);
+            var status = (TextBlock)progressBody.Children[1];
+            var details = (TextBlock)progressBody.Children[2];
+            status.Margin = compactProgress ? new Thickness(0, 4, 0, 4) : new Thickness(0, 10, 0, 10);
+            details.Margin = new Thickness(0, 0, 0, compactProgress ? 2 : 10);
+
             subtitle.Visibility=audioExpanded && height<700?Visibility.Collapsed:Visibility.Visible;
             foreach(var hint in options.Children.OfType<TextBlock>().Where(t=>t.Tag as string=="OperationHint"))hint.Visibility=audioExpanded && height<700?Visibility.Collapsed:Visibility.Visible;
             if(audioExpanded && height<700 && !narrow)main.Margin=new Thickness(20,12,20,8);

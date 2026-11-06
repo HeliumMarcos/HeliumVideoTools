@@ -46,6 +46,27 @@ internal static class AudioEncodingTests
         Check((await Audio(silentOutput)).Length==0,"Configuração criou áudio em vídeo sem som");
         Check(VideoAudio.BudgetKbps(new(8,2_000_000,0),low)==0,"Vídeo sem áudio consumiu orçamento de som");
         Check(hash==Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(await File.ReadAllBytesAsync(source))),"Fonte de áudio alterada");
+        string highResolution = Path.Combine(folder, "resolucao-1920x1200.mp4");
+        await VideoEngine.ExecuteAsync(ffmpeg, ["-y", "-f", "lavfi", "-i", "testsrc2=size=1920x1200:rate=12:duration=2",
+            "-c:v", "libx264", "-preset", "ultrafast", "-crf", "0", highResolution], null, default);
+        foreach (var (input, limit, expected, twoPass) in new[]
+        {
+            (highResolution, 0, "1920x1200", false),
+            (highResolution, 1080, "1728x1080", false),
+            (highResolution, 720, "1152x720", true),
+            (highResolution, 480, "768x480", false),
+            (source, 1080, "640x360", false)
+        })
+        {
+            var result = await engine.ProcessAsync(input, new(TargetMb: .8, TwoPass: twoPass, MaxHeight: limit), progress, default);
+            var output = result.Single();
+            var dimensions = await VideoEngine.ExecuteAsync(ffprobe, ["-v", "error", "-select_streams", "v:0",
+                "-show_entries", "stream=width,height", "-of", "csv=p=0:s=x", output], null, default);
+            Check(dimensions.Trim() == expected, $"Resolução inesperada: {dimensions.Trim()}, esperada {expected}");
+            Check(new FileInfo(output).Length <= 800_000, "A resolução escolhida ultrapassou o teto.");
+        }
+        Console.WriteLine("PASS: resolução original, limites 1080p/720p/480p, proporção, duas etapas e vídeo menor sem ampliação.");
+
         Console.WriteLine("PASS: AAC 64/192/128 kbps, mono/estéreo/canais originais, uma/duas etapas, teto, decodificação, cópia AAC idêntica, vídeo sem áudio, validação e orçamento.");
     }
 }

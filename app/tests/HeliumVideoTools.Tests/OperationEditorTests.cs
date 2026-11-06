@@ -22,6 +22,16 @@ internal static class OperationEditorTests
         TextBox Target()=>Walk(Panel()).OfType<TextBox>().Single();
         void Navigate(string control){((Button)window.FindName(control)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));window.UpdateLayout();}
         Check(Read(window) is {Operation:Operation.Compress,TargetMb:98,Codec:"h264",CopyAudio:true,Preset:"custom"},"Padrões de compactação alterados");
+        Check(Read(window).MaxHeight == 0, "Resolução padrão deve manter a original.");
+        var resolution = Field<ComboBox>("Resolução");
+        int[] heights = [0, 1080, 720, 480];
+        for (int index = 0; index < heights.Length; index++)
+        {
+            resolution.SelectedIndex = index;
+            Check(Read(window).MaxHeight == heights[index], "Limite de resolução não chegou à configuração.");
+        }
+        resolution.SelectedIndex = 0;
+
         Target().Text="900";Field<ComboBox>("Unidade do tamanho").SelectedIndex=1;Check(Read(window).TargetMb==.9,"Unidade KB incorreta");
         Target().Text="2";Field<ComboBox>("Unidade do tamanho").SelectedIndex=2;Check(Read(window).TargetMb==2000,"Unidade GB incorreta");
         Target().Text="";

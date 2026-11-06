@@ -11,7 +11,7 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
 {
     private Operation operation;
     private UserPreferences preferences=new();
-    private ComboBox? mode,preset,codec,unit,parts,audioRate,audioChannels;
+    private ComboBox? mode,preset,codec,unit,parts,audioRate,audioChannels,resolution;
     private Border? audioSettings;
     private TextBox? target;
     private CheckBox? copyAudio,precise;
@@ -46,7 +46,7 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
     internal void Build(Operation operation,UserPreferences preferences)
     {
         this.operation=operation;this.preferences=preferences;buildingOptions=true;
-        estimate = estimateNote = null; panel.Children.Clear(); mode = preset = codec = unit = audioRate = audioChannels = null;audioSettings=null; target = null; parts = null; copyAudio = precise = null;
+        estimate = estimateNote = null; panel.Children.Clear(); mode = preset = codec = unit = audioRate = audioChannels = resolution = null;audioSettings=null; target = null; parts = null; copyAudio = precise = null;
         var defaults=StartupDefaults.For(operation,preferences);
         Grid? quantityRow = null;
         if (operation == Operation.Split)
@@ -87,7 +87,26 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
         if (preset is not null) preset.SelectionChanged += (_, _) => { sizeRow.Visibility = preset.SelectedIndex == 0 ? Visibility.Visible : Visibility.Collapsed; };
         if (operation != Operation.Split)
         {
-            codec = operation == Operation.Webm ? Choice("VP8 • mais rápido", "VP9 • melhor compressão") : Choice("H.264 • compatível", "H.265 • arquivo menor"); Row("Codec", codec);
+            codec = operation == Operation.Webm ? Choice("VP8 • mais rápido", "VP9 • melhor compressão") : Choice("H.264 • compatível", "H.265 • arquivo menor"); var codecRow = Row("Codec", codec);
+            if (operation == Operation.Compress)
+            {
+                resolution = Choice("Automática (original)", "1080p", "720p", "480p");
+                resolution.ToolTip = "Limita a altura do vídeo e preserva a proporção, sem ampliar vídeos menores.";
+                var resolutionRow = Row("Resolução", resolution);
+                int index = panel.Children.IndexOf(codecRow);
+                panel.Children.Remove(codecRow);
+                panel.Children.Remove(resolutionRow);
+
+                var videoSettings = new Grid();
+                videoSettings.ColumnDefinitions.Add(new ColumnDefinition());
+                videoSettings.ColumnDefinitions.Add(new ColumnDefinition());
+                codecRow.Margin = new Thickness(0, 0, 8, 8);
+                resolutionRow.Margin = new Thickness(8, 0, 0, 8);
+                Grid.SetColumn(resolutionRow, 1);
+                videoSettings.Children.Add(codecRow);
+                videoSettings.Children.Add(resolutionRow);
+                panel.Children.Insert(index, videoSettings);
+            }
             Grid? audioRow=null;
             if (operation == Operation.Compress) { copyAudio = new CheckBox { Content = "Áudio original", IsChecked = true,ToolTip="Manter áudio original, sem recodificar" };audioRow=Row("Áudio", copyAudio);System.Windows.Automation.AutomationProperties.SetName(copyAudio,"Áudio: Manter áudio original"); }
             precise = new CheckBox { Content = "2 etapas", IsChecked = defaults.TwoPass,ToolTip="Modo preciso em 2 etapas" }; precise.Checked+=(_,_)=>UpdateEstimate(); precise.Unchecked+=(_,_)=>UpdateEstimate();var precisionRow=Row("Precisão", precise);System.Windows.Automation.AutomationProperties.SetName(precise,"Precisão: Modo preciso em 2 etapas");
@@ -142,7 +161,7 @@ internal sealed class OperationEditor(StackPanel panel,Action changed)
             rate=VideoAudio.Bitrates[audioRate.SelectedIndex];channels=audioChannels.SelectedIndex;
         }
         return new(operation,size,operation==Operation.Webm ? codec?.SelectedIndex==1?"vp9":"vp8" : codec?.SelectedIndex==1?"h265":"h264",copyAudio?.IsChecked!=false,precise?.IsChecked==true,
-            mode?.SelectedIndex switch {1=>SplitMode.Parts,2=>SplitMode.Duration,_=>SplitMode.Size},mode?.SelectedIndex==1?parts!.SelectedIndex+2:mode?.SelectedIndex==2?double.Parse(target!.Text,CultureInfo.InvariantCulture):size,preset?.SelectedIndex switch {1=>"low",2=>"medium",3=>"high",_=>"custom"},rate,channels);
+            mode?.SelectedIndex switch {1=>SplitMode.Parts,2=>SplitMode.Duration,_=>SplitMode.Size},mode?.SelectedIndex==1?parts!.SelectedIndex+2:mode?.SelectedIndex==2?double.Parse(target!.Text,CultureInfo.InvariantCulture):size,preset?.SelectedIndex switch {1=>"low",2=>"medium",3=>"high",_=>"custom"},rate,channels,resolution?.SelectedIndex switch { 1 => 1080, 2 => 720, 3 => 480, _ => 0 });
     }
     internal UserPreferences Remember(UserPreferences preferences)
     {
